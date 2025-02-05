@@ -1,3 +1,5 @@
+// Tools for solving IVPs in web-workers
+
 import {SolverMethod, mrt, ros3prw, ros34prw, ODEs, getCallback} from '../solver-tools';
 import {Func} from '../solver-tools/solver-defs';
 import {IVP2WebWorker, getFunc} from './scripting';
@@ -5,8 +7,10 @@ import {IVP2WebWorker, getFunc} from './scripting';
 const ARG_INIT = 0;
 const ARG_FINAL = 1;
 const ARG_STEP = 2;
+const ARG_INP_COUNT = 3;
 
-function getMethod(name: string): SolverMethod {
+/** Return method for solving IVP */
+function getMethod(name: string | undefined): SolverMethod {
     switch (name) {
         case 'mrt':
             return mrt;
@@ -19,24 +23,26 @@ function getMethod(name: string): SolverMethod {
     }
 }
 
+/** Check the correspondence of inputs to IVP */
 function checkInputs(ivp: IVP2WebWorker, inputs: Float64Array): void {
-    const expected = ivp.arg.vals.length + ivp.initVals.vals.length + ivp.params.vals.length;
+    const expected = ARG_INP_COUNT + ivp.deqsCount + ivp.paramNames.length;
 
     if (expected !== inputs.length)
       throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
 }
 
-export function solveIvp(ivp: IVP2WebWorker, inputs: Float64Array, paramsCount: number): Float64Array[] {
+/** Return solution of IVP with a specified inputs */
+export function solveIvp(ivp: IVP2WebWorker, inputs: Float64Array): Float64Array[] {
   checkInputs(ivp, inputs);
-  const nonParamInputsCount = inputs.length - paramsCount;
+  const nonParamInputsCount = inputs.length - ivp.paramNames.length;
 
   const funcCode = getFunc(ivp, inputs.slice(nonParamInputsCount));
   const func = new Function(funcCode) as Func;
 
   const odes: ODEs = {
-    name: ivp.name,
+    name: '',
     arg: {
-      name: ivp.arg.name,
+      name: '',
       start: inputs[ARG_INIT],
       finish: inputs[ARG_FINAL],
       step: inputs[ARG_STEP],
@@ -44,7 +50,7 @@ export function solveIvp(ivp: IVP2WebWorker, inputs: Float64Array, paramsCount: 
     initial: inputs.slice(ARG_STEP + 1, nonParamInputsCount),
     func: func,
     tolerance: ivp.tolerance,
-    solutionColNames: ivp.initVals.names,
+    solutionColNames: [],
   };
 
   const method = getMethod(ivp.solverOpts.method);
