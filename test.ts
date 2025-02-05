@@ -1,4 +1,4 @@
-import {getIVP, IVP, mrt, ros34prw, ros3prw} from './index';
+import {getIVP, IVP, mrt, ros34prw, ros3prw, SolverOptions, getCallback, SolverMethod, ODEs} from './index';
 
 const model = `#name: Extended
 #tags: model
@@ -29,11 +29,11 @@ const model = `#name: Extended
 #argument: t
   start = 0 {caption: Initial; category: Time; min: 0; max: 10} [Initial time of simulation]
   finish = 10 {caption: Final; category: Time; min: 10; max: 20} [Final time of simulation]
-  step = 0.01 {caption: Step; category: Time; min: 0.01; max: 0.1; step: 0.001} [Time step of simlulation]
+  step = 0.1 {caption: Step; category: Time; min: 0.01; max: 0.1; step: 0.001} [Time step of simlulation]
 
 #tolerance: 5e-5
 
-#meta.solver: {method: 'ros34prw'}`;
+#meta.solver: {method: 'mrt'; maxTimeMs: 100}`;
 
 const ivp = getIVP(model);
 
@@ -48,27 +48,33 @@ type IVP2WebWorker = {
     consts: {names: string[], vals: number[]},
     params: {names: string[], vals: number[]},
     tolerance: number,
-    method: string,
-    maxTimeMs: number,
+    solverOpts: SolverOptions,
     usedMathFuncs: number[],
-    usedMathConsts: number[],    
+    usedMathConsts: number[],
+    funcMainBody: string,
 };
 
 const DEFAULT_METHOD = 'ros34prw';
 const DEFAULT_MAX_TIME = -1;
 
-function getMethodOpts(opts: string) {
+function getSolverOpts(opts: string): SolverOptions {
     try {
-        return JSON.parse(opts
-            .replaceAll(`'`, `"`)
-            .replace('method','"method"')
-            .replace('maxTimeMs', '"maxTimeMs"')
-            .replace('maxIterations', '"maxIterations"')
-        );
+      const json = JSON.parse(opts
+        .replaceAll(`'`, `"`)
+        .replace('method','"method"')
+        .replace('maxTimeMs', '"maxTimeMs"')
+        .replace('maxIterations', '"maxIterations"')
+        .replace(';', ',')
+      );
+
+      console.log(json);
+      
+      return json;
     } catch(e) {
       return {
         method: DEFAULT_METHOD,
         maxTimeMs: DEFAULT_MAX_TIME,
+        maxIterations: 1,
       };
     }
 }
@@ -139,9 +145,6 @@ function getIvp2WebWorker(ivp: IVP): IVP2WebWorker {
     }
     const params = {names: names, vals: vals};
 
-    // solver settings
-    const solverOpts = getMethodOpts(ivp.solverSettings);
-
     return {
         name: ivp.name,
         equations: equations,
@@ -151,10 +154,10 @@ function getIvp2WebWorker(ivp: IVP): IVP2WebWorker {
         consts: consts,
         params: params,
         tolerance: Number(ivp.tolerance),
-        method: solverOpts.method ?? DEFAULT_METHOD,
-        maxTimeMs: solverOpts.maxTimeMs ?? DEFAULT_MAX_TIME,
+        solverOpts: getSolverOpts(ivp.solverSettings),
         usedMathConsts: ivp.usedMathConsts,
         usedMathFuncs: ivp.usedMathFuncs,
+        funcMainBody: '',
     };
 }
 
@@ -168,7 +171,7 @@ const MATH_FUNCS = ['pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 
 const POW_IDX = MATH_FUNCS.indexOf('pow');
 const MATH_CONSTS = ['PI', 'E'];
 
-function getFunc4worker(ivp: IVP2WebWorker, paramVals: Float64Array): string {
+function getFuncMainBody(ivp: IVP2WebWorker): string {
     const lines: string[] = [];
 
     // Used math funcs
@@ -183,10 +186,7 @@ function getFunc4worker(ivp: IVP2WebWorker, paramVals: Float64Array): string {
     ivp.usedMathConsts.forEach((idx) => lines.push(`const ${MATH_CONSTS[idx]} = Math.${MATH_CONSTS[idx]};`));
 
     // Model constants
-    ivp.consts.names.forEach((name, idx) => lines.push(`const ${name} = ${ivp.consts.vals[idx]};`));
-
-    // Model parameters
-    ivp.params.names.forEach((name, idx) => lines.push(`const ${name} = ${paramVals[idx]};`));
+    ivp.consts.names.forEach((name, idx) => lines.push(`const ${name} = ${ivp.consts.vals[idx]};`));    
 
     // extract arg & function values
     lines.push(`const ${ivp.arg.name} = arguments[0];`);
@@ -201,7 +201,15 @@ function getFunc4worker(ivp: IVP2WebWorker, paramVals: Float64Array): string {
     return lines.join('\n');
 }
 
-function getMethod(name: string) {
+function getFunc(ivp: IVP2WebWorker, paramVals: Float64Array): string {
+  const lines: string[] = [];
+  // Model parameters
+  ivp.params.names.forEach((name, idx) => lines.push(`const ${name} = ${paramVals[idx]};`));
+
+  return lines.concat(ivp.funcMainBody).join('\n');
+}
+
+function getMethod(name: string): SolverMethod {
     switch (name) {
         case 'mrt':
             return mrt;
@@ -214,26 +222,17 @@ function getMethod(name: string) {
     }
 }
 
-const funcCode = getFunc4worker(ivpWW, new Float64Array([1, -1]));
+ivpWW.funcMainBody = getFuncMainBody(ivpWW);
 
 type Func = (t: number, y: Float64Array, output: Float64Array) => void;
 
-const func = new Function(funcCode) as Func;
+console.log(ivpWW);
 
-console.log(funcCode);
-
-let task = {
-    name: 'Extended',
-    arg: {name: 't', start: 0, finish: 10, step: 0.01},
-    initial: [2, 0],
-    func: func,
-    tolerance: 5e-5,
-    solutionColNames: ['x', 'y']
-};
-
-try {
+/*try {
   // Solve the problem
-  const solution = getMethod(ivpWW.method)(task);
+  const method = getMethod(ivpWW.solverOpts.method);
+  const callback = getCallback(ivpWW.solverOpts);
+  const solution = method(task, callback);
 
   // Output results
   console.log(task.arg.name, '    ', task.solutionColNames[0], '  ', task.solutionColNames[1]);
@@ -244,8 +243,64 @@ try {
     console.log(solution[0][i], '    ', solution[1][i], '  ', solution[2][i]);
 } catch (err) {
   console.log('Solver failed: ', err instanceof Error ? err.message : 'Unknown problem!');
+}*/
+
+function checkInputs(ivp: IVP2WebWorker, inputs: Float64Array): void {
+  // check inputs count
+  const expected = ivp.arg.vals.length + ivp.initVals.vals.length + ivp.params.vals.length;
+  if (expected !== inputs.length)
+    throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
 }
 
-function solveIvpWW(func: Func, inputs: Float64Array, paramsCount: number, method, callback) {
-    
+const inputs = new Float64Array([0, 10, 0.1, 2, 0, 10, -10]);
+const paramsCount = 2;
+
+checkInputs(ivpWW, inputs);
+
+console.log(inputs.slice(inputs.length - paramsCount));
+
+const ARG_INIT = 0;
+const ARG_FINAL = 1;
+const ARG_STEP = 2;
+
+function solveIvp(ivp: IVP2WebWorker, inputs: Float64Array, paramsCount: number): Float64Array[] {
+  checkInputs(ivp, inputs);
+  const nonParamInputsCount = inputs.length - paramsCount;
+
+  const funcCode = getFunc(ivp, inputs.slice(nonParamInputsCount));
+  const func = new Function(funcCode) as Func;
+
+  const odes: ODEs = {
+    name: ivp.name,
+    arg: {
+      name: ivp.arg.name,
+      start: inputs[ARG_INIT],
+      finish: inputs[ARG_FINAL],
+      step: inputs[ARG_STEP],
+    },
+    initial: inputs.slice(ARG_STEP + 1, nonParamInputsCount),
+    func: func,
+    tolerance: ivp.tolerance,
+    solutionColNames: ivp.initVals.names,
+  };
+
+  const method = getMethod(ivpWW.solverOpts.method);
+  const callback = getCallback(ivpWW.solverOpts);
+
+  return method(odes, callback);
+}
+
+try {
+  // Solve the problem  
+  const solution = solveIvp(ivpWW, inputs, paramsCount);
+
+  // Output results
+  console.log(ivpWW.arg.name, '    ', ivpWW.initVals.names[0], '  ', ivpWW.initVals.names[1]);
+
+  const length = solution[0].length;
+
+  for (let i = 0; i < length; ++i)
+    console.log(solution[0][i], '    ', solution[1][i], '  ', solution[2][i]);
+} catch (err) {
+  console.log('Solver failed: ', err instanceof Error ? err.message : 'Unknown problem!');
 }

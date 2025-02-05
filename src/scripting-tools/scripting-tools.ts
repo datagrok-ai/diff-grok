@@ -31,9 +31,9 @@ export const STAGE_COL_NAME = `_Stage`;
 const INCEPTION = 'Inception';
 
 /** Elementary math tools */
-const MATH_FUNCS = ['pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'exp', 'log', 'sinh', 'cosh', 'tanh'];
-const POW_IDX = MATH_FUNCS.indexOf('pow');
-const MATH_CONSTS = ['PI', 'E'];
+export const MATH_FUNCS = ['pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'exp', 'log', 'sinh', 'cosh', 'tanh'];
+export const POW_IDX = MATH_FUNCS.indexOf('pow');
+export const MATH_CONSTS = ['PI', 'E'];
 
 /** Default meta */
 const defaultMetas = `//meta.runOnOpen: true

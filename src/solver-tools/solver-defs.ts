@@ -1,7 +1,9 @@
 // Solver definitions
 
+import {Callback} from './callbacks/callback-base';
+
 /** Right-hand side of IVP */
-type Func = (t: number, y: Float64Array, output: Float64Array) => void;
+export type Func = (t: number, y: Float64Array, output: Float64Array) => void;
 
 /** Solver optional settings */
 export type SolverOptions = {
@@ -93,3 +95,6 @@ export enum DEFAULT_OPTIONS {
   SCRIPTING = '{maxIterations: 1}',
   NO_CHECKS = '{ }',
 }
+
+/** IVP solving method */
+export type SolverMethod = (odes: ODEs, callback?: Callback) => Float64Array[];
