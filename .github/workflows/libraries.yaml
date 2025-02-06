@@ -4,7 +4,7 @@ on:
 
   push:
     branches:
-      - vhlushchenko/gh-action
+      - main
   pull_request:
     branches:
       - main
