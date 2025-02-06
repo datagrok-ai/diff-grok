@@ -10,10 +10,16 @@ on:
       - main
 
 jobs:
-
+  common-check:
+    name: Common checks
+    uses: datagrok-ai/public/.github/workflows/common_check.yaml
+    with:
+      run_trigger: ${{ github.event_name }}
   metadata:
     name: Check changes
+    needs: common-check
     runs-on: ubuntu-22.04
+    if: needs.common-check.outputs.continue == 'true'
     outputs:
       publish_matrix: ${{ steps.generate-matrix.outputs.publish_matrix }}
       continue: ${{ steps.generate-matrix.outputs.continue }}
