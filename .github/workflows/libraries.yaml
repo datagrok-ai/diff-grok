@@ -12,7 +12,7 @@ on:
 jobs:
   common-check:
     name: Common checks
-    uses: datagrok-ai/public/.github/workflows/common_check.yaml@main
+    uses: datagrok-ai/public/.github/workflows/common_check.yaml@master
     with:
       run_trigger: ${{ github.event_name }}
   metadata:
