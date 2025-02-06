@@ -173,7 +173,7 @@ jobs:
 
       - name: Get actors slack
         id: actor
-        uses: datagrok-ai/public/.github/actions/slack-user-action
+        uses: datagrok-ai/public/.github/actions/slack-user-action@master
         with:
           slack-token: ${{ secrets.SLACKBOT_TOKEN }}
           email-mapping: ${{ secrets.EMAIL_SLACK_ID }}
@@ -183,7 +183,7 @@ jobs:
 
       - name: Get owners slack
         id: owner
-        uses: datagrok-ai/public/.github/actions/slack-user-action
+        uses: datagrok-ai/public/.github/actions/slack-user-action@master
         with:
           slack-token: ${{ secrets.SLACKBOT_TOKEN }}
           emails: ${{ steps.owner-email.outputs.owner }}
@@ -198,7 +198,7 @@ jobs:
       - name: Send to Slack
         id: slack
         if: steps.slack-prepare.outcome == 'success'
-        uses: datagrok-ai/public/.github/actions/slack-post-action
+        uses: datagrok-ai/public/.github/actions/slack-post-action@master
         with:
           channel: '#build'
           slack-token: ${{ secrets.SLACKBOT_TOKEN }}
