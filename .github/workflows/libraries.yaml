@@ -13,9 +13,7 @@ jobs:
 
   metadata:
     name: Check changes
-    needs: common-check
     runs-on: ubuntu-22.04
-    if: needs.common-check.outputs.continue == 'true'
     outputs:
       publish_matrix: ${{ steps.generate-matrix.outputs.publish_matrix }}
       continue: ${{ steps.generate-matrix.outputs.continue }}
