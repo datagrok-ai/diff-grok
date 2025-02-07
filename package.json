@@ -1,5 +1,5 @@
 {
-  "name": "@datagrok/diff-studio-tools", 
+  "name": "@datagrok/diff-studio-tools",
   "author": {
     "name": "Viktor Makarichev",
     "email": "vmakarichev@datagrok.ai"
@@ -15,6 +15,9 @@
     "ordinary differential equations",
     "Rosenbrock-Wanner method"
   ],
+  "dependencies": {
+    "matrix-js": "^1.7.1"
+  },
   "devDependencies": {
     "@types/wu": "^2.1.44",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
