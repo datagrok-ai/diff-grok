@@ -15,7 +15,6 @@
     "ordinary differential equations",
     "Rosenbrock-Wanner method"
   ],
-  "dependencies": {},
   "devDependencies": {
     "@types/wu": "^2.1.44",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
