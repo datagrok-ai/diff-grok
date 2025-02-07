@@ -116,7 +116,6 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@datagrok-libraries'
           cache: 'npm'
           cache-dependency-path: |
             ./package-lock.json
