@@ -8,13 +8,14 @@
     "access": "public"
   },
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Tools for solving initial value problem for ordinary differential equations",
   "keywords": [
     "initial value problem",
     "ordinary differential equations",
     "Rosenbrock-Wanner method"
   ],
+  "dependencies": {},
   "devDependencies": {
     "@types/wu": "^2.1.44",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
