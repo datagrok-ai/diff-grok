@@ -192,7 +192,7 @@ jobs:
         shell: bash
         run: |
           mentions=$(echo -e "${{ steps.actor.outputs.user-ids }}\n${{ steps.owner.outputs.user-ids }}" | sort -u)
-          header="Library *${{ matrix.project }}* version *${{ matrix.version }}* published to <https://www.npmjs.com/package/$(jq -r .name "packages/${{ matrix.project }}/package.json")/v/${{ matrix.version }}|NPM>\n$(for value in $mentions; do echo -n "<@$value> "; done) FYI"
+          header="Library *${{ matrix.project }}* version *${{ matrix.version }}* published to <https://www.npmjs.com/package/$(jq -r .name "./package.json")/v/${{ matrix.version }}|NPM>\n$(for value in $mentions; do echo -n "<@$value> "; done) FYI"
           echo "SLACK_MESSAGE_HEADER=$header" >> $GITHUB_ENV
       - name: Send to Slack
         id: slack
@@ -203,84 +203,84 @@ jobs:
           slack-token: ${{ secrets.SLACKBOT_TOKEN }}
           message: ${{ env.SLACK_MESSAGE_HEADER }}
 
-      - name: Commit package-lock.json
-        continue-on-error: true
-        if: steps.publish.outcome == 'success' || steps.package-lock.outcome == 'success'
-        run: |
-          if [ -n "$(git status -s libraries/${{ matrix.project }}/package-lock.json)" ]; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-            git pull
-            git add libraries/${{ matrix.project }}/package-lock.json
-            skip_ci=""
-            if [ ${{ github.ref }} == 'refs/heads/master' ]; then
-              skip_ci="[skip ci]"
-            fi
-            git commit -m "GitHub Actions: Update libraries/${{ matrix.project }}/package-lock.json $skip_ci
-
-            Workflow ${{ github.workflow }} ${{ github.run_number }}
-            https://github.com/datagrok-ai/public/actions/runs/${{ github.run_id }}"
-            count=0
-            retries=10
-            until git push; do
-              exit=$?
-              wait=$((2 ** count))
-              count=$((count + 1))
-              if [ $count -lt "$retries" ]; then
-                echo "Retry $count/$retries exited $exit, retrying 'git push' in $wait seconds..."
-                sleep $wait
-                git pull --rebase
-              else
-                echo "Retry $count/$retries exited $exit, no more retries left for 'git push'."
-                exit $exit
-              fi
-            done
-          fi
-      - name: Check packages
-        if: ${{ matrix.packages != '' }}
-        id: commit
-        run: |
-          name="$(jq -r '.name' "libraries/${{ matrix.project }}/package.json")"
-          echo "name=$name" >> $GITHUB_OUTPUT
-          author="$(jq -r '.author.email' "libraries/${{ matrix.project }}/package.json")"
-          echo "author=$author" >> $GITHUB_OUTPUT
-          crnt=$(pwd)
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git pull
-          changed=""
-          for package in ${{ matrix.packages }}; do
-            cd packages/$package
-            sed -i -e 's#"${name}": "../../libraries/${{ matrix.project }}"#"${name}": "^${{ matrix.version }}"#g' package.json
-            if [ -n "$(git status -s package.json)" ]; then
-              changed+="$package "
-              npm install
-              git add package.json
-              git add package-lock.json
-              git commit -m "GitHub Actions: Update package $package ${name} dependency
-
-              Workflow ${{ github.workflow }} ${{ github.run_number }}
-              https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            fi
-            cd $crnt
-          done
-          echo "changed=$changed" >> $GITHUB_OUTPUT
-          if [ -n "$(git log @{u}..)" ]; then
-            count=0
-            until git push; do
-              exit=$?
-              wait=$((2 ** count))
-              count=$((count + 1))
-              if [ $count -lt "10" ]; then
-              echo "Retry $count/$retries exited $exit, retrying 'git push' in $wait seconds..."
-              sleep $wait
-              git pull --rebase
-              else
-                echo "Retry $count/$retries exited $exit, no more retries left for 'git push'."
-                exit $exit
-              fi
-            done
-          fi
+#      - name: Commit package-lock.json
+#        continue-on-error: true
+#        if: steps.publish.outcome == 'success' || steps.package-lock.outcome == 'success'
+#        run: |
+#          if [ -n "$(git status -s ./package-lock.json)" ]; then
+#            git config --global user.name 'github-actions[bot]'
+#            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+#            git pull
+#            git add ./package-lock.json
+#            skip_ci=""
+#            if [ ${{ github.ref }} == 'refs/heads/main' ]; then
+#              skip_ci="[skip ci]"
+#            fi
+#            git commit -m "GitHub Actions: Update package-lock.json $skip_ci
+#
+#            Workflow ${{ github.workflow }} ${{ github.run_number }}
+#            https://github.com/datagrok-ai/public/actions/runs/${{ github.run_id }}"
+#            count=0
+#            retries=10
+#            until git push; do
+#              exit=$?
+#              wait=$((2 ** count))
+#              count=$((count + 1))
+#              if [ $count -lt "$retries" ]; then
+#                echo "Retry $count/$retries exited $exit, retrying 'git push' in $wait seconds..."
+#                sleep $wait
+#                git pull --rebase
+#              else
+#                echo "Retry $count/$retries exited $exit, no more retries left for 'git push'."
+#                exit $exit
+#              fi
+#            done
+#          fi
+#      - name: Check packages
+#        if: ${{ matrix.packages != '' }}
+#        id: commit
+#        run: |
+#          name="$(jq -r '.name' "./package.json")"
+#          echo "name=$name" >> $GITHUB_OUTPUT
+#          author="$(jq -r '.author.email' "./package.json")"
+#          echo "author=$author" >> $GITHUB_OUTPUT
+#          crnt=$(pwd)
+#          git config --global user.name 'github-actions[bot]'
+#          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+#          git pull
+#          changed=""
+#          for package in ${{ matrix.packages }}; do
+#            cd packages/$package
+#            sed -i -e 's#"${name}": "../../libraries/${{ matrix.project }}"#"${name}": "^${{ matrix.version }}"#g' package.json
+#            if [ -n "$(git status -s package.json)" ]; then
+#              changed+="$package "
+#              npm install
+#              git add package.json
+#              git add package-lock.json
+#              git commit -m "GitHub Actions: Update package $package ${name} dependency
+#
+#              Workflow ${{ github.workflow }} ${{ github.run_number }}
+#              https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#            fi
+#            cd $crnt
+#          done
+#          echo "changed=$changed" >> $GITHUB_OUTPUT
+#          if [ -n "$(git log @{u}..)" ]; then
+#            count=0
+#            until git push; do
+#              exit=$?
+#              wait=$((2 ** count))
+#              count=$((count + 1))
+#              if [ $count -lt "10" ]; then
+#              echo "Retry $count/$retries exited $exit, retrying 'git push' in $wait seconds..."
+#              sleep $wait
+#              git pull --rebase
+#              else
+#                echo "Retry $count/$retries exited $exit, no more retries left for 'git push'."
+#                exit $exit
+#              fi
+#            done
+#          fi
       - name: Send mail
         if: always() && steps.commit.outcome == 'failure'
         uses: dawidd6/action-send-mail@v3
