@@ -14,7 +14,6 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
   * declarative specification of models
   * auto-generated JavaScript code
 * Integration with the [Datagrok](https://datagrok.ai) platform
-* Zero dependencies
 
 ## Installation
 
