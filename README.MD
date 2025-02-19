@@ -1,4 +1,4 @@
-# Diff Studio Tools
+# Diff Grok
 
 A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. This library focuses on solving [stiff equations](https://en.wikipedia.org/wiki/Stiff_equation).
 
@@ -58,7 +58,7 @@ on the segment $[t_0, t_1]$ with the step $h$:
 
 3. Call numerical method. It returns `Float64Array`-arrays with values of an argument and approximate solutions.
 
-Diff Studio Tools are designed to provide fast computations. Check [performance](#performance) for the details.
+Diff Grok is designed to provide fast computations. Check [performance](#performance) for the details.
 
 ### Example
 
@@ -114,7 +114,7 @@ Find this example in [basic-use.ts](./src/examples/basic-use.ts).
 
 ## Performance
 
-The following [classic problems](https://archimede.uniba.it/~testset/testsetivpsolvers/?page_id=26#ODE) are used to evaluate efficiency of Diff Studio methods:
+The following [classic problems](https://archimede.uniba.it/~testset/testsetivpsolvers/?page_id=26#ODE) are used to evaluate efficiency of Diff Grok methods:
 
 * [Rober](https://archimede.uniba.it/~testset/report/rober.pdf)
   * a stiff system of 3 nonlinear ODEs
@@ -160,7 +160,7 @@ The library provides tools for declarative specifying models defined by IVPs. Th
 
 ### Model components and syntax
 
-Diff Studio **model** has a simple declarative syntax.
+Each **model** has a simple declarative syntax.
 
 #### Core blocks
 
@@ -172,7 +172,7 @@ These blocks define the basic mathematical model and are required for any model:
    #name: Problem
    ```
 
-1. `#equations`: Define the system of ODEs to solve. Diff Studio supports any number of equations with single or multi-letter variable names
+1. `#equations`: Define the system of ODEs to solve. Diff Grok supports any number of equations with single or multi-letter variable names
   
    ```python
    #equations:
@@ -209,7 +209,7 @@ These blocks define the basic mathematical model and are required for any model:
 
    ```python
    #comment:
-     You can provide any text here. Diff Studio ignores it.
+     You can provide any text here. The lib ignores it.
    ```
 
 * Place comments right in formulas using `//`
@@ -256,7 +256,7 @@ down complex calculations and simplify your equations.
    ```
 ### JS-code generation
 
-To transform Diff Studio model to JavaScript code with an appropriate specification of `ODEs` object, follow the steps:
+To transform any model to JavaScript code with an appropriate specification of `ODEs` object, follow the steps:
 
 1. Import the parsing and code generating tools:
 
@@ -264,7 +264,7 @@ To transform Diff Studio model to JavaScript code with an appropriate specificat
 import {getIVP, getJScode} from '@datagrok-ai/diff-studio-tools';
 ```
 
-2. Define a string with a model specification, use Diff Studio [model syntax](#model-components-and-syntax):
+2. Define a string with a model specification, use a simple [model syntax](#model-components-and-syntax):
 
 ```typescript
 const model = `

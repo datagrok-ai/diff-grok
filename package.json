@@ -1,5 +1,5 @@
 {
-  "name": "@datagrok/diff-studio-tools",
+  "name": "@datagrok/diff-grok",
   "author": {
     "name": "Viktor Makarichev",
     "email": "vmakarichev@datagrok.ai"
@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:datagrok-ai/ds-tools.git",
+    "url": "git@github.com:datagrok-ai/DiffGrok.git",
     "directory": ""
   }
 }
