@@ -7,3 +7,5 @@ export {DF_NAME, CONTROL_EXPR, MAX_LINE_CHART, getIVP, getScriptLines, getScript
     CONTROL_SEP, STAGE_COL_NAME, ARG_INPUT_KEYS, DEFAULT_SOLVER_SETTINGS, ModelError, getFunc4worker} from './src/scripting-tools';
 
 export {IVP2WebWorker, getIvp2WebWorker, solveIvp} from './src/worker-tools';
+
+export {Pipeline, Wrapper, applyPipeline} from './src/pipeline';
