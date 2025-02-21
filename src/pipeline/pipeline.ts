@@ -63,7 +63,7 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
     if (out !== null) {
         func = new Function(out);
 
-        return func(solution);
+        return func(solution, sourceInputs);
     }
 
     return solution;

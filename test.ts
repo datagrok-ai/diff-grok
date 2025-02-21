@@ -40,19 +40,22 @@ const model = `#name: UDel
   step = 3      {units: h; category: Time; min: 0.5; max: 24} [Time step of simulation]
 
 #output:
-  t
-  X_T
-  X_V
-  Glc
-  Gln
-  Lac
   Amm
-  MAb
-  ATP
-  Vol
-  Prod
-  SPr
-  SSUR
+  X_T
+  t
+  //t
+  //X_T
+  //X_V
+  //Glc
+  //Gln
+  //Lac
+  //Amm
+  //MAb
+  //ATP
+  //Vol
+  //Prod
+  //SPr
+  //SSUR
 
 #inits:
   X_T = 1      {category: Initials; units: mln. cells / L}   [Initial total cell density]
@@ -94,11 +97,9 @@ const model = `#name: UDel
 
 const ivp = DGL.getIVP(model);
 
-//console.log(ivp);
-
 const ivpWW = DGL.getIvp2WebWorker(ivp);
 
-console.log(ivpWW);
+console.log(ivp);
 
 const inputs = new Float64Array([
     0,
@@ -146,14 +147,17 @@ const pipeline: DGL.Pipeline = {
             postproc: null,
         },
     ],
-    out: null,
+    out: DGL.getOutputCode(ivp),
 };
 
 const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);
 
+console.log('Solution:\n', solution);
+
 const length = solution[0].length;
 
 for (let i = 0; i < length; ++i)
-    console.log(solution[0][i], '    ', solution[3][i], '  ', solution[4][i]);
+    console.log(solution[0][i], '    ', solution[1][i], '  ', solution[2][i]);
 
-console.log(solution);
+const outputCode = DGL.getOutputCode(ivp);
+console.log(outputCode);
