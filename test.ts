@@ -140,14 +140,16 @@ const pipeline: DGL.Pipeline = {
     wrappers: [
         {
             preproc: null,
+            out: DGL.getOutputCode(ivp),
             postproc: null,
         },
         {
             preproc: null,
+            out: DGL.getOutputCode(ivp),
             postproc: null,
         },
     ],
-    out: DGL.getOutputCode(ivp),
+    out: null,
 };
 
 const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);

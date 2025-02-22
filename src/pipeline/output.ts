@@ -2,12 +2,11 @@
 
 import {IVP} from '../scripting-tools';
 
+/** Return a code for output extraction */
 export function getOutputCode(ivp: IVP): string | null {
     const outputs = ivp.outputs;
     if (outputs === null)
         return null;
-
-    checkApplicability(ivp);
 
     const lines: string[] = ['const solution = [];'];
 
@@ -30,30 +29,6 @@ export function getOutputCode(ivp: IVP): string | null {
 
     return lines.join('\n');
 } // getOutputCode
-
-/** Check applicability of model outputs */
-function checkApplicability(ivp: IVP): void {
-    const outputs = ivp.outputs;
-
-    if (outputs === null)
-        throw new Error('Model has no outputs');
-
-    const exprs = ivp.exprs;
-    if (exprs === null)
-        return;
-
-    if (ivp.loop !== null) {
-        if (exprsInOutputs(ivp))
-            throw new Error('Non-supported model: expressions in output & loops');
-
-        return;
-    }
-
-    if (ivp.updates !== null) {
-        if (exprsInOutputs(ivp))
-            throw new Error('Non-supported model: expressions in output and updates');
-    }
-} // checkApplicability
 
 /** Check whether outputs have items from expressions */
 function exprsInOutputs(ivp: IVP): boolean {
