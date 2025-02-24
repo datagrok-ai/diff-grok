@@ -40,8 +40,8 @@ const model = `#name: UDel
   step = 3      {units: h; category: Time; min: 0.5; max: 24} [Time step of simulation]
 
 #output:
-  Amm
-  X_T
+  MAb
+  ATP
   t
   //t
   //X_T
@@ -53,9 +53,9 @@ const model = `#name: UDel
   //MAb
   //ATP
   //Vol
-  //Prod
+  Prod
   //SPr
-  //SSUR
+  SSUR
 
 #inits:
   X_T = 1      {category: Initials; units: mln. cells / L}   [Initial total cell density]
@@ -103,7 +103,7 @@ console.log(ivp);
 
 const inputs = new Float64Array([
     0,
-    250,
+    50,
     10,
     1,
     1,
@@ -159,7 +159,9 @@ console.log('Solution:\n', solution);
 const length = solution[0].length;
 
 for (let i = 0; i < length; ++i)
-    console.log(solution[0][i], '    ', solution[1][i], '  ', solution[2][i]);
+    console.log(solution[0][i], '    ', solution[1][i], '  ', solution[2][i], '  ', solution[3][i], '  ', solution[4][i]);
 
 const outputCode = DGL.getOutputCode(ivp);
 console.log(outputCode);
+
+console.log(DGL.getOutputNames(ivp));
