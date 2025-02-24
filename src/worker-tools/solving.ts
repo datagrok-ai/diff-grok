@@ -11,24 +11,24 @@ const ARG_INP_COUNT = 3;
 
 /** Return method for solving IVP */
 function getMethod(name: string | undefined): SolverMethod {
-    switch (name) {
-        case 'mrt':
-            return mrt;
-        
-        case 'ros3prw':
-            return ros3prw;
-    
-        default:
-            return ros34prw;
-    }
+  switch (name) {
+  case 'mrt':
+    return mrt;
+
+  case 'ros3prw':
+    return ros3prw;
+
+  default:
+    return ros34prw;
+  }
 }
 
 /** Check the correspondence of inputs to IVP */
 function checkInputs(ivp: IVP2WebWorker, inputs: Float64Array): void {
-    const expected = ARG_INP_COUNT + ivp.deqsCount + ivp.paramNames.length;
+  const expected = ARG_INP_COUNT + ivp.deqsCount + ivp.paramNames.length;
 
-    if (expected !== inputs.length)
-      throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
+  if (expected !== inputs.length)
+    throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
 }
 
 /** Return solution of IVP with a specified inputs */

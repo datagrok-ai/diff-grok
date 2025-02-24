@@ -19,7 +19,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 ## Installation
 
 ```bash
-npm i @datagrok/diff-studio-tools
+npm i @datagrok/diff-grok
 ```
 
 ## Solving
@@ -254,6 +254,7 @@ down complex calculations and simplify your equations.
      E1 = C1 * t + P1
      E2 = C2 * cos(2 * t) + P2
    ```
+
 ### JS-code generation
 
 To transform any model to JavaScript code with an appropriate specification of `ODEs` object, follow the steps:
@@ -293,6 +294,71 @@ const lines = getJScode(ivp);
 The method `getJScode` transforms `IVP` object to JavaScript code. It returns an array of strings with this code.
 
 Find this example in [scripting.ts](./src/examples/scripting.ts).
+
+### Pipelines
+
+Diff Grok **pipeline** is a powerful feature for complex process simulation and model analysis in webworkers. It wraps the main solver with a set of actions that perform pre- and post-processing of a model inputs & outputs. In addition, they provide an output customization.
+
+1. Start with imports:
+
+```typescript
+import * as DGL from '@datagrok/diff-grok';
+```
+
+2. Define your model:
+
+```typescript
+const model = `#name: My model
+#equations:
+    ...
+```
+
+3. Generate IVP-objects:
+
+* for the main thread computations:
+
+```typescript
+const ivp = DGL.getIVP(model);
+```
+
+* for computations in workers:
+```typescript
+const ivpWW = DGL.getIvp2WebWorker(ivp);
+```
+
+4. Create a pipeline:
+
+```typescript
+const pipeline: DGL.Pipeline = {
+  wrappers: [ // define as many wrappers as you need
+    {
+      preproc: ..., // define a code that preprocess inputs
+      out: ..., // specify a code that extracts outputs
+      postproc: ..., // define a code that performs postprocessing of inputs
+    },
+    ...
+  ],
+  out: DGL.getOutputCode(ivp), // final customization of an output
+}
+```
+
+Use the function `getOutputCode` to generate automatically an output specified in your model.
+
+5. Set model inputs:
+
+```typescript
+const inputs = new Float64Array([
+  ... // specify an array of model inputs
+]);
+```
+
+6. Apply pipeline to perform computations:
+
+```typescript
+const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);
+```
+
+Find the complete example in [pipeline-use.ts](./src/examples/pipeline-use.ts).
 
 ## Integration with Datagrok
 
