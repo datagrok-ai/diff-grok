@@ -1372,6 +1372,4 @@ export function getJScode(ivp: IVP): string[] {
 } // getJScode
 
 /** */
-export function getFunc4worker(ivp: IVP) {
-  
-}
+export function getFunc4worker(ivp: IVP) {}
