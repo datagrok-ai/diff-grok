@@ -44,7 +44,10 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
     if (step.preproc !== null) {
       func = new Function(step.preproc);
       inputs = func(solution, inputs);
+      //console.log('Pre');
     }
+
+    //console.log(inputs);
 
     // Solving a problem
     currentSolution = solveIvp(ivp, inputs);
@@ -65,7 +68,10 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
     if (step.postproc !== null) {
       func = new Function(step.postproc);
       inputs = func(solution, inputs);
+      //console.log('Pro');
     }
+
+    //console.log(inputs);
   }
 
   // Compute final output
