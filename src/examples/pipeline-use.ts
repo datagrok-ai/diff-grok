@@ -24,9 +24,9 @@ const model = `#name: M|M|2|2
   queue = p3 + 2 * p4
 
 #argument: t
-  initial = 0     {min: 0;      max: 10;   caption: start;   category: Time; units: min}  [Initial time of simulation]
-    final = 60    {min: 20;     max: 100;  caption: finish;  category: Time; units: min}  [Final time of simulation]
-     step = 1     {min: 0.01;   max: 0.1;  caption: step;    category: Time; units: min}  [Time step of simulation] 
+  _t0 = 0     {min: 0;      max: 10;   caption: start;   category: Time; units: min}  [Initial time of simulation]
+  _t1 = 60    {min: 20;     max: 100;  caption: finish;  category: Time; units: min}  [Final time of simulation]
+  _h  = 1     {min: 0.01;   max: 0.1;  caption: step;    category: Time; units: min}  [Time step of simulation] 
 
 #inits:
   p0 = 1   {min: 0; max: 1; category: Initial state; caption: empty}   [Probability that initially there are NO customers]
@@ -67,20 +67,21 @@ try {
   const outSize = outputNames.length;
 
   // 4.2) Set model inputs
-  const inputs = new Float64Array([
-    0, // Initial time of simulation
-    60, // Final time of simulation
-    1, // Time step of simulation
-    1, // Probability that initially there are NO customers
-    0, // Probability that initially there is ONE customer
-    0, // Probability that initially there are TWO customers
-    0, // Probability that initially there are THREE customers
-    10, // Mean arrival time
-    100, // Mean service time
-  ]);
+  const inputs = {
+    _t0: 0, // Initial time of simulation
+    _t1: 60, // Final time of simulation
+    _h: 1, // Time step of simulation
+    p0: 1, // Probability that initially there are NO customers
+    p1: 0, // Probability that initially there is ONE customer
+    p2: 0, // Probability that initially there are TWO customers
+    p3: 0, // Probability that initially there are THREE customers
+    arrival: 10, // Mean arrival time
+    service: 100, // Mean service time
+  };
+  const inputVector = DGL.getInputVector(inputs, ivp);
 
   // 4.3) Apply pipeline to perform computations
-  const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);
+  const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
 
   // 4.4) Print results
 

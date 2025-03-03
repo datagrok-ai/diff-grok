@@ -1,8 +1,8 @@
 // Features for creating output code for a pipeline
 
 import {IVP, MATH_CONSTS, POW_IDX, MATH_FUNCS} from '../scripting-tools/scripting-tools';
+import {ARG_INP_COUNT} from './constants';
 
-const ARG_INP_COUNT = 3;
 const SHIFT = 1;
 
 /** Return output for the model WITHOUT expressions */
@@ -194,3 +194,5 @@ export function getOutputNames(ivp: IVP): string[] {
 
   return names;
 } // getOutputNames
+
+
