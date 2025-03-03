@@ -11,4 +11,4 @@ export {DF_NAME, CONTROL_EXPR, MAX_LINE_CHART, getIVP, getScriptLines, getScript
 export {IVP2WebWorker, getIvp2WebWorker, solveIvp} from './src/worker-tools';
 
 export {Pipeline, Wrapper, applyPipeline, getOutputCode, getOutputNames, PipelineCreator,
-  BasicModelPipelineCreator, getInputVector} from './src/pipeline';
+  BasicModelPipelineCreator, getInputVector, getPipelineCreator} from './src/pipeline';

@@ -48,25 +48,13 @@ const model = `#name: M|M|2|2
 const ivp = DGL.getIVP(model);
 const ivpWW = DGL.getIvp2WebWorker(ivp);
 
-/** 3. Create pipeline */
-const pipeline: DGL.Pipeline = {
-  wrappers: [ // define as many wrappers as you need
-    {
-      preproc: null, // define a code that preprocess inputs
-      out: null, // specify a code that extracts customized outputs
-      postproc: null, // define a code that performs postprocessing of inputs
-    },
-  ],
-  out: DGL.getOutputCode(ivp), // final output of computations
-};
-
-/** 4. Perform computations */
+/** 3. Perform computations */
 try {
-  // 4.1) Extract names of outputs
+  // 3.1) Extract names of outputs
   const outputNames = DGL.getOutputNames(ivp);
   const outSize = outputNames.length;
 
-  // 4.2) Set model inputs
+  // 3.2) Set model inputs
   const inputs = {
     _t0: 0, // Initial time of simulation
     _t1: 60, // Final time of simulation
@@ -80,17 +68,21 @@ try {
   };
   const inputVector = DGL.getInputVector(inputs, ivp);
 
-  // 4.3) Apply pipeline to perform computations
+  // 3.3) Create a pipeline
+  const creator = DGL.getPipelineCreator(ivp);
+  const pipeline = creator.getPipeline(inputVector);
+
+  // 3.4) Apply pipeline to perform computations
   const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
 
-  // 4.4) Print results
+  // 3.5) Print results
 
-  // 4.4.1) Table header
+  // 3.5.1) Table header
   let line = '';
   outputNames.forEach((name) => line += name + '      ');
   console.log(line);
 
-  // 4.4.2) Table with solution
+  // 3.5.2) Table with solution
   const length = solution[0].length;
   for (let i = 0; i < length; ++i) {
     line = '';

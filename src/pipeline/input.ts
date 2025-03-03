@@ -1,6 +1,7 @@
 import {IVP} from '../scripting-tools';
 import {ARG_INP_COUNT, argName2IdxMap} from './constants';
 
+/** Return inputs in a form of a vector */
 export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float64Array {
   const eqsCount = ivp.deqs.solutionNames.length;
   const paramsCount = (ivp.params !== null) ? ivp.params.size : 0;
@@ -19,7 +20,6 @@ export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float6
   });
 
   // Parameters
-
   if (ivp.params === null)
     return inputVector;
 

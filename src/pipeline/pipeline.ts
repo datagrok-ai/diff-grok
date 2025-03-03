@@ -1,4 +1,7 @@
 import {IVP2WebWorker, solveIvp} from '../worker-tools';
+import {PipelineCreator} from './pipeline-creator';
+import {BasicModelPipelineCreator} from './basic-pipeline-creator';
+import {IVP} from '../scripting-tools';
 
 /** Solution step wrapper */
 export type Wrapper = {
@@ -85,3 +88,8 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
 
   return solution;
 } // performPipeline
+
+/** Return pipeline creator specified by the initial value problem */
+export function getPipelineCreator(ivp: IVP): PipelineCreator {
+  return new BasicModelPipelineCreator(ivp);
+}
