@@ -7,7 +7,7 @@
 
 import * as DGL from '../../index';
 
-/** 1. Model specification: the M|M|2|2 model  */
+/** 1. Model specification */
 const model = `#name: GA-production
 #tags: model
 #description: Gluconic acid (GA) production by Aspergillus niger modeling
