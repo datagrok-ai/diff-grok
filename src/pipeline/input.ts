@@ -9,13 +9,22 @@ export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float6
   const inputVector = new Float64Array(size);
 
   // Argument
-  argName2IdxMap.forEach((index, key) => inputVector[index] = inputs[key]);
+  argName2IdxMap.forEach((index, key) => {
+    if (key in inputs)
+      inputVector[index] = inputs[key];
+    else
+      throw new Error(`Inconsistent inputs: "${key}" is missing`);
+  });
 
   let idx = ARG_INP_COUNT;
 
   // Init values
   ivp.deqs.solutionNames.forEach((name) => {
-    inputVector[idx] = inputs[name];
+    if (name in inputs)
+      inputVector[idx] = inputs[name];
+    else
+      throw new Error(`Inconsistent inputs: "${name}" is missing`);
+
     ++idx;
   });
 
@@ -24,7 +33,11 @@ export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float6
     return inputVector;
 
   ivp.params.forEach((_, name) => {
-    inputVector[idx] = inputs[name];
+    if (name in inputs)
+      inputVector[idx] = inputs[name];
+    else
+      throw new Error(`Inconsistent inputs: "${name}" is missing`);
+
     ++idx;
   });
 
