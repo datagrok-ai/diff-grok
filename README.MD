@@ -310,7 +310,14 @@ import * as DGL from '@datagrok/diff-grok';
 ```typescript
 const model = `#name: My model
 #equations:
-    ...
+  dx/dt = ...
+  dy/dt = ...
+  ...
+
+#inits:
+  x = 2
+  y = 3
+  ...
 ```
 
 3. Generate IVP-objects:
@@ -326,39 +333,41 @@ const ivp = DGL.getIVP(model);
 const ivpWW = DGL.getIvp2WebWorker(ivp);
 ```
 
-4. Create a pipeline:
+4. Set model inputs:
 
 ```typescript
-const pipeline: DGL.Pipeline = {
-  wrappers: [ // define as many wrappers as you need
-    {
-      preproc: ..., // define a code that preprocess inputs
-      out: ..., // specify a code that extracts outputs
-      postproc: ..., // define a code that performs postprocessing of inputs
-    },
-    ...
-  ],
-  out: DGL.getOutputCode(ivp), // final customization of an output
-}
+const inputs = {
+  x: 2,
+  y: 30,
+  ...
+};
 ```
 
-Use the function `getOutputCode` to generate automatically an output specified in your model.
-
-5. Set model inputs:
+5. Create typed input array:
 
 ```typescript
-const inputs = new Float64Array([
-  ... // specify an array of model inputs
-]);
+const inputVector = DGL.getInputVector(inputs, ivp);
 ```
 
-6. Apply pipeline to perform computations:
+6. Get a pipeline:
 
 ```typescript
-const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);
+const creator = DGL.getPipelineCreator(ivp);
+const pipeline = creator.getPipeline(inputVector);
 ```
 
-Find the complete example in [pipeline-use.ts](./src/examples/pipeline-use.ts).
+You can pass `pipeline`, `ivpWW`, and `inputVector` to webworkers.
+
+7. Apply pipeline to perform computations:
+
+```typescript
+const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
+```
+
+Find complete examples in these files:
+
+* [pipeline-use.ts](./src/examples/pipeline-use.ts) - A basic example demonstrating pipeline usage
+* [model-updates.ts](./src/examples/model-updates.ts) - A simulation of a multi-stage process using pipelines
 
 ## Integration with Datagrok
 

@@ -1,4 +1,9 @@
 import {IVP2WebWorker, solveIvp} from '../worker-tools';
+import {PipelineCreator} from './pipeline-creator';
+import {BasicModelPipelineCreator} from './basic-pipeline-creator';
+import {IVP} from '../scripting-tools';
+import {UpdatesModelPipelineCreator} from './updates-pipeline-creator';
+
 
 /** Solution step wrapper */
 export type Wrapper = {
@@ -26,7 +31,7 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
   let solution: Float64Array[] = [];
   let currentSolution: Float64Array[];
   let func: Function;
-  let inputs = sourceInputs;
+  let inputs = new Float64Array(sourceInputs);
   const wrappers = pipeline.wrappers;
   let step: Wrapper;
   let isFirstSolverCall = true;
@@ -85,3 +90,11 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
 
   return solution;
 } // performPipeline
+
+/** Return pipeline creator specified by the initial value problem */
+export function getPipelineCreator(ivp: IVP): PipelineCreator {
+  if (ivp.updates !== null)
+    return new UpdatesModelPipelineCreator(ivp);
+
+  return new BasicModelPipelineCreator(ivp);
+}

@@ -24,9 +24,9 @@ const model = `#name: M|M|2|2
   queue = p3 + 2 * p4
 
 #argument: t
-  initial = 0     {min: 0;      max: 10;   caption: start;   category: Time; units: min}  [Initial time of simulation]
-    final = 60    {min: 20;     max: 100;  caption: finish;  category: Time; units: min}  [Final time of simulation]
-     step = 1     {min: 0.01;   max: 0.1;  caption: step;    category: Time; units: min}  [Time step of simulation] 
+  _t0 = 0     {min: 0;      max: 10;   caption: start;   category: Time; units: min}  [Initial time of simulation]
+  _t1 = 60    {min: 20;     max: 100;  caption: finish;  category: Time; units: min}  [Final time of simulation]
+  _h  = 1     {min: 0.01;   max: 0.1;  caption: step;    category: Time; units: min}  [Time step of simulation] 
 
 #inits:
   p0 = 1   {min: 0; max: 1; category: Initial state; caption: empty}   [Probability that initially there are NO customers]
@@ -48,48 +48,41 @@ const model = `#name: M|M|2|2
 const ivp = DGL.getIVP(model);
 const ivpWW = DGL.getIvp2WebWorker(ivp);
 
-/** 3. Create pipeline */
-const pipeline: DGL.Pipeline = {
-  wrappers: [ // define as many wrappers as you need
-    {
-      preproc: null, // define a code that preprocess inputs
-      out: null, // specify a code that extracts customized outputs
-      postproc: null, // define a code that performs postprocessing of inputs
-    },
-  ],
-  out: DGL.getOutputCode(ivp), // final output of computations
-};
-
-/** 4. Perform computations */
+/** 3. Perform computations */
 try {
-  // 4.1) Extract names of outputs
+  // 3.1) Extract names of outputs
   const outputNames = DGL.getOutputNames(ivp);
   const outSize = outputNames.length;
 
-  // 4.2) Set model inputs
-  const inputs = new Float64Array([
-    0, // Initial time of simulation
-    60, // Final time of simulation
-    1, // Time step of simulation
-    1, // Probability that initially there are NO customers
-    0, // Probability that initially there is ONE customer
-    0, // Probability that initially there are TWO customers
-    0, // Probability that initially there are THREE customers
-    10, // Mean arrival time
-    100, // Mean service time
-  ]);
+  // 3.2) Set model inputs
+  const inputs = {
+    _t0: 0, // Initial time of simulation
+    _t1: 60, // Final time of simulation
+    _h: 1, // Time step of simulation
+    p0: 1, // Probability that initially there are NO customers
+    p1: 0, // Probability that initially there is ONE customer
+    p2: 0, // Probability that initially there are TWO customers
+    p3: 0, // Probability that initially there are THREE customers
+    arrival: 10, // Mean arrival time
+    service: 100, // Mean service time
+  };
+  const inputVector = DGL.getInputVector(inputs, ivp);
 
-  // 4.3) Apply pipeline to perform computations
-  const solution = DGL.applyPipeline(pipeline, ivpWW, inputs);
+  // 3.3) Create a pipeline
+  const creator = DGL.getPipelineCreator(ivp);
+  const pipeline = creator.getPipeline(inputVector);
 
-  // 4.4) Print results
+  // 3.4) Apply pipeline to perform computations
+  const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
 
-  // 4.4.1) Table header
+  // 3.5) Print results
+
+  // 3.5.1) Table header
   let line = '';
   outputNames.forEach((name) => line += name + '      ');
   console.log(line);
 
-  // 4.4.2) Table with solution
+  // 3.5.2) Table with solution
   const length = solution[0].length;
   for (let i = 0; i < length; ++i) {
     line = '';
