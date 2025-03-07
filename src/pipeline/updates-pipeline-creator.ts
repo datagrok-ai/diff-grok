@@ -69,7 +69,7 @@ export class UpdatesModelPipelineCreator extends PipelineCreator {
       }
 
       // Updates
-      update.updates.forEach((expr) => lines.push(expr));
+      update.updates.forEach((expr) => lines.push(`${expr};`));
 
       // Argument update
       lines.push(`const duration = ${update.durationFormula};`);

@@ -27,7 +27,7 @@ function getMethod(name: string | undefined): SolverMethod {
 function checkInputs(ivp: IVP2WebWorker, inputs: Float64Array): void {
   const expected = ARG_INP_COUNT + ivp.deqsCount + ivp.paramNames.length;
 
-  if (expected !== inputs.length)
+  if (expected > inputs.length)
     throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
 }
 
