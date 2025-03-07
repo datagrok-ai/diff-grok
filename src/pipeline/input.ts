@@ -6,7 +6,7 @@ export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float6
   const eqsCount = ivp.deqs.solutionNames.length;
   const paramsCount = (ivp.params !== null) ? ivp.params.size : 0;
   const loopParamsCount = (ivp.loop !== null) ? LOOP_PARAMS_CONT : 0;
-  const size = ARG_INP_COUNT + eqsCount + paramsCount;
+  const size = ARG_INP_COUNT + eqsCount + paramsCount + loopParamsCount;
   const inputVector = new Float64Array(size);
 
   // Argument
@@ -47,6 +47,8 @@ export function getInputVector(inputs: Record<string, number>, ivp: IVP): Float6
       inputVector[idx] = inputs[LOOP_COUNT_NAME];
     else
       throw new Error(`Inconsistent inputs, loop repetitions count is not defined: "${LOOP_COUNT_NAME}" is missing`);
+
+    ++idx;
   }
 
   return inputVector;
