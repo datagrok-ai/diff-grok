@@ -2,6 +2,7 @@ export const ARG_INP_COUNT = 3;
 export const ARG_COL_IDX = 0;
 export const CORRECTION_FACTOR = 0.5;
 export const DEFAULT_CORRECTION = 0.0000001;
+export const LOOP_PARAMS_CONT = 1;
 
 /** Default argument names*/
 export enum ARG {
@@ -9,6 +10,8 @@ export enum ARG {
   FINISH = '_t1',
   STEP = '_h',
 };
+
+export const LOOP_COUNT_NAME = '_count';
 
 export const argName2IdxMap = new Map<string, number>([
   [ARG.START, 0],
