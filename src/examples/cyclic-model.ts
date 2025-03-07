@@ -53,8 +53,6 @@ const model = `#name: PK-PD
 const ivp = DGL.getIVP(model);
 const ivpWW = DGL.getIvp2WebWorker(ivp);
 
-console.log(ivpWW);
-
 /** 3. Perform computations */
 try {
   // 3.1) Extract names of outputs
@@ -82,22 +80,19 @@ try {
     Kout: 0.2,
   };
   const inputVector = DGL.getInputVector(inputs, ivp);
-  console.log(inputVector);
 
   // 3.3) Create a pipeline
   const creator = DGL.getPipelineCreator(ivp);
   const pipeline = creator.getPipeline(inputVector);
 
-  console.log(pipeline);
-
   // 3.4) Apply pipeline to perform computations
-  const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector); //.slice(0, inputVector.length - 1));
+  const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
 
   // 3.5) Print results
 
   // 3.5.1) Table header
-  let line = '     ';
-  outputNames.forEach((name) => line += name + '         ');
+  let line = '         ';
+  outputNames.forEach((name) => line += name + '           ');
   console.log(line);
 
   // 3.5.2) Table with solution
