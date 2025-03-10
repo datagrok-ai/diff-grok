@@ -61,23 +61,23 @@ try {
 
   // 3.2) Set model inputs
   const inputs = {
-    _count: 3,
+    _count: 10,
     _t0: 0,
-    _t1: 12,
+    _t1: 16,
     _h: 1,
     depot: 0,
     centr: 0,
     peri: 0,
     eff: 0.2,
     dose: 10000,
-    KA: 0.3,
-    CL: 2,
-    V2: 4,
-    Q: 1,
-    V3: 30,
-    EC50: 8,
-    Kin: 0.2,
-    Kout: 0.2,
+    KA: 0.63,
+    CL: 3.2,
+    V2: 6.58,
+    Q: 0.622,
+    V3: 35.6,
+    EC50: 5.41,
+    Kin: 0.272,
+    Kout: 0.276,
   };
   const inputVector = DGL.getInputVector(inputs, ivp);
 

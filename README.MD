@@ -384,7 +384,9 @@ The library is seamlessly integrated to Datagrok via the [Diff Studio](https://g
 * Sensitivity analysis and parameters optimization
 * Sharing models and computational results
 
-Run the Diff Studio [app](https://public.datagrok.ai/apps/DiffStudio) and check interactive modeling.
+Run the Diff Studio [app](https://public.datagrok.ai/apps/DiffStudio) and check interactive modeling:
+
+![DiffStudio](images/acid-prod.gif)
 
 Learn more
 

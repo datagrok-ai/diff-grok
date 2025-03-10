@@ -46,7 +46,7 @@ export class CyclicModelPipelineCreator extends PipelineCreator {
     if (this.ivp.consts !== null)
       this.ivp.consts.forEach((input, name) => preProcLines.push(`const ${name} = ${input.value};`));
 
-    preProcLines.push('const inputs = new Float64Array(arguments[1]);');
+    preProcLines.push(`const inputs = arguments[1].slice(0, ${restricted});`);
 
     // Extract inputs
     argName2IdxMap.forEach((idx, name) => preProcLines.push(`let ${name} = inputs[${idx}];`));
@@ -85,7 +85,7 @@ export class CyclicModelPipelineCreator extends PipelineCreator {
       });
     }
 
-    preProcLines.push(`return inputs.slice(0, ${restricted});`);
+    preProcLines.push(`return inputs;`);
 
     const postProcLines = [
       'const solution = arguments[0];',
