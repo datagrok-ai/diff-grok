@@ -368,6 +368,7 @@ Find complete examples in these files:
 
 * [pipeline-use.ts](./src/examples/pipeline-use.ts) - A basic example demonstrating pipeline usage
 * [model-updates.ts](./src/examples/model-updates.ts) - A simulation of a multi-stage process using pipelines
+* [cyclic-model.ts](./src/examples/cyclic-model.ts) - A simulation of a cyclic process using pipelines
 
 ## Integration with Datagrok
 
@@ -383,7 +384,9 @@ The library is seamlessly integrated to Datagrok via the [Diff Studio](https://g
 * Sensitivity analysis and parameters optimization
 * Sharing models and computational results
 
-Run the Diff Studio [app](https://public.datagrok.ai/apps/DiffStudio) and check interactive modeling.
+Run the Diff Studio [app](https://public.datagrok.ai/apps/DiffStudio) and check interactive modeling:
+
+![DiffStudio](images/acid-prod.gif)
 
 Learn more
 

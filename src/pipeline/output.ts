@@ -194,5 +194,3 @@ export function getOutputNames(ivp: IVP): string[] {
 
   return names;
 } // getOutputNames
-
-

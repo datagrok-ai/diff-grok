@@ -3,6 +3,7 @@ import {PipelineCreator} from './pipeline-creator';
 import {BasicModelPipelineCreator} from './basic-pipeline-creator';
 import {IVP} from '../scripting-tools';
 import {UpdatesModelPipelineCreator} from './updates-pipeline-creator';
+import {CyclicModelPipelineCreator} from './loops-pipeline-creator';
 
 
 /** Solution step wrapper */
@@ -95,6 +96,9 @@ export function applyPipeline(pipeline: Pipeline, ivp: IVP2WebWorker, sourceInpu
 export function getPipelineCreator(ivp: IVP): PipelineCreator {
   if (ivp.updates !== null)
     return new UpdatesModelPipelineCreator(ivp);
+
+  if (ivp.loop !== null)
+    return new CyclicModelPipelineCreator(ivp);
 
   return new BasicModelPipelineCreator(ivp);
 }
