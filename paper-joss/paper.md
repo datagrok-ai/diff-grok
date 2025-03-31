@@ -36,6 +36,7 @@ affiliations:
  - name: Wellcome Sanger Institute, UK
    index: 3
 date: 03 April 2025
+bibliography: paper.bib
 ---
 
 # Summary
@@ -77,32 +78,32 @@ and guaranteeing the reproducibility and accessibility of results.
 Scientific modeling of complex processes and phenomena relies heavily on
 ordinary differential equations. 
 Their applications span diverse fields,
-including physical processes \[Carmen Chicone\], 
-biochemical kinetics \[Ingalls Brian\], 
-drug delivery systems \[Mircioiu, C.\], 
-cloud computing \[Einollah Jafarnejad Ghomi\], 
-and population dynamics \[Alan Hastings\].
+including physical processes [@chicone2006ordinary], 
+biochemical kinetics [@ingalls2013mathematical], 
+drug delivery systems [@mircioiu2019mathematical], 
+cloud computing [@jafarnejad2019applying], 
+and population dynamics [@hastings2013population].
 
 While analytic methods provide exact solutions, 
 they can be applied only to a limited class of ODEs. 
 Moreover, in many cases, the use of analytic
-solutions proves impractical due to their complexity \[Ernst Hairer\].
+solutions proves impractical due to their complexity [@hairer2008solving1].
 Consequently, numerical methods, which compute approximate solutions,
 are often preferred.
 
 Numerous methods for solving ODEs have been recently developed 
-\[Ernst Hairer 1, 2\]. 
+[@hairer2008solving1; @hairer2002solving2]. 
 These methods have been implemented in various software
 tools, including libraries and packages for programming languages and
 scientific computing environments. 
 Notable examples include 
-SUNDIALS \[gardner2022sundials, hindmarsh2005sundials\], 
-Julia Differential Equations package \[rackauckas2017differentialequations\], 
-SciPy \[2020SciPy-NMeth\], 
-Maple \[Maple\], 
-Mathematica \[Mathematica\],
-Matlab \[MATLAB\], 
-and deSolve \[Soetaert K\].
+SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials], 
+Julia Differential Equations package [@rackauckas2017differentialequations], 
+SciPy [@2020SciPyNMeth], 
+Maple [@maple2025], 
+Mathematica [@Mathematica2024],
+Matlab [@MATLAB], 
+and deSolve [@soetaert2010solving].
 
 Though most existing tools require significant technical expertise,
 shifting emphasis from applied research to software development. 
@@ -153,9 +154,9 @@ The Diff Grok library (DG-lib) consists of two main components:
 
 **Solving tools** incorporate the following numerical methods:
 
-- `mrt` - Modified Rosenbrock triple (MRT) \[Shampine, Lawrence F.\];
-- `ros3prw` - the ROS3PRw method \[Joachim Rang\];
-- `ros34prw` - the ROS34PRw method \[Joachim Rang\].
+- `mrt` - Modified Rosenbrock triple (MRT) [@Shampine1997]
+- `ros3prw` - the ROS3PRw method [@rang2021rosenbrock]
+- `ros34prw` - the ROS34PRw method [@rang2015improved]
 
 To solve
 \begin{equation}\label{eq:diffeq}
@@ -211,8 +212,6 @@ const task: ODEs = {
 };
 ```
 
-**Figure 1.** ODEs object corresponding to the problem (1)
-
 The following code solves the given problem:
 ```javascript
 const solution = mrt(task);
@@ -231,7 +230,7 @@ set of classical benchmark problems.
 The scripting tools enable specification of IVPs in a declarative form
 known as the Diff Studio model (DS-model), which employs an intuitive
 block-structured syntax. 
-For example, the problem defined in (1) can be
+For example, the problem defined in \autoref{eq:ivp} can be
 expressed as follows:
 
 ```
@@ -254,7 +253,7 @@ y = -1
 #tolerance: 1e-7
 ```
 
-**Figure 2.** Diff Studio model corresponding to (1).
+Diff Studio model corresponding to \autoref{eq:ivp}
 
 The method getIVP parses strings of a DS-model and produces an IVP
 object specifying a problem. If a model contains invalid expressions, an
@@ -279,42 +278,39 @@ Studio application for Datagrok.
 
 ### Performance
 
-DG-lib ensures efficient integration of both stiff and non-stiff ODEs.
+DG-lib ensures efficient integration of both stiff and non-stiff ODEs. 
+The **Table 1** compares the computational performance of MRT, ROS3PRw, and
+ROS34PRw in solving these problems.
 To evaluate performance, we employ the following collection of classical
 benchmark problems:
 
 - **Robertson:** A stiff system describing the kinetics of an
-  autocatalytic reaction \[H.H. Robertson\];
+  autocatalytic reaction [@robertson1966solution];
 - **HIRES:** A stiff system explaining photomorphogenesis phytochrome
-  responses through a chemical reaction involving eight reactants \[E.
-  Schafer\];
+  responses through a chemical reaction involving eight reactants 
+  [@schafer1975new];
 - **VDPOL:** A system of ODEs describing nonlinear vacuum tube circuit
-  behavior \[van der Pol\];
+  behavior [@vanderpol1926relaxation];
 - **OREGO:** A stiff system simulating the Belousov-Zhabotinskii
-  reaction \[Ernst Hairer 2\];
+  reaction [@hairer2002solving2];
 - **E5:** A stiff system of nonlinear ODEs representing a chemical
-  pyrolysis model \[Ernst Hairer 2\];
+  pyrolysis model [@hairer2002solving2];
 - **Pollution:** A stiff system of nonlinear equations describing
   chemical reactions in an air pollution model developed at the Dutch
   National Institute of Public Health and Environmental Protection
-  \[Verwer, J.\].
+  [@verwer1994gauss].
 
-**Table 1** compares the computational performance of MRT, ROS3PRw, and
-ROS34PRw in solving these problems.
+**Table 1.** Computational time comparison: MRT vs. ROS3PRw vs.
+ROS34PRw on AMD Ryzen 5 5600H 3.30 GHz CPU \label{table:performance}
 
-**Table 1.** Computational time comparison\*: MRT vs. ROS3PRw vs.
-ROS34PRw
-
-| **Problem** | **Equations** |   **Segment**   | **Points** | **Tolerance** | **MRT, ms** | **ROS3PRw, ms** | **ROS34PRw, ms** |
-|:-----------:|:-------------:|:---------------:|:----------:|:-------------:|:-----------:|:---------------:|:----------------:|
-|  Robertson  |       3       |  \[0, 10E+11\]  |    40K     |     1E-7      |     103     |       446       |       285        |
-|    HIRES    |       8       | \[0, 321.8122\] |    32K     |     1E-10     |     222     |       362       |       215        |
-|    VDPOL    |       2       |   \[0, 2000\]   |    20K     |     1E-12     |     936     |      1576       |       760        |
-|    OREGO    |       3       |   \[0, 360\]    |    36K     |     1E-8      |     381     |       483       |       199        |
-|     E5      |       4       |  \[0, 10E+13\]  |    40K     |     1E-6      |     14      |       17        |        8         |
-|  Pollution  |      20       |    \[0, 60\]    |    30K     |     1E-6      |     36      |       50        |        23        |
-
-\* AMD Ryzen 5 5600H 3.30 GHz CPU
+|  Problem  | Equations |     Segment      | Points | Tolerance | MRT, ms | ROS3PRw, ms | ROS34PRw, ms |
+|:---------:|:---------:|:----------------:|:------:|:---------:|:-------:|:-----------:|:------------:|
+| Robertson |     3     |  `[0, 10E+11]`   |  40K   |   1E-7    |   103   |     446     |     285      |
+|   HIRES   |     8     | `[0, 321.8122]` |  32K   |   1E-10   |   222   |     362     |     215      |
+|   VDPOL   |     2     |   `[0, 2000]`   |  20K   |   1E-12   |   936   |    1576     |     760      |
+|   OREGO   |     3     |   `[0, 360]`    |  36K   |   1E-8    |   381   |     483     |     199      |
+|    E5     |     4     |  `[0, 10E+13]`  |  40K   |   1E-6    |   14    |     17      |      8       |
+| Pollution |    20     |    `[0, 60]`    |  30K   |   1E-6    |   36    |     50      |      23      |
 
 The efficient computation allows users to see the modeling results in
 near-real time, thereby facilitating interactive model exploration and
@@ -327,7 +323,7 @@ capabilities for solving initial value problems (IVPs) directly within a
 web browser. It integrates DG-lib with the 
 [Datagrok JavaScript API](https://datagrok.ai/js-api/).
 
-DS-app has a model editor (Fig. 3), 
+DS-app has a model editor (\autoref{fig:diffstudio}), 
 where users can define mathematical expressions, 
 such as those shown in Fig. 2. 
 The application then parses these expressions 
@@ -337,50 +333,50 @@ and automatically generates the following components:
   DS-tools, and the Datagrok platform executes it to compute the
   numerical solution of the given IVP;
 - **User interface (UI):** The UI provides interactive controls for
-  users to modify model inputs (Fig. 4). Whenever a user updates the
+  users to modify model inputs (\autoref{fig:autoui}). Whenever a user updates the
   inputs, Datagrok reruns the JS-script to recompute the solution. The
   results are displayed using a grid and line charts.
 
 ![The Diff Studio application: 
-the equation editor, numerical solution of the problem (1) 
+the equation editor, numerical solution of the problem \autoref{eq:ivp} 
 and its visualization.\label{fig:diffstudio}](./images/diffstudio.png)
 
 ![The Diff Studio application, Autogenerated UI: Diffstudio
 creates input entries for all variables listed in the equation editor.
 Each time model inputs are changed, a solution is computed and
-displayed.](./images/diffstudio_autogenerated_ui.png)
+displayed.\label{fig:autoui}](./images/diffstudio_autogenerated_ui.png)
 
 DS-app generates the user interface (UI) based on the model
 specification. To enhance usability, each model input can be annotated
 with options that define the caption, category, measurement units,
-minimum and maximum values, and tooltips (see Fig. 5). Diff Studio
-provides the UI shown in Fig. 4, where inputs are displayed with their
-specified captions and units. Additionally, inputs belonging to the same
-category are grouped together. When a user hovers over an element, a
-tooltip appears, providing additional context.
+minimum and maximum values, and tooltips (see eq:ivp). Diff Studio
+provides the UI shown in \autoref{fig:autoui}, 
+where inputs are displayed with their
+specified captions and units. 
+Additionally, inputs belonging to the same
+category are grouped together. 
+When a user hovers over an element, 
+a tooltip appears, providing additional context.
 
-Applying input annotations results in a self-explanatory UI. If minimum
-and maximum values are specified, a slider is generated, allowing users
-to adjust input values efficiently. Combined with the high computational
-performance of DS-app, this feature enables real-time, interactive model
-exploration.
+Applying input annotations results in a self-explanatory UI. 
+If minimum and maximum values are specified, 
+a slider is generated, allowing users to adjust input values efficiently. 
+Combined with the high computational performance of DS-app, 
+this feature enables real-time, 
+interactive model exploration.
 
-<img src="./images/media/image3.png"
-style="width:5.4047in;height:3.09399in" />
+![The correspondence of input annotation from \autoref{fig:autoui} and UI
+elements from \autoref{fig:diffstudio}
+\label{fig:annotations2ui}](./images/annotations-to-ui.png)
 
-**Figure 5.** The correspondence of input annotation from Fig. 3 and UI
-elements from Fig. 4.
-
-DS-app highlights errors and invalid expressions (Fig. 6), 
+DS-app highlights errors and invalid expressions \autoref{fig:errorhighlight}, 
 which is particularly important when creating and debugging complex models.
 
-<img src="./images/media/image4.png"
-style="width:5.64063in;height:2.49332in" />
-
-**Figure 6.** Error indication in the Diff Studio application.
+![Error indication in the Diff Studio application.
+\label{fig:errorhighlight}](./images/error_highlighting.png)
 
 DS-models can be stored on the Datagrok platform or downloaded to local
-storage as .ivp text files, where "ivp" denotes an initial value
+storage as `.ivp` text files, where `ivp` denotes an initial value
 problem. Additionally, computation results and their visualizations can
 be saved as CSV and PNG files, respectively.
 
@@ -405,9 +401,12 @@ results.
 Second, the Datagrok platform offers advanced function analysis
 capabilities, which can be applied to any numerical 
 [platform function](https://datagrok.ai/help/compute/function-analysis).
-Using **sensitivity analysis** you can explore 
+Using 
+[sensitivity analysis](https://datagrok.ai/help/compute/function-analysis#sensitivity-analysis)
+you can explore 
 how changes in input parameters affect your model outputs.
-**Parameter optimization** solves the reversed task, allowing you to
+[Parameter optimization](https://datagrok.ai/help/compute/function-analysis#parameter-optimization)
+solves the reversed task, allowing you to
 find input parameters that generate a specified model output. 
 These tools can be accessed directly from Diff Studio, enabling comprehensive
 model analysis and parameter fitting.
@@ -424,7 +423,7 @@ Such a capability makes it possible to create
 building blocks for more complex applications.
 
 Furthermore, **Diff Studio** supports the handling of IVP files within Datagrok. 
-Any file with the .ivp extension is automatically opened in
+Any file with the `.ivp` extension is automatically opened in
 Diff Studio, triggering the computation process. 
 Users can execute models simply by clicking on IVP files stored on the platform.
 Additionally, they can share links to these files with other users,
@@ -459,12 +458,12 @@ provides a step-by-step guide to using Diff Studio.
 Moving forward, our efforts will focus on enhancing Diff Studio,
 including the integration of GPU-accelerated computations.
 
-# References
-
 # Acknowledgements 
 
 # Conflicts of interest
 Authors declare not conflicts of interest.
+
+# References
 
 
 
