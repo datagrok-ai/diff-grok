@@ -231,33 +231,13 @@ The scripting tools enable specification of IVPs in a declarative form
 known as the Diff Studio model (DS-model), which employs an intuitive
 block-structured syntax. 
 For example, the problem defined in \autoref{eq:ivp} can be
-expressed as follows:
+expressed as shown on the \autoref{fig:ivp}.
 
-```
-#name: Example
+![Diff Studio model corresponding to \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png)
 
-#equations:
-dx/dt = x + y - t
-dy/dt = x \* y + t
-
-#argument: t
-
-initial = 0
-final = 2
-step = 0.001
-
-#inits:
-x = 1
-y = -1
-
-#tolerance: 1e-7
-```
-
-Diff Studio model corresponding to \autoref{eq:ivp}
-
-The method getIVP parses strings of a DS-model and produces an IVP
+The method `getIVP()` parses strings of a DS-model and produces an IVP
 object specifying a problem. If a model contains invalid expressions, an
-error is raised. And the method getJScode generates JavaScript code,
+error is raised. And the method `getJScode()` generates JavaScript code,
 involving an appropriate ODEs object, that can be applied for
 **in-browser** solving differential equations. 
 Besides, an intermediate
