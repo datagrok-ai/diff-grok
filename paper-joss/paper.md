@@ -1,4 +1,3 @@
-
 ---
 title: 'Diff Studio: Ecosystem for Interactive Modeling by Ordinary Differential Equations'
 tags:
@@ -7,8 +6,8 @@ tags:
 authors:
   - name: Viktor Makarichev   
     orcid: 0000-0000-0000-0000
-    affiliation: "1" # (Multiple affiliations must be quoted)
-    corresponding: true # (This is how to denote the corresponding author)
+    affiliation: "1" 
+    corresponding: true 
   - name: Larisa Bankurova
     affiliation: "1"
   - name: Gennadii Zakharov
@@ -45,32 +44,30 @@ Differential equations play a crucial role in modeling complex systems
 and phenomena, with applications ranging from pharmacology and drug
 manufacturing to financial modeling and environmental studies.
 
-Diff Studio is a TypeScript-based application designed for solving
+**Diff Studio** is a TypeScript-based application designed for solving
 initial value problems in ordinary differential equations (ODEs)
 directly within web browsers. 
-It enables users without programming experience 
+It allows users without programming experience to
 define models declaratively using a simple domain-specific language 
 and offers real-time visualization of solutions. 
 The integrated editor includes example models, syntax
-highlighting, and error detection. Diff Studio is highly performant,
+highlighting, and error detection. **DiffStudio** is highly performant,
 capable of solving stiff equations significantly faster than many other
 tools.
 
 Diff Studio consists of two components. 
-The first component is the
-[Diff Grok](https://github.com/datagrok-ai/DiffGrok)
-that implements numerical methods and formula parsing tools. 
-The second component is 
+The [Diff Grok](https://github.com/datagrok-ai/DiffGrok) library
+implements numerical methods and formula parsing tools. 
 [Diff Studio](https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio),
-an application that integrates these tools with 
+integrates _Diff Grok_ tools with 
 [Datagrok](https://datagrok.ai/), 
 a next-generation scientific computing platform.
 
-Diff Studio creates an ecosystem within the Datagrok platform that
+Diff Studio creates an ecosystem within the _Datagrok_ platform that
 supports the quick development of specialized scientific applications
 based on differential equation models. 
 Also, it provides features for model design and exploration. 
-It democratize research by acting as a central repository for ODE models 
+It democratizes research by acting as a central repository for ODE models 
 and guaranteeing the reproducibility and accessibility of results.
 
 # Statement of need
@@ -93,8 +90,8 @@ are often preferred.
 
 Numerous methods for solving ODEs have been recently developed 
 [@hairer2008solving1; @hairer2002solving2]. 
-These methods have been implemented in various software
-tools, including libraries and packages for programming languages and
+These methods have been implemented in various software tools, 
+including libraries and packages for programming languages and
 scientific computing environments. 
 Notable examples include 
 SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials], 
@@ -130,7 +127,7 @@ The key features of **Diff Studio** include:
 - Automatic generation of user interfaces;
 - Interactive visualization and model exploration tools;
 - Enables sensitivity analysis and parameter optimization functionality;
-- Development of standalone applications directly from ODE’s system.
+- Development of standalone applications directly from ODE’s system;
 - Capabilities for sharing models and computational results;
 
 The project architecture comprises two main components:
@@ -141,7 +138,7 @@ The project architecture comprises two main components:
   through declarative syntax.
 
 - **Diff Studio**, is a production-ready modeling environment integrated
-  within the [Datagrok](https://datagrok.ai/), scientific computing platform.
+  within the [@datagrok], scientific computing platform.
 
 ## DiffGrok library
 
@@ -175,8 +172,8 @@ initial conditions ($y0$),
 right-hand side of the ODEs, 
 tolerance, 
 and names of dependent variables. 
-Subsequently, a selected method (`mrt`, `ros3prw` or `ros34prw`) 
-is applied to this object. 
+Next, apply a selected method (`mrt`, `ros3prw` or `ros34prw`) 
+to this object. 
 The output consists of an array of `Float64Array`
 arrays containing the values of the independent variable and the
 corresponding approximate solutions.
@@ -223,17 +220,17 @@ The solution contains three items:
 - `solution[1]` - values of `x(t)` at the points of this range;
 - `solution[2]` - values of `y(t)` at the same points.
 
-The library demonstrates outstanding computational performance. 
+The **Diff Grok** library demonstrates outstanding computational performance. 
 The subsequent section presents a performance analysis based on solving a
 set of classical benchmark problems.
 
 The scripting tools enable specification of IVPs in a declarative form
-known as the Diff Studio model (DS-model), which employs an intuitive
+known as the **Diff Studio** model (DS-model), which employs an intuitive
 block-structured syntax. 
 For example, the problem defined in \autoref{eq:ivp} can be
 expressed as shown on the \autoref{fig:ivp}.
 
-![Diff Studio model corresponding to \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png)
+![Diff Studio model corresponding to \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png){ width=50% }
 
 The method `getIVP()` parses strings of a DS-model and produces an IVP
 object specifying a problem. If a model contains invalid expressions, an
@@ -245,10 +242,11 @@ IVP object can be used for the automatic creation of user interfaces.
 We have implemented these features when developing the Diff Studio
 application for the Datagrok platform.
 
-The getIVP method parses DS-model strings and generates an IVP object
+The `getIVP()` method parses DS-model strings 
+and generates an IVP object
 that specifies the problem. 
 If a model contains invalid expressions, an error is raised. 
-The getJScode method generates JavaScript code 
+The `getJScode()` method generates JavaScript code 
 that incorporates an appropriate ODEs object, 
 enabling **in-browser** solution of differential equations. 
 Furthermore, the intermediate IVP
@@ -259,8 +257,8 @@ Studio application for Datagrok.
 ### Performance
 
 DG-lib ensures efficient integration of both stiff and non-stiff ODEs. 
-The **Table 1** compares the computational performance of MRT, ROS3PRw, and
-ROS34PRw in solving these problems.
+The **Table 1** compares the computational performance of `MRT`, `ROS3PRw`, and
+`ROS34PRw` in solving these problems.
 To evaluate performance, we employ the following collection of classical
 benchmark problems:
 
@@ -299,13 +297,14 @@ improvement.
 ## Diff Studio application
 
 The Diff Studio application (**DS-app**) provides production-ready
-capabilities for solving initial value problems (IVPs) directly within a
-web browser. It integrates DG-lib with the 
+capabilities for solving initial value problems (IVPs) 
+directly within a web browser. 
+It integrates DG-lib with the 
 [Datagrok JavaScript API](https://datagrok.ai/js-api/).
 
 DS-app has a model editor (\autoref{fig:diffstudio}), 
 where users can define mathematical expressions, 
-such as those shown in Fig. 2. 
+such as those shown in \autoref{fig:ivp}. 
 The application then parses these expressions 
 and automatically generates the following components:
 
@@ -326,15 +325,13 @@ creates input entries for all variables listed in the equation editor.
 Each time model inputs are changed, a solution is computed and
 displayed.\label{fig:autoui}](./images/diffstudio_autogenerated_ui.png)
 
-DS-app generates the user interface (UI) based on the model
-specification. To enhance usability, each model input can be annotated
+DS-app generates the user interface (UI) based on the model specification. 
+To enhance usability, each model input can be annotated
 with options that define the caption, category, measurement units,
-minimum and maximum values, and tooltips (see eq:ivp). Diff Studio
-provides the UI shown in \autoref{fig:autoui}, 
-where inputs are displayed with their
-specified captions and units. 
-Additionally, inputs belonging to the same
-category are grouped together. 
+minimum and maximum values, and tooltips (see eq:ivp). 
+Diff Studio provides the UI shown in \autoref{fig:autoui}, 
+where inputs are displayed with their specified captions and units. 
+Additionally, inputs belonging to the same category are grouped together. 
 When a user hovers over an element, 
 a tooltip appears, providing additional context.
 
@@ -439,6 +436,11 @@ Moving forward, our efforts will focus on enhancing Diff Studio,
 including the integration of GPU-accelerated computations.
 
 # Acknowledgements 
+The authors express sincere gratitude to the 
+all **Datagrok Inc** team for their invaluable support, 
+and to the JnJ ModelHub project team for their contributions, 
+and feedback, which significantly improved the quality 
+and capabilities of **DiffStudio**.
 
 # Conflicts of interest
 Authors declare not conflicts of interest.
