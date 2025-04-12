@@ -29,7 +29,6 @@ authors:
 affiliations:
  - name: Datagrok Inc, USA
    index: 1
-   ror: 00hx57361
  - name: Johnson & Johnson Inc, USA
    index: 2
  - name: Wellcome Sanger Institute, UK
@@ -40,34 +39,29 @@ bibliography: paper.bib
 
 # Summary
 
-Differential equations play a crucial role in modeling complex systems
-and phenomena, with applications ranging from pharmacology and drug
-manufacturing to financial modeling and environmental studies.
+Differential equations play a crucial role in modeling complex systems and phenomena, 
+with applications ranging from pharmacology and drug manufacturing 
+to financial modeling and environmental studies.
 
-**Diff Studio** is a TypeScript-based application designed for solving
-initial value problems in ordinary differential equations (ODEs)
+**Diff Studio** is a high performant TypeScript application 
+for solving initial value problems in ordinary differential equations (ODEs)
 directly within web browsers. 
-It allows users without programming experience to
-define models declaratively using a simple domain-specific language 
-and offers real-time visualization of solutions. 
-The integrated editor includes example models, syntax
-highlighting, and error detection. **DiffStudio** is highly performant,
-capable of solving stiff equations significantly faster than many other
-tools.
+It enables users without programming expertise to declaratively define models 
+using a simple domain-specific language 
+and provides real-time solution visualization,
+syntax highlighting, error detection, and a set of example ODEs systems. 
 
-Diff Studio consists of two components. 
-The [Diff Grok](https://github.com/datagrok-ai/DiffGrok) library
+**Diff Studio** consists of two components. 
+The **Diff Grok** (https://github.com/datagrok-ai/DiffGrok) library
 implements numerical methods and formula parsing tools. 
-[Diff Studio](https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio),
-integrates _Diff Grok_ tools with 
-[Datagrok](https://datagrok.ai/), 
+The **Diff Studio** application (https://datagrok.ai/help/compute/diff-studio)
+integrates Diff Grok tools with 
+**Datagrok** (https://datagrok.ai/), 
 a next-generation scientific computing platform.
 
-Diff Studio creates an ecosystem within the _Datagrok_ platform that
-supports the quick development of specialized scientific applications
-based on differential equation models. 
-Also, it provides features for model design and exploration. 
-It democratizes research by acting as a central repository for ODE models 
+Diff Studio created inside Datagrok an ecosystem
+for rapid development of specialized scientific applications based on ODE models, 
+and democratizes research by acting as a central repository for ODE models 
 and guaranteeing the reproducibility and accessibility of results.
 
 # Statement of need
@@ -81,8 +75,8 @@ drug delivery systems [@mircioiu2019mathematical],
 cloud computing [@jafarnejad2019applying], 
 and population dynamics [@hastings2013population].
 
-While analytic methods provide exact solutions, 
-they can be applied only to a limited class of ODEs. 
+Analytic methods providing exact solutions
+can be applied only to a limited class of ODEs. 
 Moreover, in many cases, the use of analytic
 solutions proves impractical due to their complexity [@hairer2008solving1].
 Consequently, numerical methods, which compute approximate solutions,
@@ -109,45 +103,44 @@ providing comprehensive capabilities for in-browser ODE modeling and analysis.
 
 # The solution: Diff Studio
 
-In this paper, we introduce **Diff Studio** – 
-a JavaScript-based application designed to provide capabilities 
-for rapid in-browser ODE modeling and analysis for users 
+We introduce **Diff Studio** – 
+a TypeScript-based application 
+allowing rapid in-browser ODE modeling and analysis for users 
 without significant experience in software development.
-
-Diff Studio facilitates rapid development and debugging of models
+Diff Studio facilitates rapid development and debugging of scientific applications
 defined by ODEs. 
 It enables the efficient design of complex processes
-and phenomena simulators with user-friendly interfaces.
+and phenomena simulators with a user-friendly interface.
 
 The key features of **Diff Studio** include:
 
-- Browser-based numerical solving of initial value problems for systems of ODEs;
+- Numerical solving of initial value problems for systems of ODEs directly in web-browser;
 - Declarative problem specification implementing a "no-code" approach;
-- Support for solving both stiff and non-stiff ODE systems;
+- Solving both stiff and non-stiff ODE systems;
 - Automatic generation of user interfaces;
 - Interactive visualization and model exploration tools;
-- Enables sensitivity analysis and parameter optimization functionality;
-- Development of standalone applications directly from ODE’s system;
-- Capabilities for sharing models and computational results;
+- Sensitivity analysis and parameter optimization functionality;
+- Automatic creation of standalone applications directly from ODE’s system;
+- Sharing models and computational results;
 
 The project architecture comprises two main components:
 
-- [Diff Grok](https://github.com/datagrok-ai/DiffGrok),
-  is a library providing numerical methods and features for
-  automatically generating JavaScript code to solve problems specified
-  through declarative syntax.
+- The [@diffgrok] library provides numerical methods and 
+  automatic generation of JavaScript code from declarative problem specification.
 
-- **Diff Studio**, is a production-ready modeling environment integrated
+- The [@diffstudio] package, is a production-ready modeling environment integrated
   within the [@datagrok], scientific computing platform.
 
-## DiffGrok library
+## Diff Grok library
 
 The Diff Grok library (DG-lib) consists of two main components:
 
 - **Solving tools:** numerical methods providing approximate solutions
   of Initial Value Problems (IVPs);
 - **Scripting tools:** methods for automatic generation of JavaScript
-  code that solves problems specified in declarative form.
+  code that solves problems specified in the declarative form.
+
+### Solving tools
 
 **Solving tools** incorporate the following numerical methods:
 
@@ -165,8 +158,8 @@ y(t_0) = y_0
 
 on the interval $[t0, t1]$ with step size $h$, 
 define an ODEs object. 
-This object specifies the independent variable ($t$) 
-and its range ($[t0, t1]$), 
+This object specifies the independent variable ($t$), 
+its range ($[t0, t1]$), 
 solution grid step size ($h$), 
 initial conditions ($y0$),
 right-hand side of the ODEs, 
@@ -174,7 +167,7 @@ tolerance,
 and names of dependent variables. 
 Next, apply a selected method (`mrt`, `ros3prw` or `ros34prw`) 
 to this object. 
-The output consists of an array of `Float64Array`
+The output consists of a list of `float64`
 arrays containing the values of the independent variable and the
 corresponding approximate solutions.
 
@@ -224,35 +217,24 @@ The **Diff Grok** library demonstrates outstanding computational performance.
 The subsequent section presents a performance analysis based on solving a
 set of classical benchmark problems.
 
-The scripting tools enable specification of IVPs in a declarative form
-known as the **Diff Studio** model (DS-model), which employs an intuitive
-block-structured syntax. 
+### Scripting tools
+
+**Scripting tools** enable specification of IVPs in a declarative form
+known as the **Diff Studio** model (DS-model), 
+which employs an intuitive block-structured syntax. 
 For example, the problem defined in \autoref{eq:ivp} can be
 expressed as shown on the \autoref{fig:ivp}.
 
 ![Diff Studio model corresponding to \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png){ width=50% }
 
-The method `getIVP()` parses strings of a DS-model and produces an IVP
-object specifying a problem. If a model contains invalid expressions, an
-error is raised. And the method `getJScode()` generates JavaScript code,
+The method `getIVP()` parses DS-model and produces the IVP
+object specifying the problem. 
+If a model contains invalid expressions, an error is raised. 
+The method `getJScode()` generates JavaScript code,
 involving an appropriate ODEs object, that can be applied for
 **in-browser** solving differential equations. 
 Besides, an intermediate
 IVP object can be used for the automatic creation of user interfaces. 
-We have implemented these features when developing the Diff Studio
-application for the Datagrok platform.
-
-The `getIVP()` method parses DS-model strings 
-and generates an IVP object
-that specifies the problem. 
-If a model contains invalid expressions, an error is raised. 
-The `getJScode()` method generates JavaScript code 
-that incorporates an appropriate ODEs object, 
-enabling **in-browser** solution of differential equations. 
-Furthermore, the intermediate IVP
-object can be utilized for the automatic generation of user interfaces.
-These features have been implemented in the development of the Diff
-Studio application for Datagrok.
 
 ### Performance
 
@@ -281,40 +263,39 @@ benchmark problems:
 **Table 1.** Computational time comparison: MRT vs. ROS3PRw vs.
 ROS34PRw on AMD Ryzen 5 5600H 3.30 GHz CPU \label{table:performance}
 
-|  Problem  | Equations |     Segment      | Points | Tolerance | MRT, ms | ROS3PRw, ms | ROS34PRw, ms |
-|:---------:|:---------:|:----------------:|:------:|:---------:|:-------:|:-----------:|:------------:|
-| Robertson |     3     |  `[0, 10E+11]`   |  40K   |   1E-7    |   103   |     446     |     285      |
+|  Problem  | Equations |     Segment     | Points | Tolerance | MRT, ms | ROS3PRw, ms | ROS34PRw, ms |
+|:---------:|:---------:|:---------------:|:------:|:---------:|:-------:|:-----------:|:------------:|
+| Robertson |     3     |  `[0, 10E+11]`  |  40K   |   1E-7    |   103   |     446     |     285      |
 |   HIRES   |     8     | `[0, 321.8122]` |  32K   |   1E-10   |   222   |     362     |     215      |
 |   VDPOL   |     2     |   `[0, 2000]`   |  20K   |   1E-12   |   936   |    1576     |     760      |
 |   OREGO   |     3     |   `[0, 360]`    |  36K   |   1E-8    |   381   |     483     |     199      |
 |    E5     |     4     |  `[0, 10E+13]`  |  40K   |   1E-6    |   14    |     17      |      8       |
 | Pollution |    20     |    `[0, 60]`    |  30K   |   1E-6    |   36    |     50      |      23      |
 
-The efficient computation allows users to see the modeling results in
-near-real time, thereby facilitating interactive model exploration and
-improvement.
+DiffGrok allows users to obtain the modeling results in near-real time, 
+which facilitates interactive model exploration and improvement.
 
 ## Diff Studio application
 
 The Diff Studio application (**DS-app**) provides production-ready
 capabilities for solving initial value problems (IVPs) 
 directly within a web browser. 
-It integrates DG-lib with the 
+It integrates DG-lib with the **Datagrok** platform using 
 [Datagrok JavaScript API](https://datagrok.ai/js-api/).
 
 DS-app has a model editor (\autoref{fig:diffstudio}), 
-where users can define mathematical expressions, 
-such as those shown in \autoref{fig:ivp}. 
-The application then parses these expressions 
+where users can edit ODEs system and all other equations 
+defining IVP (\autoref{fig:ivp}). 
+The application parses these expressions 
 and automatically generates the following components:
 
-- **JavaScript script (JS-script):** The JS-script invokes methods from
-  DS-tools, and the Datagrok platform executes it to compute the
+- **JavaScript script**, that invokes methods from DS-tools.
+  Datagrok platform executes it to compute the
   numerical solution of the given IVP;
-- **User interface (UI):** The UI provides interactive controls for
-  users to modify model inputs (\autoref{fig:autoui}). Whenever a user updates the
-  inputs, Datagrok reruns the JS-script to recompute the solution. The
-  results are displayed using a grid and line charts.
+- **User interface (UI)**, providing interactive controls for 
+  users to modify model inputs (\autoref{fig:autoui}).  
+  Datagrok can automatically recompute the solution when user updates the inputs. 
+  The results are displayed using a grid and line charts.
 
 ![The Diff Studio application: 
 the equation editor, numerical solution of the problem \autoref{eq:ivp} 
@@ -326,12 +307,11 @@ Each time model inputs are changed, a solution is computed and
 displayed.\label{fig:autoui}](./images/diffstudio_autogenerated_ui.png)
 
 DS-app generates the user interface (UI) based on the model specification. 
-To enhance usability, each model input can be annotated
-with options that define the caption, category, measurement units,
-minimum and maximum values, and tooltips (see eq:ivp). 
+Each model input can use options that define the caption, category, measurement units,
+minimum and maximum values, and tooltips (see \autoref{eq:ivp}). 
 Diff Studio provides the UI shown in \autoref{fig:autoui}, 
 where inputs are displayed with their specified captions and units. 
-Additionally, inputs belonging to the same category are grouped together. 
+Inputs from the same category are grouped together. 
 When a user hovers over an element, 
 a tooltip appears, providing additional context.
 
@@ -353,29 +333,24 @@ which is particularly important when creating and debugging complex models.
 \label{fig:errorhighlight}](./images/error_highlighting.png)
 
 DS-models can be stored on the Datagrok platform or downloaded to local
-storage as `.ivp` text files, where `ivp` denotes an initial value
-problem. Additionally, computation results and their visualizations can
-be saved as CSV and PNG files, respectively.
+storage as `.ivp` text files, where `ivp` denotes an Initial Value Problem. 
+Computation results and their visualizations can be saved as CSV and PNG files.
 
-Thus, DS-app serves as a comprehensive scientific computing environment,
-facilitating both the development and application of models defined by
-systems of ordinary differential equations (ODEs).
+Thus, DS-app serves as a comprehensive scientific computing and modeling environment,
+facilitating both the development and application of models 
+defined by systems of ordinary differential equations (ODEs).
 
-## Integration with Datagrok
+## Integration with the Datagrok platform
 
-An autogenerated JS-script is a 
+An autogenerated JS-script solving ODEs is a 
 [Datagrok function](https://datagrok.ai/help/datagrok/concepts/functions/),
 which constitutes a key feature for several reasons.
 
-First, the platform executes the JS-script to compute a numerical
-solution for a given problem. The output of these computations is a
-dataframe, which is displayed in a grid and visualized using line charts. 
-Users can further customize the output using 
-[Datagrok viewers](https://datagrok.ai/help/visualize/viewers/).
-This also enables seamless sharing of the unique URI and history of
-results.
+First, DiffStudio returns calculation results in Datagrok Dataframe. 
+The user can use all Datagrok interactive capabilities to [transform](https://datagrok.ai/help/transform/) 
+and [visualize](https://datagrok.ai/help/visualize/viewers/) calculation results. 
 
-Second, the Datagrok platform offers advanced function analysis
+Second, Datagrok offers advanced function analysis
 capabilities, which can be applied to any numerical 
 [platform function](https://datagrok.ai/help/compute/function-analysis).
 Using 
@@ -388,21 +363,26 @@ find input parameters that generate a specified model output.
 These tools can be accessed directly from Diff Studio, enabling comprehensive
 model analysis and parameter fitting.
 
-Third, the JS-script is modifiable. 
-It can be extended to incorporate non-elementary and special functions, 
-allowing for the simulation of a broader range of processes. 
-Additionally, other Datagrok functions can be called within the script, 
-further enhancing its functionality.
+Third, the user can use all enterprise Datagrok capabilities:
+seamless sharing of the unique URI and history of computations,
+access control, and audit.
 
-Finally, JS-script can be saved in Datagrok scripts. 
-Hence, it can be called by other functions. 
-Such a capability makes it possible to create
-building blocks for more complex applications.
+Fourth, the JS-script is modifiable. 
+The user can incorporate non-elementary and special functions,
+call other Datagrok functions,
+customize default visualizations via 
+[function annotations](https://datagrok.ai/help/datagrok/concepts/functions/func-params-annotation) 
+further enhancing script functionality.
+
+Finally, JS-script can be saved in Datagrok scripts and called by other functions. 
+This capability makes it possible to use the script as a
+building block for more complex applications.
 
 Furthermore, **Diff Studio** supports the handling of IVP files within Datagrok. 
+Users can execute models simply by clicking on IVP files stored on the platform.
 Any file with the `.ivp` extension is automatically opened in
 Diff Studio, triggering the computation process. 
-Users can execute models simply by clicking on IVP files stored on the platform.
+
 Additionally, they can share links to these files with other users,
 enabling seamless collaboration. 
 This feature allows researchers to efficiently share their results with colleagues, 
@@ -438,7 +418,7 @@ including the integration of GPU-accelerated computations.
 # Acknowledgements 
 The authors express sincere gratitude to the 
 all **Datagrok Inc** team for their invaluable support, 
-and to the JnJ ModelHub project team for their contributions, 
+and to the **JnJ ModelHub** project team for their contributions, 
 and feedback, which significantly improved the quality 
 and capabilities of **DiffStudio**.
 
