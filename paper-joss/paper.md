@@ -77,8 +77,8 @@ and population dynamics [@hastings2013population].
 
 Analytic methods providing exact solutions
 can be applied only to a limited class of ODEs. 
-Moreover, in many cases, the use of analytic
-solutions proves impractical due to their complexity [@hairer2008solving1].
+The use of analytic
+solutions often proves impractical due to their complexity [@hairer2008solving1].
 Numerical methods computing approximate solutions
 are often preferred.
 
