@@ -49,7 +49,8 @@ directly within web browsers.
 It enables users without programming expertise to declaratively define models 
 using a simple domain-specific language 
 and provides real-time solution visualization,
-syntax highlighting, and error detection. 
+syntax highlighting, error detection, 
+and one-click creation of standalone applications directly from an ODE's system. 
 
 Diff Studio consists of two components. 
 The **Diff Grok library** (<https://github.com/datagrok-ai/diff-grok>)
