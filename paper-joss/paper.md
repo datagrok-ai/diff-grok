@@ -6,12 +6,12 @@ tags:
 authors:
   - name: Viktor Makarichev   
     orcid: 0000-0000-0000-0000
-    affiliation: "1" 
-    corresponding: true 
+    affiliation: "1"  
   - name: Larisa Bankurova
     affiliation: "1"
   - name: Gennadii Zakharov
     affiliation: "1,3"
+    corresponding: true
   - name: Leonid Stolbov
     affiliation: "1"
   - name: Steven Mehrman
