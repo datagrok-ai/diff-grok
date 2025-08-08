@@ -1,33 +1,58 @@
-## Advanced
+## GA-production
 
-#### Initial Value Problem
+Gluconic acid (GA) production by Aspergillus niger modeling
 
 $$\begin{cases}
 
-dx/dt = E1 * y + sin(t) \\
+dX/dt = rX \\
 
-dy/dt = E2 * x - pow(t, 5) \\
+dS/dt = -\gamma \cdot  rX - \lambda_1 \cdot  X \\
 
-x(0) = 2 \\
+dO/dt = Kla \cdot  (Cod - O) - \delta2 \cdot  rX - \phi \cdot  X \\
 
-y(0) = 0 \\
+dP/dt = \alpha \cdot  rX + \beta \cdot  X \\
+
+X(0) = 5 \\
+
+S(0) = 150 \\
+
+O(0) = 7 \\
+
+P(0) = 0 \\
 
 \end{cases}$$
 
 #### Auxiliary Computations
 
-* $E1 = C1 * exp(-t) + P1$
+$$\mu = \mu_M \cdot  S / (Ks + S) \cdot  O / (Ko + O)$$
 
-* $E2 = C2 * cos(2 * t) + P2$
+$$rX = \mu \cdot  X$$
 
 #### Parameters
 
-* $P1 = 1$
+$$overall = 100$$
 
-* $P2 = -1$
+$$\mu_M = 0.668$$
 
-#### Constants
+$$\alpha = 2.92$$
 
-$C1 = 1$
+$$\beta = 0.131$$
 
-$C2 = 3$
+$$\gamma = 2.12$$
+
+$$\lambda = 0.232$$
+
+$$\delta = 0.278$$
+
+$$\phi = 0.00487$$
+
+$$Ks = 130.9$$
+
+$$Ko = 0.000363$$
+
+$$Kla = 0.017$$
+
+$$Cod = 15$$
+
+$$\frac{{x}^{2}}{y} - x
+\int {x + x}\, dx + \mathrm{cos}\left(y+y\right)$$

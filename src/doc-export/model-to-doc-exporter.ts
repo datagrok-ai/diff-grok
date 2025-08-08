@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 import {IVP} from '../scripting-tools';
-import {EQN_TAG, FormattingOptions, getDerForm, getOpenCloseEqTags, HEADER_TAG, SHORT_EQN_TAG, TITLE} from './format-defs';
+import {FormattingOptions, getDerForm, getOpenCloseEqTags, HEADER_TAG, TITLE} from './format-defs';
+import {getFormatted} from './formatting-utils';
+
 
 /** */
 export class ModelToDocExporter {
@@ -11,13 +13,13 @@ export class ModelToDocExporter {
     this.ivp = ivp;
     this.opts = opts;
   };
-  
+
   public getDocLines(): string[] {
     // Title
     const textLines: string[] = this.getDocBegin();
 
     // Differential equations
-    textLines.push(...this.getEquationsSection());    
+    textLines.push(...this.getEquationsSection());
 
     // Init conditions
     textLines.push(...this.getInitsSection());
@@ -44,10 +46,10 @@ export class ModelToDocExporter {
   /** */
   private getComponentsLines(): string[] {
     const textLines: string[] = [];
-   
+
     // Expressions
     if (this.ivp.exprs !== null)
-        textLines.push(...this.getExpressionsSection());
+      textLines.push(...this.getExpressionsSection());
 
     // Parameters
     if (this.ivp.params !== null)
@@ -57,37 +59,34 @@ export class ModelToDocExporter {
     if (this.ivp.consts !== null)
       textLines.push(...this.getConstsSection());
 
-    return textLines;    
+    return textLines;
   }
 
-  /**  */
+  /** Returns initial value problem section */
   protected getIvpSection(): string[] {
     const textLines: string[] = [];
     const eqnForm = getDerForm(this.opts?.derForm);
-    const tags = getOpenCloseEqTags(SHORT_EQN_TAG);
+    const tags = getOpenCloseEqTags(this.opts?.eqnTag);
 
-    // Section title
-    textLines.push(this.getSubsection(TITLE.IVP));
-
-    textLines.push(`${tags.open}\\begin{cases}`)
+    textLines.push(`${tags.open}\\begin{cases}`);
 
     // Equations
     const argName = this.ivp.arg.name;
 
     this.ivp.deqs.equations.forEach((equation, funcName) => {
-      textLines.push(`${eqnForm(argName, funcName)} = ${equation} \\\\`);
+      textLines.push(getFormatted(`${eqnForm(argName, funcName)} = ${equation} \\\\`));
     });
 
     // Init conditions
     const initArg = this.ivp.arg.initial.value;
 
     this.ivp.inits.forEach((input, name) => {
-      textLines.push(`${name}(${initArg}) = ${input.value} \\\\`);
+      textLines.push(getFormatted(`${name}(${initArg}) = ${input.value} \\\\`));
     });
 
-    textLines.push(`\\end{cases}${tags.close}`)
+    textLines.push(`\\end{cases}${tags.close}`);
 
-    return textLines;    
+    return textLines;
   }
 
   /** Return the model's begin */
@@ -116,15 +115,15 @@ export class ModelToDocExporter {
     const textLines: string[] = [];
 
     if (this.ivp.exprs === null)
-        return textLines;
-    
+      return textLines;
+
     const tags = getOpenCloseEqTags(this.opts?.eqnTag);
 
     // Section title
     textLines.push(this.getSubsection(TITLE.EXPR));
 
     this.ivp.exprs.forEach((right, left) => {
-      textLines.push(`${tags.open}${left} = ${right}${tags.close}`);
+      textLines.push(getFormatted(`${tags.open}${left} = ${right}${tags.close}`));
     });
 
     return textLines;
@@ -136,33 +135,30 @@ export class ModelToDocExporter {
     const eqnForm = getDerForm(this.opts?.derForm);
     const tags = getOpenCloseEqTags(this.opts?.eqnTag);
 
-    // Section title
-    textLines.push(this.getSubsection(TITLE.DEQS));
-
     // Equations
     const argName = this.ivp.arg.name;
 
     this.ivp.deqs.equations.forEach((equation, funcName) => {
-      textLines.push(`${tags.open}${eqnForm(argName, funcName)} = ${equation}${tags.close}`);
+      textLines.push(getFormatted(`${tags.open}${eqnForm(argName, funcName)} = ${equation}${tags.close}`));
     });
 
     return textLines;
   }
-  
+
   /** Return the initial conditions section */
   protected getInitsSection(): string[] {
     const textLines: string[] = [];
-    const tags = getOpenCloseEqTags(this.opts?.eqnTag);
+    const tags = getOpenCloseEqTags(this.opts?.valTag);
     const initArg = this.ivp.arg.initial.value;
-  
+
     // Section title
     textLines.push(this.getSubsection(TITLE.INITS));
-  
+
     // Init conditions
     this.ivp.inits.forEach((input, name) => {
-      textLines.push(`${tags.open}${name}(${initArg}) = ${input.value}${tags.close}`);
+      textLines.push(getFormatted(`${tags.open}${name}(${initArg}) = ${input.value}${tags.close}`));
     });
-  
+
     return textLines;
   }
 
@@ -171,15 +167,15 @@ export class ModelToDocExporter {
     const textLines: string[] = [];
 
     if (this.ivp.params === null)
-        return textLines;
-    
-    const tags = getOpenCloseEqTags(this.opts?.eqnTag);
+      return textLines;
+
+    const tags = getOpenCloseEqTags(this.opts?.valTag);
 
     // Section title
     textLines.push(this.getSubsection(TITLE.PARAMS));
 
     this.ivp.params.forEach((inp, name) => {
-      textLines.push(`${tags.open}${name} = ${inp.value}${tags.close}`);
+      textLines.push(getFormatted(`${tags.open}${name} = ${inp.value}${tags.close}`));
     });
 
     return textLines;
@@ -190,20 +186,19 @@ export class ModelToDocExporter {
     const textLines: string[] = [];
 
     if (this.ivp.consts === null)
-        return textLines;
-    
-    const tags = getOpenCloseEqTags(this.opts?.eqnTag);
+      return textLines;
+
+    const tags = getOpenCloseEqTags(this.opts?.valTag);
 
     // Section title
     textLines.push(this.getSubsection(TITLE.CONSTS));
 
     this.ivp.consts.forEach((inp, name) => {
-      textLines.push(`${tags.open}${name} = ${inp.value}${tags.close}`);
+      textLines.push(getFormatted(`${tags.open}${name} = ${inp.value}${tags.close}`));
     });
 
     return textLines;
   }
-
 }; // ModelToDocExporter
 
 /** */
@@ -213,10 +208,12 @@ export class ModelToLaTeXExporter extends ModelToDocExporter {
   }
 
   protected getSection(): string {
-    return `\\subsection*{${this.ivp.name}}`;
+    const ins = (this.ivp.descr !== null) ? '' : `\n\n${TITLE.DEQS}`;
+
+    return `\\subsection*{${this.ivp.name}}${ins}`;
   }
 
   protected getSubsection(header: string): string {
-    return `\\subsubsection*{${header}}`;
+    return `\\textbf{${header}}`;
   }
 } // ModelToLaTeXExporter

@@ -1,5 +1,6 @@
+/* eslint-disable max-len */
 import {getIVP, IVP} from '../scripting-tools';
-import { DER_FORM, EQN_TAG } from './format-defs';
+import {DER_FORM, FORMULA_TAG} from './format-defs';
 import {ModelToDocExporter, ModelToLaTeXExporter} from './model-to-doc-exporter';
 
 const poll = `#name: Pollution
@@ -219,13 +220,13 @@ const adv = `#name: Advanced
   This is an advanced template. Modify it. Use multi-line formulas if needed.
   Add new equations, expressions, constants & parameters. Edit these comment lines if required.
 #equations:
-  dx/dt = E1 * y + sin(t)
+  dx/dt = E_1 * y + sin(t)
 
-  dy/dt = E2 * x - pow(t, 5)
+  dy/dt = E_2 * x - pow(pow(t + 1, 5),6)
 
 #expressions:
-  E1 = C1 * exp(-t) + P1
-  E2 = C2 * cos(2 * t) + P2
+  E1 = C_1 * exp(-pow(t,2)/(2*C_1)) + P_1
+  E2 = C_2 * cos(2 * t) + P_2
 
 #argument: t
   start = 0
@@ -237,19 +238,129 @@ const adv = `#name: Advanced
   y = 0
 
 #constants:
-  C1 = 1
-  C2 = 3
+  C_1 = 1
+  C_2 = 3
 
 #parameters:
-  P1 = 1
-  P2 = -1
+  P_1 = 1
+  P_2 = -1
 
 #tolerance: 5e-5`;
 
-const model = adv;
+const pkpd = `#name: PK-PD
+#description: Pharmacokinetic-pharmacodynamic (PK-PD) simulation: two-compartment model
+#equations:
+  d(depot)/dt = -KA * depot
+  d(centr)/dt = KA * depot - CL * C2 - Q * C2 + Q * C3
+  d(peri)/dt  = Q * C2 - Q * C3
+  d(eff)/dt  = Kin - Kout * (1 - C2/(EC50 + C2)) * eff
 
-const exporter = new ModelToDocExporter(getIVP(model), {eqnTag: EQN_TAG.DOLLAR});
-//const exporter = new ModelToLaTeXExporter(getIVP(model), {eqnTag: EQN_TAG.DOUBLE_DOLLAR});
+#expressions:
+  C2 = centr / V2
+  C3 = peri / V3
+
+#loop:
+  count = 10 {caption: count; category: Dosing; min: 1; max: 20} [Number of doses]
+  depot += dose
+
+#argument: t
+  start = 0 {units: h; caption: begin; category: Dosing; min: 0; max: 1} [Begin of dosing interval]
+  final = 12 {units: h; caption: end; category: Dosing; min: 5; max: 15} [End of dosing interval]
+  step = 0.1 {units: h; caption: step; category: Dosing; min: 0.01; max: 0.1} [Time step of simulation]  
+
+#inits:  
+  depot = 0 {category: Initial values}
+  centr = 0 {category: Initial values} [Central]
+  peri = 0 {category: Initial values} [Peripheral]
+  eff = 0.2 {category: Initial values} [Effective compartment rate]
+
+#parameters:  
+  dose = 1e4 {category: Dosing; min: 1e3; max: 2e4; step: 1e3} [Dosage]
+  KA = 0.3 {caption: rate constant; category: Parameters; min: 0.1; max: 1}
+  CL = 2 {caption: clearance; category: Parameters; min: 1; max: 5}
+  V2 = 4 {caption: central volume; category: Parameters; min: 1; max: 10} [Central compartment volume]
+  Q = 1 {caption: inter rate; category: Parameters; min: 0.1; max: 1} [Intercompartmental rate]
+  V3 = 30 {caption: peri volume; category: Parameters; min: 20; max: 40} [Peripheral compartment volume]
+  EC50 = 8 {caption: effect; category: Parameters; min: 1; max: 10}
+  Kin = 0.2 {caption: Kin; category: Parameters; min: 0.1; max: 0.5} [The first-order production constant]
+  Kout = 0.2 {caption: Kout; category: Parameters; min: 0.1; max: 0.5} [The first-order dissipation rate constant]
+  
+#tolerance: 1e-9`;
+
+const rober = `#name: Robertson
+#description: Robertson chemical reaction model
+#comment: This is classic example of stiff ODEs.
+#equations:
+  dA/dt = -0.04 * A + 1e4 * B * C
+  dB/dt = 0.04 * A - 1e4 * B * C - 3e7 * B**2
+  dC/dt = 3e7 * B**2
+
+#inits:
+  A = 1 {units: mol/L; category: Initial concentrations; min: 0; max: 5}
+  B = 0 {units: mol/L; category: Initial concentrations; min: 0; max: 5}
+  C = 0 {units: mol/L; category: Initial concentrations; min: 0; max: 5}
+
+#argument: t
+  start = 0 {units: sec; caption: Initial; category: Time; min: 0; max: 1} [Initial time of simulation]
+  finish = 40 {units: sec; caption: Final; category: Time; min: 2; max: 50} [Final time of simulation]
+  step = 0.01 {units: sec; caption: Step; category: Time; min: 0.01; max: 0.1} [Time step of simulation]
+
+#tolerance: 1e-7`;
+
+const ga = `#name: GA-production
+#description: Gluconic acid (GA) production by Aspergillus niger modeling
+#equations:
+  dX/dt = rX
+  dS/dt = -gamma * rX - lambda_1 * X
+  dO/dt = Kla * (Cod - O) - delta2 * rX - phi * X
+  dP/dt = alpha * rX + beta * X
+
+#expressions:
+  mu = mu_M * S / (Ks + S) * O / (Ko + O)
+  rX = mu * X
+
+#argument: t, 1-st stage
+  _t0 = 0 {units: h; caption: initial; category: Misc} [Start of the process]
+  _t1 = 60 {units: h; caption: 1-st stage; category: Durations; min: 20; max: 80} [Duration of the 1-st stage]
+  step = 0.1 {units: h; caption: step; category: Misc; min: 0.01; max: 1} [Time step of simulation]
+
+#update: 2-nd stage
+  duration = overall - _t1
+  S += 70
+
+#inits:  
+  X = 5 {units: kg/m³; caption: biomass; category: Initial concentrations; min: 1; max: 10} [Aspergillus niger biomass]
+  S = 150 {units: kg/m³; caption: glucose; category: Initial concentrations; min: 50; max: 200} [Glucose]
+  O = 7 {units: kg/m³; caption: oxygen; category: Initial concentrations; min: 1; max: 10} [Dissolved oxygen]
+  P = 0 {units: kg/m³; caption: acid; category: Initial concentrations; min: 0; max: 0.1} [Gluconic acid]
+
+#output:
+  t {caption: time}
+  X {caption: biomass}
+  S {caption: glucose}
+  O {caption: oxygen}
+  P {caption: acid}
+
+#parameters:
+  overall = 100 {units: h; category: Durations; min: 100; max: 140} [Overall duration]
+  mu_M = 0.668 {units: 1/h; category: Parameters} [Monod type model parameter]
+  alpha = 2.92 {category: Parameters} [Monod type model parameter]
+  beta = 0.131 {units: 1/h; category: Parameters} [Monod type model parameter]
+  gamma = 2.12 {category: Parameters} [Monod type model parameter]
+  lambda = 0.232 {units: 1/h; category: Parameters} [Monod type model parameter]
+  delta = 0.278 {category: Parameters} [Monod type model parameter]
+  phi = 4.87e-3 {units: 1/h; category: Parameters} [Monod type model parameter]
+  Ks = 1.309e2 {units: g/L; category: Parameters} [Monod type model parameter]
+  Ko = 3.63e-4 {units: g/L; category: Parameters} [Monod type model parameter]
+  Kla = 1.7e-2 {units: 1/s; category: Parameters} [Volumetric mass transfer coefficient]
+  Cod = 15 {units: kg/m³; category: Parameters} [Liquid phase dissolved oxygen saturation concentration]
+  
+#tolerance: 1e-9`;
+
+const model = ga;
+
+const exporter = new ModelToDocExporter(getIVP(model)/*, {eqnTag: FORMULA_TAG.DOUBLE_DOLLAR, valTag: FORMULA_TAG.DOLLAR}*/);
+//const exporter = new ModelToLaTeXExporter(getIVP(model));
 
 //console.log(exporter.getDocLines().join('\n\n'));
 console.log(exporter.getShortDocLines().join('\n\n'));

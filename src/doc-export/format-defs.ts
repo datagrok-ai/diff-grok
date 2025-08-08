@@ -40,24 +40,29 @@ export enum HEADER_TAG {
 };
 
 export enum TITLE {
-  DEQS = 'Differential Equations',
+  DEQS = 'Differential equations',
   INITS = 'Initial Conditions',
   EXPR = 'Auxiliary Computations',
   PARAMS = 'Parameters',
   CONSTS = 'Constants',
-  IVP = 'Initial Value Problem',
 };
 
-export enum EQN_TAG {
+export enum FORMULA_TAG {
   DOLLAR,
   DOUBLE_DOLLAR,
 };
 
-export const SHORT_EQN_TAG = EQN_TAG.DOUBLE_DOLLAR;
+export type MathMLOptions = {
+  toTagGreeks: boolean,
+  toReplaceAsterixWithCdot: boolean,
+  toTagMathFuncs: boolean,
+};
 
 export type FormattingOptions = {
-  eqnTag: EQN_TAG,
+  eqnTag: FORMULA_TAG,
+  valTag: FORMULA_TAG,
   derForm: DER_FORM,
+  mathMlOpts: MathMLOptions,
 };
 
 export type EqnTags = {
@@ -65,15 +70,29 @@ export type EqnTags = {
   close: string,
 };
 
-export function getOpenCloseEqTags(type?: EQN_TAG): EqnTags {
+export function getOpenCloseEqTags(type?: FORMULA_TAG): EqnTags {
   switch (type) {
-  case EQN_TAG.DOLLAR:
+  case FORMULA_TAG.DOLLAR:
     return {open: '$', close: '$'};
 
-  case EQN_TAG.DOUBLE_DOLLAR:
+  case FORMULA_TAG.DOUBLE_DOLLAR:
     return {open: '$$', close: '$$'};
 
   default:
     return {open: '$$', close: '$$'};
   }
 }
+
+export const BASE_GREEK_LETTERS = [
+  'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta',
+  'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho',
+  'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega',
+  'varepsilon', 'vartheta', 'varpi', 'varrho', 'varsigma', 'varphi',
+];
+
+export const GREEKS_TAGGING_DEFAULT = true;
+export const ASTERIX_REPLACING_DEFAULT = true;
+
+export const MATH_FUNCS = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'exp', 'log', 'sinh', 'cosh', 'tanh'];
+
+export const MATH_FUNC_REPLACING_DEFAULT = true;
