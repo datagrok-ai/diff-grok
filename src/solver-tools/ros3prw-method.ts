@@ -289,5 +289,16 @@ export function ros3prw(odes: ODEs, callback?: Callback): Float64Array[] {
   for (let i = 0; i < dim; ++i)
     yArrs[i][rowCount - 1] = y[i];
 
-  return [tArr].concat(yArrs);
+  // 4. prepare output
+  const solution = Array<Float64Array>(dim);
+
+  // independent variable
+  solution[0] = tArr;
+
+  // functions
+  for (let i = 0; i < dim; ++i)
+    solution[i + 1] = yArrs[i];
+
+  return solution;
+  //return [tArr].concat(yArrs);
 } // ros3prw
