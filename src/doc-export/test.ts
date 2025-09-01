@@ -312,7 +312,7 @@ const ga = `#name: GA-production
 #equations:
   dX/dt = rX
   dS/dt = -gamma * rX - lambda_1 * X
-  dO/dt = Kla * (Cod - O) - delta2 * rX - phi * X
+  dO/dt = Kla * (Cod - O) - delta * rX - phi * X
   dP/dt = alpha * rX + beta * X
 
 #expressions:

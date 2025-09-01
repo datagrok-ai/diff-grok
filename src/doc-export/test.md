@@ -53,6 +53,3 @@ $$Ko = 0.000363$$
 $$Kla = 0.017$$
 
 $$Cod = 15$$
-
-$$\frac{{x}^{2}}{y} - x
-\int {x + x}\, dx + \mathrm{cos}\left(y+y\right)$$
