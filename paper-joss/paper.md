@@ -49,10 +49,11 @@ directly within web browsers.
 It enables users without programming expertise to declaratively define models 
 using a simple domain-specific language 
 and provides real-time solution visualization,
-syntax highlighting, and error detection. 
+syntax highlighting, error detection, 
+and one-click creation of standalone applications directly from an ODE's system. 
 
 Diff Studio consists of two components. 
-The **Diff Grok library** (<https://github.com/datagrok-ai/DiffGrok>)
+The **Diff Grok library** (<https://github.com/datagrok-ai/diff-grok>)
 implements numerical methods and formula parsing tools. 
 The **Diff Studio application** (<https://datagrok.ai/help/compute/diff-studio>)
 integrates Diff Grok tools with 
@@ -398,7 +399,7 @@ interactive modeling ecosystem for ODE-based simulations.
 ## Availability
 
 The Diff Grok library is available on
-[GitHub](https://github.com/datagrok-ai/DiffGrok) 
+[GitHub](https://github.com/datagrok-ai/diff-grok) 
 and includes both solving and scripting tools, along with appropriate examples.
 
 The Diff Studio application code is also accessible on
