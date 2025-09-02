@@ -5,7 +5,7 @@ tags:
   - JavaScript
 authors:
   - name: Viktor Makarichev   
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0003-1481-9132
     affiliation: "1" 
     corresponding: true 
   - name: Larisa Bankurova
