@@ -99,7 +99,7 @@ y(t_0) = y_0
 on the interval $[t_0, t_1]$, 
 define an ODEs object. 
 This object specifies the independent variable ($t$), 
-its range ($[_t0, t_1]$), 
+its range ($[t_0, t_1]$), 
 solution grid step size ($h$), 
 initial conditions ($y_0$),
 right-hand side of the ODEs, 
