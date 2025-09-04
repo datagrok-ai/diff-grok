@@ -39,12 +39,12 @@ bibliography: paper.bib
 
 # Summary
 
-Ordinary differential equations (ODEs) are very important in modeling complex systems and phenomena. Their applications range from pharmacology and drug manufacturing 
+Ordinary differential equations (ODEs) are crucial in modeling complex systems and phenomena. Their applications range from pharmacology and drug manufacturing 
 to financial modeling and environmental studies.
 
 **Diff Studio** is a high-performance TypeScript application for solving initial value problems (IVPs) for ODEs directly within web browsers. It consists of two components. The **Diff Grok library** implements numerical methods and formula parsing tools. The **Diff Studio application** integrates Diff Grok tools with **Datagrok**, a scientific computing platform free for personal and academic use.
 
-Diff Studio provides an ecosystem for fast development of ODE-based applications with reproducible and accessible models.
+Diff Studio provides an ecosystem for rapid development of ODE-based applications with reproducible and accessible models.
 
 
 # Statement of need
@@ -78,7 +78,7 @@ The goal of this project is to develop an ecosystem providing a combination of a
 
 This library provides numerical methods and automatic generation of JavaScript code from a declarative problem specification. It includes:
 
-- **Solving tools:** numerical methods for solvingIVPs;
+- **Solving tools:** numerical methods for solving IVPs;
 - **Scripting tools:** methods for automatic generation of JavaScript
   code that solves problems specified in the declarative form.
 
@@ -96,10 +96,10 @@ y(t_0) = y_0
 \end{split}
 \end{equation}
 
-on the interval $[t0, t1]$, 
+on the interval $[t_0, t_1]$, 
 define an ODEs object. 
 This object specifies the independent variable ($t$), 
-its range ($[t0, t1]$), 
+its range ($[_t0, t_1]$), 
 solution grid step size ($h$), 
 initial conditions ($y_0$),
 right-hand side of the ODEs, 
@@ -200,7 +200,7 @@ Moving forward, our efforts will focus on enhancing Diff Studio, including the i
 
 # Acknowledgements 
 
-The authors are grateful to the all **Datagrok Inc** team and to the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
+The authors are grateful to the entire **Datagrok Inc** team and to the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
 
 # Conflicts of interest
 
