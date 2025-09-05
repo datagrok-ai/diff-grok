@@ -155,7 +155,7 @@ The solution contains three items:
 
 Diff Grok delivers outstanding computational performance [@diffgrokperformance], benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. It allows users to obtain the modeling results in near-real time.
 
-Scripting tools enable specification of IVPs declaratively using an intuitive syntax. For example, the problem \autoref{eq:ivp} can be expressed as shown in \autoref{fig:ivp}.
+Scripting tools enable specification of IVPs declaratively using an intuitive syntax (see \autoref{fig:ivp}).
 
 ![Diff Studio model corresponding to the \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png){ height=6cm }
 
@@ -182,7 +182,7 @@ elements from \autoref{fig:autoui}
 
 Datagrok provides in-browser computations and visualizations. Other features include:
 
-- Sensitivity analysis and parameter optimization functionality;
+- Sensitivity analysis and parameter optimization;
 - Storing and sharing computations.
 
 Thus, Diff Studio serves as a comprehensive modeling environment.
@@ -195,8 +195,6 @@ The Diff Studio package is accessible on [GitHub](https://github.com/datagrok-ai
 while its documentation can be found at [Datagrok Help pages](https://datagrok.ai/help/compute/diff-studio).
 
 Run Diff Studio online [here](https://public.datagrok.ai/apps/DiffStudio), or complete an interactive [tutorial](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations).
-
-Moving forward, our efforts will focus on enhancing Diff Studio, including the integration of GPU-accelerated computations.
 
 # Acknowledgements 
 
