@@ -1,5 +1,5 @@
 {
-  "name": "@datagrok/diff-grok",
+  "name": "diff-grok",
   "author": {
     "name": "Viktor Makarichev",
     "email": "vmakarichev@datagrok.ai"
@@ -8,7 +8,7 @@
     "access": "public"
   },
   "license": "MIT",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Tools for solving initial value problem for ordinary differential equations",
   "keywords": [
     "initial value problem",

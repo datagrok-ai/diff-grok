@@ -19,7 +19,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 ## Installation
 
 ```bash
-npm i @datagrok/diff-grok
+npm i diff-grok
 ```
 
 ## Solving
