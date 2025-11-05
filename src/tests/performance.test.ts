@@ -1,4 +1,4 @@
-// CPerformance tests
+// Performance tests
 
 import {perfProbs} from '../../index';
 import {methods, TIMEOUT_MS} from './test-defs';

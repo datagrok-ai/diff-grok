@@ -1,7 +1,6 @@
 import {getIVP, getJScode} from '../../index';
 
 /** Example. Solve the following initial value problem
-     
       dx / dt = x + y - cos(t)
       dy / dt = x - y + sin(t)
       x(0) = 1

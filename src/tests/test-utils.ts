@@ -1,4 +1,5 @@
-import {ODEs, CorrProblem} from '../../index';
+import {ODEs, CorrProblem, getIVP, getIvp2WebWorker, getInputVector, getPipelineCreator,
+  applyPipeline} from '../../index';
 
 /** Return numerical solution error: maximum absolute deviation between approximate & exact solutions */
 export function getError(method: (odes: ODEs) => Float64Array[], corProb: CorrProblem): number {
@@ -24,3 +25,13 @@ export function getError(method: (odes: ODEs) => Float64Array[], corProb: CorrPr
 
   return error;
 } // getError
+
+/** Evaluate model  */
+export function evalModel(model: string, inputs: Record<string, number>): Float64Array[] {
+  const ivp = getIVP(model);
+  const ivpWW = getIvp2WebWorker(ivp);
+  const inputVector = getInputVector(inputs, ivp);
+  const creator = getPipelineCreator(ivp);
+  const pipeline = creator.getPipeline(inputVector);
+  return applyPipeline(pipeline, ivpWW, inputVector);
+} // evalModel
