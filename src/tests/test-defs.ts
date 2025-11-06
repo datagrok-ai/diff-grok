@@ -7,7 +7,7 @@ export const methods = new Map([
   ['ROS34PRw', ros34prw],
 ]);
 
-export const MAX_MAD = -0.1;
+export const MAX_MAD = 0.1;
 export const TIMEOUT_MS = 10000;
 
 const BASIC_MODEL = `#name: M|M|2|2
