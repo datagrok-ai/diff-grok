@@ -8,7 +8,7 @@
     "access": "public"
   },
   "license": "MIT",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Tools for solving initial value problem for ordinary differential equations",
   "keywords": [
     "initial value problem",
@@ -16,8 +16,8 @@
     "Rosenbrock-Wanner method"
   ],
   "devDependencies": {
+    "@types/jest": "^29.0.0",
     "@types/wu": "^2.1.44",
-    "eslint-plugin-vue": "^9.29.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "css-loader": "^6.7.3",
@@ -25,7 +25,10 @@
     "eslint-config-eslint": "^9.0.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-vue": "^9.29.0",
+    "jest": "^29.0.0",
     "style-loader": "^3.3.2",
+    "ts-jest": "^29.0.0",
     "ts-loader": "^9.2.6",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.10.0"
@@ -35,7 +38,8 @@
     "build-diff-studio": "git clean -f -X -d ./src && tsc",
     "build": "tsc",
     "lint": "eslint \"./src/**/*.ts\"",
-    "lint-fix": "eslint \"./src/**/*.ts\" --fix"
+    "lint-fix": "eslint \"./src/**/*.ts\" --fix",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
