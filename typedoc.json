@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["index.ts"],
+  "out": "docs",
+  "includeVersion": true,
+  "excludePrivate": true
+}
