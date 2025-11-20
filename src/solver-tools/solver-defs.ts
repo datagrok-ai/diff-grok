@@ -76,25 +76,33 @@ export function jacobian(t: number, y: Float64Array, f: Func, eps: number,
   }
 }
 
-/** Error messeges */
+/** Error messeges
+ * @internal
+*/
 export enum ERROR_MSG {
   MRT_FAILS = 'The modified Rosenbrock triple method fails',
   ROS3PRW_FAILS = 'The ROS3PRw method fails',
   ROS34PRW_FAILS = 'The ROS34PRw method fails',
 };
 
-/** Callback action */
+/** Callback action
+ * @internal
+ */
 export class CallbackAction extends Error {
   constructor(msg: string) {
     super(msg);
   }
 }
 
-/** Default options of the solver */
+/** Default options of the solver
+ * @internal
+ */
 export enum DEFAULT_OPTIONS {
   SCRIPTING = '{maxIterations: 1}',
   NO_CHECKS = '{ }',
 }
 
-/** IVP solving method */
+/** IVP solving method
+ * @internal
+ */
 export type SolverMethod = (odes: ODEs, callback?: Callback) => Float64Array[];

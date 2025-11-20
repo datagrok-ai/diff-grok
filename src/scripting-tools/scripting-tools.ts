@@ -14,25 +14,50 @@ import {CONTROL_TAG, CONTROL_TAG_LEN, CONTROL_EXPR, LOOP, UPDATE, MAX_LINE_CHART
 import {ModelError} from './model-error';
 
 // Scripting specific constants
+
+/** @internal */
 export const CONTROL_SEP = ':';
+
 const COMMA = ',';
 const EQUAL_SIGN = '=';
 const DIV_SIGN = '/';
 const SERVICE = '_';
+
+/** @internal */
 export const BRACE_OPEN = '{';
+
+/** @internal */
 export const BRACE_CLOSE = '}';
+
+/** @internal */
 export const BRACKET_OPEN = '[';
+
+/** @internal */
 export const BRACKET_CLOSE = ']';
+
+/** @internal */
 export const ANNOT_SEPAR = ';';
+
 const DEFAULT_TOL = '0.00005';
+
+/** @internal */
 export const DEFAULT_SOLVER_SETTINGS: string = '{}';
+
 const COMMENT_SEQ = '//';
+
+/** @internal */
 export const STAGE_COL_NAME = `_Stage`;
 const INCEPTION = 'Inception';
 
-/** Elementary math tools */
+/** Elementary math tools
+ * @internal
+ */
 export const MATH_FUNCS = ['pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'exp', 'log', 'sinh', 'cosh', 'tanh'];
+
+/** @internal */
 export const POW_IDX = MATH_FUNCS.indexOf('pow');
+
+/** @internal */
 export const MATH_CONSTS = ['PI', 'E'];
 
 /** Default meta */
@@ -55,10 +80,14 @@ type Arg = {
   updateName: string | undefined,
 };
 
-/** Input keys of Arg */
+/** Input keys of Arg
+ * @internal
+ */
 export const ARG_INPUT_KEYS = ['initial', 'final', 'step'];
 
-/** Scripting specific constants */
+/** Scripting specific constants
+ * @internal
+ */
 export enum SCRIPTING {
   ARG_NAME = 'name',
   COUNT = 'count',
@@ -66,26 +95,26 @@ export enum SCRIPTING {
 };
 
 /** Differential equations specification */
-type DifEqs = {
+export type DifEqs = {
   equations: Map<string, string>,
   solutionNames: string[]
 };
 
 /** Loop specification */
-type Loop = {
+export type Loop = {
   count: Input,
   updates: string[],
 };
 
 /** Update specification */
-type Update = {
+export type Update = {
   name: string,
   durationFormula: string,
   updates: string[],
 };
 
 /** Output specification */
-type Output = {
+export type Output = {
   caption: string,
   formula: string | null,
 };
@@ -711,7 +740,9 @@ function getAnnot(ivp: IVP, toAddViewers = true, toAddEditor = false): string[] 
   return res;
 } // getAnnot
 
-/** Returns math functions arguments string */
+/** Returns math functions arguments string
+ * @internal
+ */
 function getMathArg(funcIdx: number): string {
   return (funcIdx > POW_IDX) ? '(x)' : '(x, y)';
 }
@@ -1087,7 +1118,9 @@ function getScriptMainBody(ivp: IVP): string[] {
   return getScriptMainBodyBasic(ivp);
 }
 
-/** Return JS-script lines */
+/** Return JS-script lines
+ * @internal
+ */
 export function getScriptLines(ivp: IVP, toAddViewers = true, toAddEditor = false): string[] {
   const res = getAnnot(ivp, toAddViewers, toAddEditor).concat(getScriptMainBody(ivp));
 
@@ -1097,7 +1130,9 @@ export function getScriptLines(ivp: IVP, toAddViewers = true, toAddEditor = fals
   return res;
 }
 
-/** Return parameters of JS-script */
+/** Return parameters of JS-script
+ * @internal
+ */
 export function getScriptParams(ivp: IVP): Record<string, number> {
   const res = {} as Record<string, number>;
 
@@ -1371,5 +1406,5 @@ export function getJScode(ivp: IVP): string[] {
   return res;
 } // getJScode
 
-/** */
+/** @internal */
 export function getFunc4worker(ivp: IVP) {}

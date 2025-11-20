@@ -2,5 +2,7 @@
   "entryPoints": ["index.ts"],
   "out": "docs",
   "includeVersion": true,
-  "excludePrivate": true
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true
 }
