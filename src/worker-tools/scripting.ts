@@ -3,7 +3,15 @@
 import {IVP, MATH_CONSTS, POW_IDX, MATH_FUNCS} from '../scripting-tools/scripting-tools';
 import {SolverOptions} from '../solver-tools/solver-defs';
 
-/** Initial value problem structure to be passed to web-worker */
+/**
+ * Represents a fully parsed simulation prepared for execution in Web Workers.
+ *
+ * @property deqsCount - The number of differential equations in the system.
+ * @property funcMainBody - The main body of the function implementing the ODE system.
+ * @property paramNames - Names of the model parameters.
+ * @property solverOpts - Configuration options for the numerical solver (partial).
+ * @property tolerance - Tolerance for the numerical solver.
+ */
 export type IVP2WebWorker = {
     tolerance: number,
     solverOpts: Partial<SolverOptions>,

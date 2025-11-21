@@ -65,14 +65,29 @@ const defaultMetas = `//meta.runOnOpen: true
 //meta.runOnInput: true
 //meta.features: {"sens-analysis": true, "fitting": true}`;
 
-/** Numerical input specification */
+/**
+ * Represents a numeric user input.
+ *
+ * @property value - The numeric value provided by the user.
+ * @property annot - An optional annotation associated with the input.
+ *   See more details in the UI options documentation:
+ *   https://datagrok.ai/help/compute/diff-studio#user-interface-options
+ */
 export type Input = {
   value: number,
   annot: string | null,
 };
 
-/** Argument of IVP specification */
-type Arg = {
+/**
+ * Specifies an independent variable for a simulation model.
+ *
+ * @property name - The name of the variable.
+ * @property initial - The initial value of the variable.
+ * @property final - The final value of the variable.
+ * @property step - The step size for the variable's grid.
+ * @property updateName - The name of the stage in a multi-stage model, if applicable.
+ */
+export type Arg = {
   name: string,
   initial: Input,
   final: Input,
@@ -94,32 +109,81 @@ export enum SCRIPTING {
   DURATION = 'duration',
 };
 
-/** Differential equations specification */
+/**
+ * Represents a system of differential equations.
+ *
+ * @property equations - A mapping where each key is the name of a function
+ *   and each value is the right-hand side of its differential equation.
+ *
+ * @property solutionNames - Names of the functions that form the solution
+ *   of the system.
+ */
 export type DifEqs = {
   equations: Map<string, string>,
   solutionNames: string[]
 };
 
-/** Loop specification */
+/**
+ * Specifies a looped stage in a simulation model.
+ *
+ * @property count - The number of repetitions for the loop.
+ * @property updates - An array of formulas or specifications that modify
+ *   the model's parameters during each iteration.
+ */
 export type Loop = {
   count: Input,
   updates: string[],
 };
 
-/** Update specification */
+/**
+ * Represents an update of model parameters for a multi-stage simulation.
+ *
+ * @property name - The name of the simulation step.
+ * @property durationFormula - A formula defining the duration of the step.
+ * @property updates - An array of formulas that modify the model's parameters
+ *   during this update step.
+ */
 export type Update = {
   name: string,
   durationFormula: string,
   updates: string[],
 };
 
-/** Output specification */
+/**
+ * Specifies an output of a simulation.
+ *
+ * @property caption - The title or label of the output.
+ * @property formula - An optional formula used to compute the output.
+ */
 export type Output = {
   caption: string,
   formula: string | null,
 };
 
-/** Initial Value Problem (IVP) specification type */
+/**
+ * Represents a fully parsed model defined declaratively.
+ *
+ * @property arg - Specification of the independent variable.
+ * @property name - The name of the model.
+ * @property tags - Tags associated with the model. See:
+ *   https://datagrok.ai/help/datagrok/concepts/functions/func-params-annotation
+ * @property descr - Optional description of the model.
+ * @property deqs - The specification of the ODE system.
+ * @property exprs - Optional specification of auxiliary calculations.
+ * @property inits - Specification of initial conditions.
+ * @property consts - Specification of model constants.
+ * @property params - Specification of model parameters.
+ * @property tolerance - Tolerance for the numerical solver.
+ * @property usedMathFuncs - Indices of used mathematical functions.
+ * @property usedMathConsts - Indices of used mathematical constants.
+ * @property loop - Optional specification of loops in the model.
+ * @property updates - Optional specification of multi-stage simulation updates.
+ * @property metas - Specification of meta-options for the model.
+ * @property outputs - Optional specification of model outputs.
+ * @property solverSettings - String representation of the numerical solver settings.
+ * @property inputsLookup - Optional specification of lookup tables. See:
+ *   https://datagrok.ai/help/datagrok/concepts/functions/func-params-annotation#lookup-tables
+ */
 export type IVP = {
   name: string,
   tags: string | null,
