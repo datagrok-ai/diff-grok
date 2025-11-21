@@ -1,10 +1,19 @@
 // Control constants
+/** @internal */
 export const CONTROL_TAG = '#';
+
+/** @internal */
 export const CONTROL_TAG_LEN = CONTROL_TAG.length;
+
+/** @internal */
 export const DF_NAME = 'df';
+
+/** @internal */
 export const MAX_LINE_CHART = 4;
 
-/** Control expressions for the problem specifying */
+/** Control expressions for the problem specifying
+ * @internal
+*/
 export enum CONTROL_EXPR {
     NAME = '#name',
     TAGS = '#tags',
@@ -26,7 +35,9 @@ export enum CONTROL_EXPR {
     INPUTS = '#meta.inputs',
 };
 
-/** Loop consts */
+/** Loop consts
+ * @internal
+ * */
 export enum LOOP {
   MIN_LINES_COUNT = 1,
   COUNT_IDX = 0,
@@ -34,18 +45,25 @@ export enum LOOP {
   MIN_COUNT = 1,
 };
 
-/** UPDATE consts */
+/** UPDATE consts
+ * @internal
+ */
 export enum UPDATE {
   MIN_LINES_COUNT = 1,
   DURATION_IDX = 0,
   DURATION = '_duration',
 };
 
-/** Ranges of the solver options */
+/** Ranges of the solver options
+ * @internal
+ */
 export const SOLVER_OPTIONS_RANGES = new Map([
   ['maxTime', {min: 1, max: 10000}],
   ['scale', {min: 0.5, max: 1}],
 ]);
 
+/** @internal */
 export const TINY = 0.0001;
+
+/** @internal */
 export const STEP_RATIO = 0.5;

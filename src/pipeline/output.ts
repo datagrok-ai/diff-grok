@@ -123,7 +123,9 @@ function getOutputWithExprs(ivp: IVP): string {
   return lines.join('\n');
 } // getOutputWithExprs
 
-/** Return a code for output extraction */
+/** Return a code for output extraction
+ * @internal
+ */
 export function getOutputCode(ivp: IVP): string | null {
   const outputs = ivp.outputs;
   if (outputs === null)

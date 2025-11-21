@@ -6,14 +6,25 @@ import {UpdatesModelPipelineCreator} from './updates-pipeline-creator';
 import {CyclicModelPipelineCreator} from './loops-pipeline-creator';
 
 
-/** Solution step wrapper */
+/**
+ * Represents a wrapper for a single modeling step in a multi-stage simulation.
+ *
+ * @property preproc - A preprocessing script for the step's inputs.
+ * @property postproc - A postprocessing script applied after the step is executed.
+ * @property out - A script that generates the output of the step.
+ */
 export type Wrapper = {
     preproc: string | null,
     out: string | null,
     postproc: string | null,
 };
 
-/** Solution pipeline */
+/**
+ * Represents a computational pipeline for multi-stage simulations.
+ *
+ * @property wrappers - An array of modeling steps (wrappers) that compose the pipeline.
+ * @property out - A script or specification that generates the final output of the pipeline.
+ */
 export type Pipeline = {
     wrappers: Wrapper[],
     out: string | null,

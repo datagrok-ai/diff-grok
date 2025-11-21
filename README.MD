@@ -74,7 +74,7 @@ y(0) = -1
 To solve it on the segment $[0, 2]$ with the step $0.01$ using the [MRT](https://doi.org/10.1137/S1064827594276424) method with the tolerance $10^{-7}$, we start with imports:
 
 ```typescript
-import {ODEs, mrt} from '@datagrok-ai/diff-studio-tools';
+import {ODEs, mrt} from 'diff-grok';
 ```
 
 Next, we create
@@ -262,7 +262,7 @@ To transform any model to JavaScript code with an appropriate specification of `
 1. Import the parsing and code generating tools:
 
 ```typescript
-import {getIVP, getJScode} from '@datagrok-ai/diff-studio-tools';
+import {getIVP, getJScode} from 'diff-grok';
 ```
 
 2. Define a string with a model specification, use a simple [model syntax](#model-components-and-syntax):
@@ -302,7 +302,7 @@ Diff Grok **pipeline** is a powerful feature for complex process simulation and 
 1. Start with imports:
 
 ```typescript
-import * as DGL from '@datagrok/diff-grok';
+import * as DGL from 'diff-grok';
 ```
 
 2. Define your model:

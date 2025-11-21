@@ -1,4 +1,6 @@
-/** Diff Studio model error */
+/** Diff Studio model error
+ * @internal
+ */
 export class ModelError extends Error {
   private helpUrl: string;
   private toHighlight: string | undefined = undefined;
