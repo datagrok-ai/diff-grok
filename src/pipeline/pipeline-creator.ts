@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {IVP} from '../scripting-tools';
 import {getOutputNames} from './output';
 import {Pipeline} from './pipeline';
@@ -12,5 +13,8 @@ export abstract class PipelineCreator {
     this.outputNames = getOutputNames(ivp);
   };
 
+  /** Return computational pipeline corresponding to the given model input
+   * @param inputs - a vector of model inputs
+   */
   public abstract getPipeline(inputs: Float64Array): Pipeline;
 }

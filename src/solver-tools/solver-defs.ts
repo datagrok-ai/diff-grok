@@ -44,31 +44,37 @@ export type SolverOptions = {
  * * Example: Solve a simple initial value problem (IVP)
  *
  * @example
- * ```ts
- * // Example. Solve the following initial value problem
+ * // Example. Solve the following initial value problem:
  * //   dx/dt = x + y - t
  * //   dy/dt = x * y + t
  * //   x(0) = 1
  * //   y(0) = -1
  * // on [0, 2] with the step 0.01.
- * import { ODEs, mrt } from '../../index';
+ * import { ODEs, mrt } from 'diff-grok';
  *
  * const task: ODEs = {
- *   name: 'Example',
- *   arg: { name: 't', start: 0, finish: 2, step: 0.01 },
- *   initial: [1, -1],
- *   func: (t: number, y: Float64Array, output: Float64Array) => {
- *     output[0] = y[0] + y[1] - t;
- *     output[1] = y[0] * y[1] + t;
+ *   name: 'Example', // name of your model
+ *   arg: {
+ *       name: 't',  // name of the argument
+ *       start: 0,   // initial value of the argument
+ *       finish: 2,  // final value of the argument
+ *       step: 0.01, // solution grid step
  *   },
- *   tolerance: 1e-7,
- *   solutionColNames: ['x', 'y'],
+ *   initial: [1, -1], // initial values
+ *   func: (t: number, y: Float64Array, output: Float64Array) => { // right-hand side of the system
+ *     output[0] = y[0] + y[1] - t; // 1-st equation
+ *     output[1] = y[0] * y[1] + t; // 2-nd equation
+ *   },
+ *   tolerance: 1e-7, // tolerance
+ *   solutionColNames: ['x', 'y'], // names of solution functions
  * };
  *
  * try {
+ *   // Solve the problem using the MRT method
  *   const solution = mrt(task);
- *   console.log(task.arg.name, task.solutionColNames[0], task.solutionColNames[1]);
  *
+ *   // Print a table with the results
+ *   console.log(task.arg.name, task.solutionColNames[0], task.solutionColNames[1]);
  *   const length = solution[0].length;
  *   for (let i = 0; i < length; ++i)
  *     console.log(solution[0][i], solution[1][i], solution[2][i]);

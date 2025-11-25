@@ -5,7 +5,9 @@ import {Callback} from './callback-base';
 import {TimeCheckerCallback} from './time-checker-callback';
 import {IterCheckerCallback} from './iter-checker-callback';
 
-/** Get callback corresponding to the options */
+/** Return callback corresponding to the given options
+ * @param options - options of the numerical method
+*/
 export function getCallback(options?: Partial<SolverOptions>): Callback | undefined {
   if (options === undefined)
     return undefined;

@@ -6,12 +6,16 @@ export class IterCheckerCallback extends Callback {
   private maxIter: number;
   private currentIter: number;
 
+  /**
+   * @param maxIter - the maximum number of iterations
+   */
   constructor(maxIter: number) {
     super();
     this.maxIter = maxIter;
     this.currentIter = 0;
   }
 
+  /** Action performed on iteration start of numerical method */
   public onIterationStart(): void {
     ++this.currentIter;
 

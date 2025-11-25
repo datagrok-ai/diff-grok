@@ -31,7 +31,11 @@ function checkInputs(ivp: IVP2WebWorker, inputs: Float64Array): void {
     throw new Error(`Incorrect inputs count, expected: ${expected}, current: ${inputs.length}`);
 }
 
-/** Return solution of IVP with a specified inputs */
+/** Return solution of IVP with a specified inputs
+ * @param ivp - initial value problem to be solved
+ * @param inputs - vector of input values
+ * @returns solution of the given initial value problem
+ */
 export function solveIvp(ivp: IVP2WebWorker, inputs: Float64Array): Float64Array[] {
   checkInputs(ivp, inputs);
   const nonParamInputsCount = inputs.length - ivp.paramNames.length;
