@@ -5,7 +5,9 @@ import {orego} from './orego';
 import {e5} from './e5';
 import {pollution} from './pollution';
 
-/** Problems for performance check */
+/** Problems for performance check
+ * @internal
+ */
 export const perfProbs = [
   robertson,
   hires,

@@ -134,13 +134,17 @@ const exactStiff3D = (t: number) => {
   ]);
 };
 
-/** Correctness problem */
+/** Correctness problem
+ * @internal
+ */
 export type CorrProblem = {
     odes: ODEs,
     exact: (t: number) => Float64Array,
   };
 
-/** Problems for testing correctness */
+/** Problems for testing correctness
+ * @internal
+ */
 export const corrProbs = [
   {odes: nonStiff1D, exact: exactNonStiff1D},
   {odes: nonStiff2D, exact: exactNonStiff2D},

@@ -14,25 +14,50 @@ import {CONTROL_TAG, CONTROL_TAG_LEN, CONTROL_EXPR, LOOP, UPDATE, MAX_LINE_CHART
 import {ModelError} from './model-error';
 
 // Scripting specific constants
+
+/** @internal */
 export const CONTROL_SEP = ':';
+
 const COMMA = ',';
 const EQUAL_SIGN = '=';
 const DIV_SIGN = '/';
 const SERVICE = '_';
+
+/** @internal */
 export const BRACE_OPEN = '{';
+
+/** @internal */
 export const BRACE_CLOSE = '}';
+
+/** @internal */
 export const BRACKET_OPEN = '[';
+
+/** @internal */
 export const BRACKET_CLOSE = ']';
+
+/** @internal */
 export const ANNOT_SEPAR = ';';
+
 const DEFAULT_TOL = '0.00005';
+
+/** @internal */
 export const DEFAULT_SOLVER_SETTINGS: string = '{}';
+
 const COMMENT_SEQ = '//';
+
+/** @internal */
 export const STAGE_COL_NAME = `_Stage`;
 const INCEPTION = 'Inception';
 
-/** Elementary math tools */
+/** Elementary math tools
+ * @internal
+ */
 export const MATH_FUNCS = ['pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'exp', 'log', 'sinh', 'cosh', 'tanh'];
+
+/** @internal */
 export const POW_IDX = MATH_FUNCS.indexOf('pow');
+
+/** @internal */
 export const MATH_CONSTS = ['PI', 'E'];
 
 /** Default meta */
@@ -40,14 +65,29 @@ const defaultMetas = `//meta.runOnOpen: true
 //meta.runOnInput: true
 //meta.features: {"sens-analysis": true, "fitting": true}`;
 
-/** Numerical input specification */
+/**
+ * Represents a numeric user input.
+ *
+ * @property value - The numeric value provided by the user.
+ * @property annot - An optional annotation associated with the input.
+ *   See more details in the UI options documentation:
+ *   https://datagrok.ai/help/compute/diff-studio#user-interface-options
+ */
 export type Input = {
   value: number,
   annot: string | null,
 };
 
-/** Argument of IVP specification */
-type Arg = {
+/**
+ * Specifies an independent variable for a simulation model.
+ *
+ * @property name - The name of the variable.
+ * @property initial - The initial value of the variable.
+ * @property final - The final value of the variable.
+ * @property step - The step size for the variable's grid.
+ * @property updateName - The name of the stage in a multi-stage model, if applicable.
+ */
+export type Arg = {
   name: string,
   initial: Input,
   final: Input,
@@ -55,42 +95,95 @@ type Arg = {
   updateName: string | undefined,
 };
 
-/** Input keys of Arg */
+/** Input keys of Arg
+ * @internal
+ */
 export const ARG_INPUT_KEYS = ['initial', 'final', 'step'];
 
-/** Scripting specific constants */
+/** Scripting specific constants
+ * @internal
+ */
 export enum SCRIPTING {
   ARG_NAME = 'name',
   COUNT = 'count',
   DURATION = 'duration',
 };
 
-/** Differential equations specification */
-type DifEqs = {
+/**
+ * Represents a system of differential equations.
+ *
+ * @property equations - A mapping where each key is the name of a function
+ *   and each value is the right-hand side of its differential equation.
+ *
+ * @property solutionNames - Names of the functions that form the solution
+ *   of the system.
+ */
+export type DifEqs = {
   equations: Map<string, string>,
   solutionNames: string[]
 };
 
-/** Loop specification */
-type Loop = {
+/**
+ * Specifies a looped stage in a simulation model.
+ *
+ * @property count - The number of repetitions for the loop.
+ * @property updates - An array of formulas or specifications that modify
+ *   the model's parameters during each iteration.
+ */
+export type Loop = {
   count: Input,
   updates: string[],
 };
 
-/** Update specification */
-type Update = {
+/**
+ * Represents an update of model parameters for a multi-stage simulation.
+ *
+ * @property name - The name of the simulation step.
+ * @property durationFormula - A formula defining the duration of the step.
+ * @property updates - An array of formulas that modify the model's parameters
+ *   during this update step.
+ */
+export type Update = {
   name: string,
   durationFormula: string,
   updates: string[],
 };
 
-/** Output specification */
-type Output = {
+/**
+ * Specifies an output of a simulation.
+ *
+ * @property caption - The title or label of the output.
+ * @property formula - An optional formula used to compute the output.
+ */
+export type Output = {
   caption: string,
   formula: string | null,
 };
 
-/** Initial Value Problem (IVP) specification type */
+/**
+ * Represents a fully parsed model defined declaratively.
+ *
+ * @property arg - Specification of the independent variable.
+ * @property name - The name of the model.
+ * @property tags - Tags associated with the model. See:
+ *   https://datagrok.ai/help/datagrok/concepts/functions/func-params-annotation
+ * @property descr - Optional description of the model.
+ * @property deqs - The specification of the ODE system.
+ * @property exprs - Optional specification of auxiliary calculations.
+ * @property inits - Specification of initial conditions.
+ * @property consts - Specification of model constants.
+ * @property params - Specification of model parameters.
+ * @property tolerance - Tolerance for the numerical solver.
+ * @property usedMathFuncs - Indices of used mathematical functions.
+ * @property usedMathConsts - Indices of used mathematical constants.
+ * @property loop - Optional specification of loops in the model.
+ * @property updates - Optional specification of multi-stage simulation updates.
+ * @property metas - Specification of meta-options for the model.
+ * @property outputs - Optional specification of model outputs.
+ * @property solverSettings - String representation of the numerical solver settings.
+ * @property inputsLookup - Optional specification of lookup tables. See:
+ *   https://datagrok.ai/help/datagrok/concepts/functions/func-params-annotation#lookup-tables
+ */
 export type IVP = {
   name: string,
   tags: string | null,
@@ -529,7 +622,100 @@ function getOutput(lines: string[], begin: number, end: number): Map<string, Out
   return res;
 } // getOutput
 
-/** Get initial value problem specification given in the text */
+/** Return initial value problem specification given in the text
+ * @param text - declarative specification of initial value problem
+ * @example
+ *  // Here, we consider modeling queues: https://en.wikipedia.org/wiki/M/M/c_queue
+ * import * as DGL from 'diff-grok';
+ *
+ * // 1. Model specification: the M|M|2|2 model
+ * const model = `#name: M|M|2|2
+ * #description: Modelling the system with two servers & two waiting places (EXPLAINED)
+ *
+ * #equations:
+ *   dp0/dt = -la * p0 + mu * p1
+ *   dp1/dt = la * p0 - (la + mu) * p1 + 2 * mu * p2
+ *   dp2/dt = la * p1 - (la + 2 * mu) * p2 + 2 * mu * p3
+ *   dp3/dt = la * p2 - (la + 2 * mu) * p3 + 2 * mu * p4
+ *
+ * #expressions:
+ *   la = 1 / arrival
+ *   mu = 1 / service
+ *   p4 = 1 - p0 - p1 - p2 - p3
+ *   busy = 1 - p0 - p1
+ *   queue = p3 + 2 * p4
+ *
+ * #argument: t
+ *   _t0 = 0     {min: 0;      max: 10;   caption: start;   category: Time; units: min}  [Initial time of simulation]
+ *   _t1 = 60    {min: 20;     max: 100;  caption: finish;  category: Time; units: min}  [Final time of simulation]
+ *   _h  = 1     {min: 0.01;   max: 0.1;  caption: step;    category: Time; units: min}  [Time step of simulation]
+ *
+ * #inits:
+ *   p0 = 1   {min: 0; max: 1; category: Initial state; caption: empty}   [Probability that initially there are NO customers]
+ *   p1 = 0   {min: 0; max: 1; category: Initial state; caption: single}  [Probability that initially there is ONE customer]
+ *   p2 = 0   {min: 0; max: 1; category: Initial state; caption: two}     [Probability that initially there are TWO customers]
+ *   p3 = 0   {min: 0; max: 1; category: Initial state; caption: three}   [Probability that initially there are THREE customers]
+ *
+ * #output:
+ *   t     {caption: Time, min}
+ *   p0    {caption: P(Empty)}
+ *   busy  {caption: P(Full load)}
+ *   queue {caption: E(Queue)}
+ *
+ * #parameters:
+ *   arrival = 10   {min: 1; max: 100; category: Means; caption: arrival;  units: min} [Mean arrival time]
+ *   service = 100  {min: 1; max: 100; category: Means; caption: service; units: min} [Mean service time]`;
+ *
+ * // 2. Generate IVP-objects: for the main thread & for computations in webworkers
+ * const ivp = DGL.getIVP(model);
+ * const ivpWW = DGL.getIvp2WebWorker(ivp);
+ *
+ *  // 3. Perform computations
+ * try {
+ *   // 3.1) Extract names of outputs
+ *   const outputNames = DGL.getOutputNames(ivp);
+ *   const outSize = outputNames.length;
+ *
+ *   // 3.2) Set model inputs
+ *   const inputs = {
+ *     _t0: 0, // Initial time of simulation
+ *     _t1: 60, // Final time of simulation
+ *     _h: 1, // Time step of simulation
+ *     p0: 1, // Probability that initially there are NO customers
+ *     p1: 0, // Probability that initially there is ONE customer
+ *     p2: 0, // Probability that initially there are TWO customers
+ *     p3: 0, // Probability that initially there are THREE customers
+ *     arrival: 10, // Mean arrival time
+ *     service: 100, // Mean service time
+ *   };
+ *   const inputVector = DGL.getInputVector(inputs, ivp);
+ *
+ *  // 3.3) Create a pipeline
+ *   const creator = DGL.getPipelineCreator(ivp);
+ *   const pipeline = creator.getPipeline(inputVector);
+ *
+ *   // 3.4) Apply pipeline to perform computations
+ *   const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
+ *   // 3.5) Print results
+ *
+ *   // 3.5.1) Table header
+ *   let line = '';
+ *   outputNames.forEach((name) => line += name + '      ');
+ *   console.log(line);
+ *
+ *   // 3.5.2) Table with solution
+ *   const length = solution[0].length;
+ *   for (let i = 0; i < length; ++i) {
+ *     line = '';
+ *
+ *     for (let j = 0; j < outSize; ++j)
+ *       line += solution[j][i].toFixed(8) + '     ';
+ *     console.log(line);
+ *   }
+ * } catch (err) {
+ *   console.log('Simulation failed: ', err instanceof Error ? err.message : 'Unknown problem!');
+ * }
+ */
 export function getIVP(text: string): IVP {
   // The current Initial Value Problem (IVP) specification
   let name: string;
@@ -711,7 +897,9 @@ function getAnnot(ivp: IVP, toAddViewers = true, toAddEditor = false): string[] 
   return res;
 } // getAnnot
 
-/** Returns math functions arguments string */
+/** Returns math functions arguments string
+ * @internal
+ */
 function getMathArg(funcIdx: number): string {
   return (funcIdx > POW_IDX) ? '(x)' : '(x, y)';
 }
@@ -1087,7 +1275,9 @@ function getScriptMainBody(ivp: IVP): string[] {
   return getScriptMainBodyBasic(ivp);
 }
 
-/** Return JS-script lines */
+/** Return JS-script lines
+ * @internal
+ */
 export function getScriptLines(ivp: IVP, toAddViewers = true, toAddEditor = false): string[] {
   const res = getAnnot(ivp, toAddViewers, toAddEditor).concat(getScriptMainBody(ivp));
 
@@ -1097,7 +1287,9 @@ export function getScriptLines(ivp: IVP, toAddViewers = true, toAddEditor = fals
   return res;
 }
 
-/** Return parameters of JS-script */
+/** Return parameters of JS-script
+ * @internal
+ */
 export function getScriptParams(ivp: IVP): Record<string, number> {
   const res = {} as Record<string, number>;
 
@@ -1302,7 +1494,22 @@ function checkCorrectness(ivp: IVP): void {
   checkSolverSettings(ivp.solverSettings);
 } // checkCorrectness
 
-/** */
+/** Return JavaScript code that solves the given initial value problem
+ * @param ivp - initial value problem to be solved
+ * @example
+ * import {getIVP, getJScode} from 'diff-grok';
+ *
+ * const model = `
+ *   #name: Example
+ *   #equations:
+ *      dx/dt = x + y - cos(t)
+ *      dy/dt = x - y + sin(t)
+ *   ...
+ * `;
+ *
+ * const ivp = getIVP(model);
+ * const lines = getJScode(ivp);
+ */
 export function getJScode(ivp: IVP): string[] {
   const res = [] as string[];
 
@@ -1371,5 +1578,5 @@ export function getJScode(ivp: IVP): string[] {
   return res;
 } // getJScode
 
-/** */
+/** @internal */
 export function getFunc4worker(ivp: IVP) {}
