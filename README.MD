@@ -394,3 +394,9 @@ Learn more
  * Diff Studio example [models](https://datagrok.ai/help/compute/models)
  * [Parameters optimization](https://datagrok.ai/help/compute/function-analysis#parameter-optimization)
  * [Sensitivity analysis](https://datagrok.ai/help/compute/function-analysis#sensitivity-analysis)
+
+## Contributing
+
+We welcome contributions of all kinds — bug reports, feature requests, documentation updates, and pull requests.
+
+Before contributing, please read our [Contributing Guidelines](./CONTRIBUTING.md).
