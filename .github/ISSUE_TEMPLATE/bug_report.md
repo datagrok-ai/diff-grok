@@ -1,9 +1,3 @@
-
----
-
-### **.github/ISSUE_TEMPLATE/bug_report.md**
-
-```markdown
 ---
 name: Bug report
 about: Report a bug in diff-grok
