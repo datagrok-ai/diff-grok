@@ -4,14 +4,14 @@ import {InputOpts, ModelInputs, getCaptionToInputNameMap, getDefaultInputs, getI
 
 export class SyntheticDataGenerator {
   private ivp: IVP;
-  private ivp2ww: IVP2WebWorker;
+  private ivpWW: IVP2WebWorker;
   private inputOpts: Map<string, InputOpts>;
   private defaultInputs: ModelInputs;
   private captionToNameMap: Map<string, string>;
 
   constructor(model: string) {
     this.ivp = getIVP(model);
-    this.ivp2ww = getIvp2WebWorker(this.ivp);
+    this.ivpWW = getIvp2WebWorker(this.ivp);
     this.inputOpts = getInputOptionsMap(this.ivp);
     this.defaultInputs = getDefaultInputs(this.inputOpts);
     this.captionToNameMap = getCaptionToInputNameMap(this.inputOpts);
@@ -21,4 +21,8 @@ export class SyntheticDataGenerator {
     console.log(this.defaultInputs);
     console.log(this.captionToNameMap);
   } // constructor
+
+  public getDefaultInputs(): ModelInputs {
+    return structuredClone(this.defaultInputs);
+  }
 } // SyntheticDataGenerator

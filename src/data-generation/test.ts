@@ -39,56 +39,46 @@ const model = `#name: Chem react
 #argument: t
   initial = 0 {units: min; caption: Initial; category: Time} [Initial time of simulation]
   final = 6 {units: min; caption: Final; category: Time; min: 6; max: 10} [Final time of simulation]
-  step = 0.01 {units: min; category: Time; min: 0.01; max: 0.1; step: 0.001} [Time step of simulation]
+  step = 0.1 {units: min; category: Time; min: 0.01; max: 0.1; step: 0.001} [Time step of simulation]
 
 #tolerance: 5e-5`;
 
 const gen = new DGL.SyntheticDataGenerator(model);
-
-//console.log(gen);
+const ivp = DGL.getIVP(model);
+const ivpWW = DGL.getIvp2WebWorker(ivp);
 
 // 3. Perform computations
-// try {
-//   // 3.1) Extract names of outputs
-//   const outputNames = DGL.getOutputNames(ivp);
-//   const outSize = outputNames.length;
+try {
+  // 3.1) Extract names of outputs
+  const outputNames = DGL.getOutputNames(ivp);
+  const outSize = outputNames.length;
 
-//   // 3.2) Set model inputs
-//   const inputs = {
-//     _t0: 0, // Initial time of simulation
-//     _t1: 60, // Final time of simulation
-//     _h: 1, // Time step of simulation
-//     p0: 1, // Probability that initially there are NO customers
-//     p1: 0, // Probability that initially there is ONE customer
-//     p2: 0, // Probability that initially there are TWO customers
-//     p3: 0, // Probability that initially there are THREE customers
-//     arrival: 10, // Mean arrival time
-//     service: 100, // Mean service time
-//   };
-//   const inputVector = DGL.getInputVector(inputs, ivp);
+  // 3.2) Set model inputs
+  const inputs = gen.getDefaultInputs();
+  const inputVector = DGL.getInputVector(inputs, ivp);
 
-//   // 3.3) Create a pipeline
-//   const creator = DGL.getPipelineCreator(ivp);
-//   const pipeline = creator.getPipeline(inputVector);
+  // 3.3) Create a pipeline
+  const creator = DGL.getPipelineCreator(ivp);
+  const pipeline = creator.getPipeline(inputVector);
 
-//   // 3.4) Apply pipeline to perform computations
-//   const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
-//   // 3.5) Print results
+  // 3.4) Apply pipeline to perform computations
+  const solution = DGL.applyPipeline(pipeline, ivpWW, inputVector);
+  // 3.5) Print results
 
-//   // 3.5.1) Table header
-//   let line = '';
-//   outputNames.forEach((name) => line += name + '      ');
-//   console.log(line);
+  // 3.5.1) Table header
+  let line = '';
+  outputNames.forEach((name) => line += name + '      ');
+  console.log(line);
 
-//   // 3.5.2) Table with solution
-//   const length = solution[0].length;
-//   for (let i = 0; i < length; ++i) {
-//     line = '';
+  // 3.5.2) Table with solution
+  const length = solution[0].length;
+  for (let i = 0; i < length; ++i) {
+    line = '';
 
-//     for (let j = 0; j < outSize; ++j)
-//       line += solution[j][i].toFixed(8) + '     ';
-//     console.log(line);
-//   }
-// } catch (err) {
-//   console.log('Simulation failed: ', err instanceof Error ? err.message : 'Unknown problem!');
-// }
+    for (let j = 0; j < outSize; ++j)
+      line += solution[j][i].toFixed(8) + '     ';
+    console.log(line);
+  }
+} catch (err) {
+  console.log('Simulation failed: ', err instanceof Error ? err.message : 'Unknown problem!');
+}
