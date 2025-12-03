@@ -13,3 +13,5 @@ export {IVP2WebWorker, getIvp2WebWorker, solveIvp} from './src/worker-tools';
 export {Pipeline, Wrapper, applyPipeline, getOutputCode, getOutputNames, PipelineCreator,
   BasicModelPipelineCreator, getInputVector, getPipelineCreator, CyclicModelPipelineCreator,
   UpdatesModelPipelineCreator} from './src/pipeline';
+
+export {SyntheticDataGenerator} from './src/data-generation';
