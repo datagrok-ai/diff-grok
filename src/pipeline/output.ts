@@ -180,8 +180,9 @@ function checkApplicability(ivp: IVP): void {
   }
 } // checkApplicability
 
-/** Return a code for output extraction
+/** Return names of the model outputs
  * @param ivp - initial value problem
+ * @returns an array of names of the model outputs
  */
 export function getOutputNames(ivp: IVP): string[] {
   const outputs = ivp.outputs;

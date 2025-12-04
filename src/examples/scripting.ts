@@ -9,7 +9,7 @@ import {getIVP, getJScode} from '../../index';
     on [0, 1] with the step 0.01.
  */
 
-/** Diff Studio mode specifying the given problem */
+/** Diff Grok model specifying the given problem */
 const model = `#name: Example
 #equations:
   dx/dt = x + y - cos(t)

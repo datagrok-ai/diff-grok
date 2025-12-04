@@ -18,8 +18,34 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 
 ## Installation
 
+To install via npm:
+
 ```bash
-npm i diff-grok
+npm install diff-grok
+```
+
+Minimal "Hello World" example:
+
+```typescript
+// example.ts
+
+import {ODEs, mrt} from 'diff-grok';
+
+const task: ODEs = {
+  name: 'Example',
+  arg: {name: 't', start: 0, finish: 1, step: 0.1},
+  initial: [1, -1],
+  func: (t: number, y: Float64Array, output: Float64Array) => {
+    out[0] = y[0] - t;
+  },
+  tolerance: 1e-7,
+  solutionColNames: ['y(t)'],
+};
+
+const solution = mrt(task);
+
+console.log('t:', solution[0]);
+console.log('y(t):', solution[1]);
 ```
 
 ## Solving
@@ -395,8 +421,122 @@ Learn more
  * [Parameters optimization](https://datagrok.ai/help/compute/function-analysis#parameter-optimization)
  * [Sensitivity analysis](https://datagrok.ai/help/compute/function-analysis#sensitivity-analysis)
 
+## Environment Requirements
+
+### Development & Build
+
+* **Node.js ≥ 19.3.0** (required for development and building the library)
+* **npm** or **yarn** package manager
+
+### Runtime Environments
+
+#### Server-Side (Node.js)
+
+* **Node.js ≥ 16.0.0** (for server-side usage)
+  * Requires support for ES modules
+  * `Float64Array` and typed arrays support (available since Node.js 0.10+)
+
+#### Operating Systems
+
+* Windows (x64, ARM64)
+* macOS (Intel & Apple Silicon)
+* Linux (most common distributions)
+
+#### Browser Support
+
+The library runs in all modern browsers with ES2015+ support. Key requirements:
+
+* **ES Modules** (native `import`/`export`)
+* **Typed Arrays** (`Float64Array`, `Uint8Array`)
+* **WebWorkers** (for pipeline computations)
+* **ArrayBuffer** support
+
+| Browser                | Minimum Version | Supported? | Notes                                           |
+| ---------------------- | --------------- | ---------- | ----------------------------------------------- |
+| **Chrome**             | 63+             | ✔️ Yes      | Full ES2015+ and WebWorker support              |
+| **Firefox**            | 60+             | ✔️ Yes      | Full ES2015+ and WebWorker support              |
+| **Safari (macOS/iOS)** | 11.1+           | ✔️ Yes      | Native ES module and WebWorker support          |
+| **Edge (Chromium)**    | 79+             | ✔️ Yes      | Same support level as Chrome                    |
+| **Opera**              | 50+             | ✔️ Yes      | Chromium-based, full support                    |
+| **Legacy Browsers**    | -               | ❌ No       | IE 11, pre-Chromium Edge, old Android browsers  |
+
+**Browser Feature Requirements:**
+* ES2015 (ES6) JavaScript support
+* Native ES modules (`<script type="module">`)
+* `Float64Array` and other typed arrays
+* `WebWorker` API (for parallel computations)
+* `Promise` support
+* `Math` object with standard functions (`exp`, `sin`, `cos`, etc.)
+
+**Notes:**
+* For older browsers, consider using a transpiler (Babel) and bundler (Webpack/Rollup)
+* TypeScript compilation target should be ES2015 or higher
+* WebWorker support is required for pipeline computations; without it, computations run on the main thread
+
+### Bundler Configuration
+
+When bundling for browsers, ensure:
+* ES module output format is preserved or properly transformed
+* TypedArray polyfills are not included (not needed for target browsers)
+* WebWorker files are properly handled by your bundler
+
+### Polyfills
+
+No polyfills required for target environments. All required features are natively supported in the minimum browser versions listed above.
+
+## Examples
+
+Diff Grok contains a set of examples located in the folder [src/examples](./src/examples/):
+
+|File|Features|
+|-|-|
+|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [MRT](https://doi.org/10.1137/S1064827594276424) method.|
+|[check-methods.ts](./src/examples/check-methods.ts)| Checks the [performance](#performance) of numerical methods.|
+|[corr-probs.ts](./src/examples/corr-probs.ts)|Solves a set of problems with exact solutions and evaluate the deviation.|
+|[cyclic-model.ts](./src/examples/cyclic-model.ts)| Considers pharmacokinetic-pharmacodynamic (PK-PD) simulation and shows how to apply pipelines and cyclic models.|
+|[model-updates.ts](./src/examples/model-updates.ts)|Considers gluconic acid (GA) production by Aspergillus niger modeling and shows how to apply pipelines and models with updates.|
+|[pipeline-use.ts](./src/examples/pipeline-use.ts)|Considers modeling queues and shows shows how to apply pipelines and models with customized outputs.|
+|[scripting.ts](./src/examples/scripting.ts)|Shows how to generate JS-script from Diff Grok model.|
+
+To run examples standalone:
+
+1. Install TypeScript locally. If your project does not already include TypeScript:
+```bash
+npm install --save-dev typescript
+```
+
+2. Create a tsconfig.json. If you do not have one yet:
+```bash
+npx tsc --init
+```
+Recommended configuration:
+```json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["ES2022", "dom"],
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+  }
+}
+```
+
+3. Compile the TypeScript file:
+```bash
+tsc src/examples/basic-use.ts
+```
+
+4. Run:
+```bash
+node src/examples/basic-use.js
+```
+
 ## Contributing
 
-We welcome contributions of all kinds — bug reports, feature requests, documentation updates, and pull requests.
+We welcome contributions of all kinds - bug reports, feature requests, documentation updates, and pull requests.
 
 Before contributing, please read our [Contributing Guidelines](./CONTRIBUTING.md).
