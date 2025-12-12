@@ -1,7 +1,7 @@
 export {Func, ODEs, mrt, ros3prw, ros34prw, CallbackAction, DEFAULT_OPTIONS, SolverOptions,
   getCallback, SolverMethod, Callback, IterCheckerCallback, TimeCheckerCallback} from './src/solver-tools';
 
-export {perfProbs, corrProbs, CorrProblem} from './src/examples';
+export {perfProbs, corrProbs, CorrProblem, refPoints} from './src/examples';
 
 export {DF_NAME, CONTROL_EXPR, MAX_LINE_CHART, getIVP, getScriptLines, getScriptParams, getJScode,
   IVP, DifEqs, Input, SCRIPTING, BRACE_OPEN, BRACE_CLOSE, BRACKET_OPEN, BRACKET_CLOSE, ANNOT_SEPAR,

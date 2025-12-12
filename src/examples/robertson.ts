@@ -11,3 +11,9 @@ export const robertson = {
   tolerance: 1e-7,
   solutionColNames: ['A', 'B', 'C'],
 };
+
+export const robertsonReferencePoint = new Float64Array([
+  0.2083340149701255E-7,
+  0.8333360770334713E-13,
+  0.9999999791665050,
+]);
