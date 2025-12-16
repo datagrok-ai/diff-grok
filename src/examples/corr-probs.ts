@@ -1,6 +1,6 @@
 // Problems with known exact solution (for testing correctness)
 
-import {ODEs} from '../solver-tools/solver-defs';
+import {ODEs} from '../../index';
 
 /** Non-stiff 1D test problem: equation (see [1], p. 736) */
 const nonStiff1D: ODEs = {

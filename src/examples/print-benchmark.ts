@@ -1,11 +1,36 @@
-import {printSolution} from './utils';
 import {robertson} from './robertson';
 import {hires} from './hires';
 import {vdpol} from './vdpol';
 import {orego} from './orego';
 import {e5} from './e5';
 import {pollution} from './pollution';
-import {mrt, ros34prw} from '../solver-tools';
+import {ODEs, SolverMethod, mrt, ros34prw} from '../../index';
+
+/** Solve the given problem and output to console the solution */
+export function printSolution(task: ODEs, method: SolverMethod, separator: string): void {
+  try {
+  // Solve the problem
+    const solution = method(task);
+
+    // Output results
+
+    console.log(task.name);
+
+    let line: string = [task.arg.name].concat(task.solutionColNames).join(separator);
+
+    console.log(line);
+
+    const length = solution[0].length;
+
+    for (let i = 0; i < length; ++i) {
+      line = solution.map((col) => col[i].toString()).join(separator);
+      console.log(line);
+    }
+  } catch (err) {
+    console.log('Solver failed: ', err instanceof Error ? err.message : 'Unknown problem!');
+  }
+}
+
 
 const SEPARATOR = '  '; // use ',' to get csv
 
