@@ -27,3 +27,10 @@ export const e5 = {
   tolerance: 1e-6,
   solutionColNames: ['y1', 'y2', 'y3', 'y4'],
 };
+
+export const e5ReferencePoint = new Float64Array([
+  0.1152903278711829E-290,
+  0.8867655517642120E-22,
+  0.8854814626268838E-22,
+  0,
+]);

@@ -1,6 +1,6 @@
 // A script for checking performance
 
-import {ODEs, corrProbs, CorrProblem, mrt, ros3prw, ros34prw, perfProbs} from '../../index';
+import {ODEs, corrProbs, CorrProblem, mrt, ros3prw, ros34prw, perfProbs, refPoints} from '../../index';
 
 /** Return numerical solution error: maximum absolute deviation between approximate & exact solutions */
 function getError(method: (odes: ODEs) => Float64Array[], corProb: CorrProblem): number {
@@ -25,7 +25,20 @@ function getError(method: (odes: ODEs) => Float64Array[], corProb: CorrProblem):
   }
 
   return error;
-}
+} // getError
+
+function getDeviationFromReferencePoint(solution: Float64Array[], refPoint: Float64Array): number {
+  let absolute = 0;
+  const lastIdx = solution[0].length - 1;
+  let cur = 0;
+
+  for (let k = 0; k < solution.length; ++k) {
+    cur = Math.abs(solution[k][lastIdx] - refPoint[k]);
+    absolute = Math.max(cur, absolute);
+  }
+
+  return absolute;
+} // getDeviationFromReferencePoint
 
 const methods = new Map([
   ['MRT', mrt],
@@ -33,29 +46,35 @@ const methods = new Map([
   ['ROS34PRw', ros34prw],
 ]);
 
-console.log('Performance:\n');
+console.log('Performance\n');
 
 methods.forEach((method, name) => {
-  console.log('  ', name);
+  console.log(' ', name);
 
-  perfProbs.forEach((odes) => {
+  console.log('           PROBLEM   TIME,MS   ERR*');
+
+  perfProbs.forEach((odes, idx) => {
     const start = Date.now();
-    method(odes);
+    const solution = method(odes);
+    const absErr = getDeviationFromReferencePoint(solution.slice(1), refPoints[idx]).toExponential(2);
     const finish = Date.now();
-    console.log(`     ${odes.name}: ${finish - start} ms.`);
+    console.log(`  ${odes.name}     ${finish - start}     ${absErr}`.padStart(37));
   });
 
   console.log();
 });
 
-console.log('Correctness (maximum absolute deviation):\n');
+console.log('* approximate vs. reference (also, numerical)\n\n');
+
+console.log('Correctness (maximum absolute deviation): approximate vs. exact\n');
 
 methods.forEach((method, name) => {
   console.log('  ', name);
+  console.log('          PROBLEM   ERR');
 
   corrProbs.forEach((problem) => {
     const error = getError(method, problem);
-    console.log(`     ${problem.odes.name}: ${error}`);
+    console.log(`     ${problem.odes.name}    ${error.toExponential(2)}`.padStart(28));
   });
 
   console.log();

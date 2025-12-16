@@ -17,3 +17,9 @@ export const orego = {
   tolerance: 1e-8,
   solutionColNames: ['y1', 'y2', 'y3'],
 };
+
+export const oregoReferencePoint = new Float64Array([
+  1.000814870318523,
+  1228.178521549917,
+  132.0554942846706,
+]);
