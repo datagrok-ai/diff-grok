@@ -30,3 +30,5 @@ export const refPoints = [
 ];
 
 export {corrProbs, CorrProblem} from './corr-probs';
+
+export {printRobertson, printHires, printOrego, printE5, printVdpol, printPollution} from './print-benchmark';
