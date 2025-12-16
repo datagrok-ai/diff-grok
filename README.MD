@@ -178,7 +178,39 @@ The MRT, ROS3PRw and ROS34PRw methods demonstrate the following time performance
 |[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|[0, 10E+13]|40K|1E-6|14|17|8|
 |[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|[0, 60]|30K|1E-6|36|50|23|
 
-Run [check-methods.ts](./src/examples/check-methods.ts) to check results.
+Maximum absolute deviations (MADs) from the reference solutions obtained using SciPy (Radau) are summarized in the table below:
+
+|Problem|MRT|ROS3PRw|ROS34PRw|
+|-|-|-|-|
+|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|1.87e-8|1.88e-8|1.88e-8|
+|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|4.80e-11|1.05e-14|2.87e-14|
+|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|5.12e-4|5.12e-4|5.12e-4|
+|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|3.05e-5|3.45e-7|2.31e-6|
+|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|1.12e-19| 1.33e-19|3.40e-17|
+|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|4.06e-10|9.16e-12|1.58e-10|
+
+Run [check-methods.ts](./src/examples/check-methods.ts) to reproduce these results (see [here](#examples) how to run scripts standalone).
+
+The following charts compare the Diff Grok and Radau solutions for the **van der Pol** system:
+
+![Pollution](images/VDPOL.png)
+
+The following graphs present a comparison of the Diff Grok and Radau solutions for the **Pollution** model, highlighting a portion of the functions:
+
+![Pollution](images/POLL.png)
+
+Run benchmark models and find the reference solutions via the following links to the [Datagrok](https://public.datagrok.ai) platform:
+
+|Problem|Diff Grok|Radau|
+|-|-|-|
+|Rober|[ROBER.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/ROBER.ivp)|[ROBER.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/ROBER-using-Radau.csv?browse=files)|
+|HIRES|[HIRES.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/HIRES.ivp)|[HIRES.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/HIRES-using-Radau.csv?browse=files)|
+|VDPOL|[VDPOL.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/VDPOL.ivp)|[VDPOL.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/VANDERPOL-using-Radau.csv?browse=files)|
+|OREGO|[OREGO.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/OREGO.ivp)|[OREGO.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/OREGO-using-Radau.csv?browse=files)|
+|E5|[E5.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/E5.ivp)|[E5.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/E5-using-Radau.csv?browse=files)|
+|Pollution|[POLL.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/POLL.ivp)|[POLL.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/POLL-using-Radau.csv?browse=files)|
+
+In the file [print-benchmark.ts](./src/examples/print-benchmark.ts), you can find standalone functions that print the solutions of these problems to the console, as well as Python scripts for computing the solutions using SciPy.
 
 ## Scripting
 

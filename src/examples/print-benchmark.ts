@@ -13,6 +13,8 @@ const SEPARATOR = '  '; // use ',' to get csv
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printRobertson} from 'diff-grok';
+ *
  * printRobertson();
  * ```
  *
@@ -80,6 +82,8 @@ export function printRobertson(): void {
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printHires} from 'diff-grok';
+ *
  * printHires();
  * ```
  *
@@ -163,6 +167,8 @@ export function printHires(): void {
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printVdpol} from 'diff-grok';
+ *
  * printVdpol();
  * ```
  *
@@ -236,6 +242,8 @@ export function printVdpol(): void {
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printOrego} from 'diff-grok';
+ *
  * printOrego();
  * ```
  *
@@ -309,6 +317,8 @@ export function printOrego(): void {
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printE5} from 'diff-grok';
+ *
  * printE5();
  * ```
  *
@@ -391,6 +401,8 @@ export function printE5(): void {
  * @example
  * ```ts
  * // TypeScript usage example
+ * import {printPollution} from 'diff-grok';
+ *
  * printPollution();
  * ```
  *
@@ -521,7 +533,7 @@ def poll(t, y):
 # -------------------------
 t_start = 0
 t_end = 60  # final time
-t_step = 0.1
+t_step = 0.002
 n_points = int(np.ceil((t_end - t_start)/t_step)) + 1
 t_eval = np.linspace(t_start, t_end, n_points)
 
@@ -555,5 +567,3 @@ print(f"Solution saved to '{filename}'")
 export function printPollution(): void {
   printSolution(pollution, ros34prw, SEPARATOR);
 }
-
-printHires();
