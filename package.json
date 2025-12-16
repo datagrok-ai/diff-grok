@@ -8,7 +8,7 @@
     "access": "public"
   },
   "license": "MIT",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Tools for solving initial value problem for ordinary differential equations",
   "keywords": [
     "initial value problem",
