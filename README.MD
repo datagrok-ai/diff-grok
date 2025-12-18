@@ -216,7 +216,7 @@ The following graphs present a comparison of the Diff Grok and Radau solutions f
 
 **POLL**
 
-![POLL](images/POLL.png)
+![POLL](images/POLL-full.png)
 
 **OREGO**
 
