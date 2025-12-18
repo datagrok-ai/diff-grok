@@ -2,7 +2,7 @@
 title: 'Diff Studio: Ecosystem for Interactive Modeling by Ordinary Differential Equations'
 tags:
   - Differential equations
-  - JavaScript
+  - TypeScript
 authors:
   - name: Viktor Makarichev   
     orcid: 0000-0003-1481-9132
@@ -39,153 +39,86 @@ bibliography: paper.bib
 
 # Summary
 
-Ordinary differential equations (ODEs) are crucial in modeling complex systems and phenomena. Their applications range from pharmacology and drug manufacturing 
-to financial modeling and environmental studies.
+Ordinary differential equations (ODEs) are crucial in modeling complex systems and phenomena. Their applications range from pharmacology and drug manufacturing to financial modeling and environmental studies.
 
 **Diff Studio** is a high-performance TypeScript application for solving initial value problems (IVPs) for ODEs directly within web browsers. It consists of two components. The **Diff Grok library** implements numerical methods and formula parsing tools. The **Diff Studio application** integrates Diff Grok tools with **Datagrok**, a scientific computing platform free for personal and academic use.
 
 Diff Studio provides an ecosystem for rapid development of ODE-based applications with reproducible and accessible models.
 
-
 # Statement of need
 
-Scientific modeling of complex processes and phenomena uses ODEs. They are widely applied in diverse fields, including physical processes [@chicone2006ordinary], 
+Scientific modeling of complex processes and phenomena uses ODEs. They are widely applied in diverse fields, including physical processes [@chicone2006ordinary],
 biochemical kinetics [@ingalls2013mathematical], drug delivery systems [@mircioiu2019mathematical], cloud computing [@jafarnejad2019applying], and population dynamics [@hastings2013population].
 
-Analytic methods providing exact solutions can be applied only to a limited class of ODEs. 
+Analytic methods providing exact solutions can be applied only to a limited class of ODEs.
 The use of analytic solutions often proves impractical due to their complexity [@hairer2008solving1]. Numerical methods computing approximate solutions are often preferred.
 
-Many methods for solving ODEs have been recently developed 
-[@hairer2008solving1; @hairer2002solving2]. 
-These methods have been implemented in various software tools, 
+Many methods for solving ODEs have been recently developed
+[@hairer2008solving1; @hairer2002solving2].
+These methods have been implemented in various software tools,
 including libraries and packages for programming languages and
-scientific computing environments. 
-Notable examples include 
-SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials], 
-Julia Differential Equations package [@rackauckas2017differentialequations], 
-SciPy [@2020SciPyNMeth], 
-Maple [@maple2025], 
+scientific computing environments.
+Notable examples include
+SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials],
+Julia Differential Equations package [@rackauckas2017differentialequations],
+SciPy [@2020SciPyNMeth],
+Maple [@maple2025],
 Mathematica [@Mathematica2024],
-Matlab [@MATLAB], 
+Matlab [@MATLAB],
 and deSolve [@soetaert2010solving].
 
-Most tools require expertise, shifting focus from research to development. 
-The goal of this project is to develop an ecosystem providing a combination of a "no-code" approach with comprehensive capabilities for in-browser modeling and analysis.
+Current ODE modeling tools have significant drawbacks. Commercial systems are costly, blocking access for underfunded researchers, small labs, and institutions. Sharing simulations requires recipients to own the same software, complicating collaboration and reproducibility. Traditional platforms offer static interfaces. Development of interactive applications requires expertise, shifting focus from research to development.
+
+This project proposes a web-based approach that addresses the stated problems. The goal is to develop an ecosystem providing a combination of a "no-code" approach with comprehensive capabilities for in-browser modeling and analysis.
 
 # The solution: Diff Studio
 
-## Diff Grok library
+The Diff Grok library provides numerical methods for solving problems given in a declarative form. It includes:
 
-This library provides numerical methods and automatic generation of JavaScript code from a declarative problem specification. It includes:
+- **Solving tools:** numerical methods and computational pipelines.
+- **Scripting tools:** features for specifying problems in declarative form.
 
-- **Solving tools:** numerical methods for solving IVPs;
-- **Scripting tools:** methods for automatic generation of JavaScript
-  code that solves problems specified in the declarative form.
+Solving tools implement: the modified Rosenbrock triple (MRT) [@Shampine1997], the ROS3PRw [@jax2021], and the ROS34PRw [@rang2015improved] methods that
+provide solving of both stiff and non-stiff systems. The performance is benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. Diff Grok allows users to obtain modeling results in near-real time (see \autoref{fig:peformance}).
 
-Solving tools implement:
+![Diff Grok performance: computational time comparison.\label{fig:peformance}](./images/dg-performance.png)
 
-- `mrt` - Modified Rosenbrock triple (MRT) [@Shampine1997]
-- `ros3prw` - the ROS3PRw method [@jax2021]
-- `ros34prw` - the ROS34PRw method [@rang2015improved]
+Computational pipelines support multi-stage modeling and solving of IVPs in web workers, enabling parallel computations and analyses, including parameter optimization and sensitivity studies.
 
-To solve
-\begin{equation}\label{eq:diffeq}
-\begin{split}
-dy/dt = f(t, y), \\
-y(t_0) = y_0
-\end{split}
-\end{equation}
+Scripting tools provide the ability to define IVPs as a set of text strings containing equations and model input annotations.
+Their combination with solver tools makes Diff Grok a foundation for creating web applications for ODE-based modeling.
 
-on the interval $[t_0, t_1]$, 
-define an ODEs object. 
-This object specifies the independent variable ($t$), 
-its range ($[t_0, t_1]$), 
-solution grid step size ($h$), 
-initial conditions ($y_0$),
-right-hand side of the ODEs, 
-tolerance, 
-and names of dependent variables. 
-Next, apply a selected method (`mrt`, `ros3prw` or `ros34prw`) 
-to this object. 
-The output consists of a list of `float64`
-arrays containing the values of the independent variable and the
-corresponding approximate solutions.
+The Diff Studio package integrates Diff Grok with the Datagrok platform [@datagrok]. It implements a web application with a model editor (\autoref{fig:dseditor}) and autogenerated user interface (\autoref{fig:autoui}).
 
-For example, consider
-\begin{equation}\label{eq:ivp}
-\begin{split}
-dx/dt = x + y - t, \\
-dy/dt = xy + t \\
-x(0) = 1, y(0) = -1 \\
-t \in [0, 2], h = 0.001
-\end{split}
-\end{equation}
+![Pharmacokinetic-pharmacodynamic simulation with Diff Studio: the equation editor, numerical solution, and its visualization.\label{fig:dseditor}](./images/ds-editor.png)
 
-In this case, the ODEs object is defined as follows:
-
-```javascript
-const task: ODEs = {
-    name: 'Example',
-    arg: {
-        name: 't',
-        start: 0,
-        finish: 2,
-        step: 0.001,
-    },
-    initial: [1, -1],
-    func: (t: number, y: Float64Array, output: Float64Array) => {
-        output[0] = y[0] + y[1] - t;
-        output[1] = y[0] * y[1] + t;
-    },
-    tolerance: 1e-7,
-    solutionColNames: ['x', 'y'],
-};
-```
-
-The following code solves the given problem:
-```javascript
-const solution = mrt(task);
-```
-
-The solution contains three items:
-
-- `solution[0]` - values of `t`, i.e., the range `0..2` with the step `0.001`;
-- `solution[1]` - values of `x(t)` at the points of this range;
-- `solution[2]` - values of `y(t)` at the same points.
-
-Diff Grok delivers outstanding computational performance [@diffgrokperformance], benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. It allows users to obtain the modeling results in near-real time.
-
-Scripting tools enable specification of IVPs declaratively using an intuitive syntax (see \autoref{fig:ivp}).
-
-![Diff Studio model corresponding to the \autoref{eq:ivp}.\label{fig:ivp}](./images/DiffStudio_example_IVP.png){ height=6cm }
-
-The method `getIVP()` parses a model and produces the IVP object specifying the problem. The method `getJScode()` generates JavaScript code, involving an appropriate ODEs object, that can be applied for solving equations.
-
-## Diff Studio package
-
-The Diff Studio package integrates Diff Grok with Datagrok [@datagrok]. It implements an application with a model editor (\autoref{fig:diffstudio}).
-
-![The Diff Studio application: 
-the equation editor, numerical solution of the problem \autoref{eq:ivp}, 
-and its visualization.\label{fig:diffstudio}](./images/diffstudio.png)
-
-Diff Studio automatically generates the user interface ( \autoref{fig:autoui}). Each model input can be annotated using self-explanatory options (\autoref{fig:annotations2ui}).
-
-![The Diff Studio application, Autogenerated UI: Diffstudio
-creates input entries (highlighted) for all variables listed in the equation editor.
-Each time model inputs are changed, a solution is computed and
-displayed.\label{fig:autoui}](./images/diffstudio_autogenerated_ui_highlighted.png)
-
-![The correspondence of input annotation from \autoref{fig:diffstudio} and UI
-elements from \autoref{fig:autoui}
-\label{fig:annotations2ui}](./images/annotations-to-ui.png){ height=6cm }
+![Diff Studio: autogenerated UI.\label{fig:autoui}](./images/ds-ui.png)
 
 Datagrok provides in-browser computations and visualizations. Other features include:
 
 - Sensitivity analysis and parameter optimization;
-- Storing and sharing computations.
+- Storing and sharing computations via URI.
 
 Thus, Diff Studio serves as a comprehensive modeling environment.
+
+## Existing Solutions
+
+WebAssembly [@wasm2025], Pyodide [@pyodide2025], and pure implementation with JavaScript or TypeScript are the most promising approaches for web-based simulation with ODEs.
+
+WebAssembly ensures near-native performance. One can implement numerical methods in C/C++ or Rust, and
+then compile them into WebAssembly, making it possible to use existing solvers.
+
+Each time the user updates the equations, recompilation is required, which is impractical when designing complex models. A WebAssembly-based distribution of Python is provided by Pyodide. It enables the application of NumPy, SciPy, and other scientific libraries. However, it introduces large package sizes and performance overhead, as well as less seamless integration with browser APIs compared to native JavaScript implementations. Thus, the use of a pure JavaScript/TypeScript implementation of in-browser ODE solvers is the most promising.
+
+There exists a set of libraries that provide ODE solvers: Math.js [@mathjs], odex-js [@odexjs], and others. Their distinctive feature is the requirement of proficiency in the corresponding programming language, which contrasts with a no-code approach to model description.
+
+The Diff Grok library and Diff Studio package democratize scientific computing and make numerical modeling more accessible to a broader audience providing:
+
+- Declarative model specification.
+- Ability to solve both non-stiff and stiff ODEs.
+- Parallel computing.
+- Seamless integration of computations with visualization tools.
+- Modeling directly in the web browser.
 
 ## Availability
 
@@ -196,7 +129,7 @@ while its documentation can be found at [Datagrok Help pages](https://datagrok.a
 
 Run Diff Studio online [here](https://public.datagrok.ai/apps/DiffStudio), or complete an interactive [tutorial](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations).
 
-# Acknowledgements 
+# Acknowledgements
 
 The authors are grateful to the entire **Datagrok Inc** team and to the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
 
