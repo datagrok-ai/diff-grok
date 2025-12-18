@@ -1,6 +1,6 @@
 # Diff Grok
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17974378.svg)](https://doi.org/10.5281/zenodo.17974378)
+[![DOI](https://zenodo.org/badge/635090135.svg)](https://doi.org/10.5281/zenodo.17974378)
 [![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://datagrok-ai.github.io/diff-grok/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://github.com/datagrok-ai/diff-grok/blob/main/LICENSE)
 [![Build Status](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml)
