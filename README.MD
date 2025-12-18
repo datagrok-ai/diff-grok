@@ -193,11 +193,43 @@ Run [check-methods.ts](./src/examples/check-methods.ts) to reproduce these resul
 
 The following charts compare the Diff Grok and Radau solutions for the **van der Pol** system:
 
-![Pollution](images/VDPOL.png)
+![VDPOL](images/VDPOL.png)
 
 The following graphs present a comparison of the Diff Grok and Radau solutions for the **Pollution** model, highlighting a portion of the functions:
 
 ![Pollution](images/POLL.png)
+
+<details>
+<summary><strong>Gallery</strong></summary>
+
+**VDPOL**
+
+![VDPOL](images/VDP0L.png)
+
+**HIRES**
+
+![HIRES](images/HIRES.png)
+
+**E5**
+
+![E5](images/E5.png)
+
+**POLL**
+
+![POLL](images/POLL.png)
+
+**OREGO**
+
+![OREGO](images/OREGO.png)
+
+**Rober**
+
+![ROBER](images/ROBER.png)
+
+</details>
+
+<details>
+<summary><strong>Run benchmarks</strong></summary>
 
 Run benchmark models and find the reference solutions via the following links to the [Datagrok](https://public.datagrok.ai) platform:
 
@@ -211,6 +243,8 @@ Run benchmark models and find the reference solutions via the following links to
 |Pollution|[POLL.ivp](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/POLL.ivp)|[POLL.csv](https://public.datagrok.ai/file/System.AppData/DiffStudio/benchmarks/POLL-using-Radau.csv?browse=files)|
 
 In the file [print-benchmark.ts](./src/examples/print-benchmark.ts), you can find standalone functions that print the solutions of these problems to the console, as well as Python scripts for computing the solutions using SciPy.
+
+</details>
 
 ## Scripting
 
@@ -530,6 +564,9 @@ Diff Grok contains a set of examples located in the folder [src/examples](./src/
 |[pipeline-use.ts](./src/examples/pipeline-use.ts)|Considers modeling queues and shows shows how to apply pipelines and models with customized outputs.|
 |[scripting.ts](./src/examples/scripting.ts)|Shows how to generate JS-script from Diff Grok model.|
 
+<details>
+<summary><strong>Run examples</strong></summary>
+
 To run examples standalone:
 
 1. Install TypeScript locally. If your project does not already include TypeScript:
@@ -566,6 +603,8 @@ tsc src/examples/basic-use.ts
 ```bash
 node src/examples/basic-use.js
 ```
+
+</details>
 
 ## Contributing
 
