@@ -41,7 +41,7 @@ bibliography: paper.bib
 
 Ordinary differential equations (ODEs) are crucial in modeling complex systems and phenomena. Their applications range from pharmacology and drug manufacturing to financial modeling and environmental studies.
 
-**Diff Studio** is a high-performance TypeScript application for solving initial value problems (IVPs) for ODEs directly within web browsers. It consists of two components. The **Diff Grok library** implements numerical methods and formula parsing tools. The **Diff Studio application** integrates Diff Grok tools with **Datagrok**, a scientific computing platform free for personal and academic use.
+**Diff Studio** is a high-performance, interactive TypeScript application for solving initial value problems (IVPs) for ODEs directly within web browsers. It consists of two components. The **Diff Grok library** implements numerical methods and formula parsing tools. The **Diff Studio application** integrates Diff Grok tools with **Datagrok**, a scientific computing platform free for personal and academic use.
 
 Diff Studio is an ecosystem for ODE-based modeling within Datagrok. It enables rapid development of applications with reproducible computations and supports interactive exploration of model behavior. The platform facilitates collaboration through sharing, reuse, and community-driven development.
 
