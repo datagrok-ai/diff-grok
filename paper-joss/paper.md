@@ -39,7 +39,7 @@ bibliography: paper.bib
 
 # Summary
 
-Initial value problems (IVPs) for ordinary differential equations (ODEs) are widely used to model complex systems. They are utilized in many domains, including physical processes [@chicone2006ordinary], biochemical kinetics [@ingalls2013mathematical], drug delivery systems [@mircioiu2019mathematical], cloud computing [@jafarnejad2019applying], and population dynamics [@hastings2013population].
+Ordinary differential equations (ODEs), typically formulated as initial value problems (IVPs), are widely used to model the dynamics of complex systems. They are utilized in many domains, including physical processes [@chicone2006ordinary], biochemical kinetics [@ingalls2013mathematical], drug delivery systems [@mircioiu2019mathematical], cloud computing [@jafarnejad2019applying], and population dynamics [@hastings2013population].
 
 Many well-established numerical solvers for ODEs already exist. However, interactive model exploration, reproducible computation, and collaborative workflows remain difficult to achieve. This is especially true in browser-based environments.
 
