@@ -53,20 +53,20 @@ ODEs can be solved both analytically and numerically. Analytic methods providing
 
 In practice, scientific modeling often requires interactive exploration. Researchers frequently adjust parameters and inspect model behavior iteratively. Collaboration between multiple users is also common. Existing solutions usually require local installation and environment configuration. This makes sharing models and reproducing results difficult. Creating interactive analysis tools often requires substantial programming effort. As a result, attention shifts away from scientific analysis toward software development.
 
-Web-based modeling with ODEs introduces additional challenges. Methods utilizing WebAssembly [@wasm2025] or Pyodide [@pyodide2025] allow reuse of existing numerical libraries. WebAssembly provides near-native performance by allowing numerical methods written in C/C++ or Rust to be compiled for the browser. However, it often requires recompilation when equations or model structure change. This limits its flexibility for iterative model design. Pyodide offers a WebAssembly-based Python distribution that enables the use of NumPy, SciPy, and other scientific libraries. However, it has large package sizes, may incur performance overhead and large bundle sizes, and integrates less seamlessly with browser APIs. In contrast, pure JavaScript/TypeScript implementations offer a flexible and performant solution, with libraries such as Math.js [@mathjs] and odex-js [@odexjs]. They expose low-level APIs, so end users need programming expertise.
-
-Diff Studio addresses these limitations. It offers a low-code interface with extensive functionalities for in-browser modeling and analysis of ODE-based systems.
+Diff Studio addresses these limitations by providing a browser-native environment that combines performance with ease of use. It offers a low-code interface with extensive functionalities for in-browser modeling and analysis of ODE-based systems.
 
 # The solution: Diff Studio
 
-The Diff Grok library provides numerical methods for solving problems specified in a declarative form. It includes:
+Web-based modeling with ODEs introduces additional challenges. Methods utilizing WebAssembly [@wasm2025] or Pyodide [@pyodide2025] allow reuse of existing numerical libraries. WebAssembly provides near-native performance by allowing numerical methods written in C/C++ or Rust to be compiled for the browser. However, it often requires recompilation when equations or model structure change. This limits its flexibility for iterative model design. Pyodide offers a WebAssembly-based Python distribution that enables the use of NumPy, SciPy, and other scientific libraries. However, it has large package sizes, may incur performance overhead, and integrates less seamlessly with browser APIs. In contrast, pure JavaScript/TypeScript implementations offer a flexible and performant solution, with libraries such as Math.js [@mathjs] and odex-js [@odexjs]. They expose low-level APIs, so end users need programming expertise.
 
-- **Solving tools:** numerical methods and computational pipelines. The library implements the modified Rosenbrock triple (MRT) [@Shampine1997], the ROS3PRw [@jax2021], and the ROS34PRw [@rang2015improved] methods. They support both stiff and non-stiff systems. Performance was benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. Diff Grok allows users to obtain modeling results in near-real time (see \autoref{fig:peformance}). Computational pipelines support multi-stage modeling and solving of IVPs in web workers. This enables parallel computations and analyses, including parameter optimization and sensitivity studies.
-- **Declarative modeling language:** a domain-specific language for specifying problems. It provides the ability to define IVPs as a text containing equations and model input annotations.
+Recognizing these trade-offs, Diff Studio adopts a TypeScript-native approach paired with declarative modeling to eliminate the need for programming expertise. The Diff Grok library provides numerical methods for solving problems specified in a declarative form. It includes:
 
-![Diff Grok performance: computational time comparison.\label{fig:peformance}](./images/dg-performance.png)
+- **Solving tools:** numerical methods and computational pipelines. The library implements the modified Rosenbrock triple (MRT) [@Shampine1997], the ROS3PRw [@jax2021], and the ROS34PRw [@rang2015improved] methods. They support both stiff and non-stiff systems. Performance was benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. Diff Grok allows users to obtain modeling results in near-real time (see \autoref{fig:performance}). Computational pipelines support multi-stage modeling and solving of IVPs in web workers. This enables parallel computations and analyses, including parameter optimization and sensitivity studies.
+- **Declarative modeling language:** a domain-specific language for specifying problems. It provides the ability to define IVPs as text containing equations and model input annotations.
 
-Diff Studio integrates the Diff Grok library with the Datagrok platform [@datagrok]. This web application provides an equations editor (\autoref{fig:dseditor}) and enables a model analysis via an autogenerated user interface (\autoref{fig:autoui}).
+![Diff Grok performance: computational time comparison.\label{fig:performance}](./images/dg-performance.png)
+
+Diff Studio integrates the Diff Grok library with the Datagrok platform [@datagrok]. This web application provides an equations editor (\autoref{fig:dseditor}) and enables model analysis via an autogenerated user interface (\autoref{fig:autoui}).
 
 ![Pharmacokinetic-pharmacodynamic simulation with Diff Studio: the equation editor, numerical solution, and its visualization. The view displays the declarative model specification with input annotations.\label{fig:dseditor}](./images/ds-editor.png)
 
@@ -84,13 +84,12 @@ Links:
 
 - [Diff Grok](https://github.com/datagrok-ai/diff-grok)
 - [Diff Studio](https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio)
-- [Datagrok Help pages](https://datagrok.ai/help/compute/diff-studio)
 
-Run Diff Studio online [here](https://public.datagrok.ai/apps/DiffStudio), or complete an interactive [tutorial](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations).
+Run Diff Studio online [here](https://public.datagrok.ai/apps/DiffStudio) or complete an interactive [tutorial](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations).
 
 # Acknowledgements
 
-The authors are grateful to the entire **Datagrok** team and to the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
+The authors are grateful to the entire **Datagrok** team and the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
 
 # Conflicts of interest
 
