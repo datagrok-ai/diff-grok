@@ -41,9 +41,9 @@ bibliography: paper.bib
 
 Ordinary differential equations (ODEs), typically formulated as initial value problems (IVPs), are widely used to model the dynamics of complex systems. They are utilized in many domains, including physical processes [@chicone2006ordinary], biochemical kinetics [@ingalls2013mathematical], drug delivery systems [@mircioiu2019mathematical], cloud computing [@jafarnejad2019applying], and population dynamics [@hastings2013population].
 
-Many well-established numerical solvers for ODEs already exist. However, interactive model exploration, reproducible computation, and collaborative workflows remain difficult to achieve. This is especially true in browser-based environments.
+While a broad ecosystem of mature numerical solvers exists, effective **interactive exploration**, **reproducible computation**, and **collaborative model development** remain difficult to achieve - particularly in browser-based environments. Most existing tools are designed around desktop or scripting workflows and provide limited support for real-time interaction, model sharing, or collaborative analysis.
 
-**Diff Studio** is a browser-native environment for solving and exploring IVPs, enabling **interactive**, **collaborative**, and **reproducible** exploration of ODE-based simulations without custom software development or local environment setup.
+Diff Studio is a **browser-native environment for solving and exploring IVPs**, designed to support interactive, collaborative, and reproducible ODE modeling without custom software development or local environment setup. It enables users to define models declaratively, explore their behavior interactively, and share fully reproducible simulations through the browser.
 
 Diff Studio consists of two components:
 1. **Diff Grok**:  general-purpose high-performance TypeScript library for solving ODE systems defined in a declarative form
@@ -51,47 +51,50 @@ Diff Studio consists of two components:
 
 # Statement of need
 
-ODEs can be solved both analytically and numerically. Analytic methods providing exact solutions can be applied only to a limited class of ODEs. The use of analytic solutions often proves impractical due to their complexity [@hairer2008solving1]. Numerical methods computing approximate solutions are often preferred. Many such methods have been developed [@hairer2008solving1; @hairer2002solving2] and are available in many scientific computing tools. Notable examples include SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials], the Julia Differential Equations package [@rackauckas2017differentialequations], SciPy [@2020SciPyNMeth], Maple [@maple2025], Mathematica [@Mathematica2024], Matlab [@MATLAB], and deSolve [@soetaert2010solving]. These tools provide robust and efficient computations. However, they are mainly designed for desktop or scripting-based workflows.
+ODEs can be solved either analytically or numerically. Analytic methods provide exact solutions but apply only to limited classes of problems and are often impractical due to their complexity [@hairer2008solving1]. Numerical methods, which compute approximate solutions, are therefore the dominant approach. A wide range of such methods has been developed [@hairer2008solving1; @hairer2002solving2] and is available in established scientific computing tools, including SUNDIALS [@gardner2022sundials; @hindmarsh2005sundials], Julia DifferentialEquations [@rackauckas2017differentialequations], SciPy [@2020SciPyNMeth], Maple [@maple2025], Mathematica [@Mathematica2024], Matlab [@MATLAB], and deSolve [@soetaert2010solving].
 
-In practice, scientific modeling often requires interactive exploration. Researchers frequently adjust parameters and inspect model behavior iteratively. Collaboration between multiple users is also common. Existing solutions usually require local installation and environment configuration. This makes sharing models and reproducing results difficult. Creating interactive analysis tools often requires substantial programming effort. As a result, attention shifts away from scientific analysis toward software development.
+These tools provide robust and efficient solvers but are primarily designed for **desktop or scripting-centric workflows**. In practice, scientific modeling is often exploratory: researchers iteratively adjust parameters, inspect transient behavior, compare scenarios, and refine model structure. Collaboration across teams and institutions is also common. Existing solutions typically require local installation, environment configuration, and custom scripting, which complicates sharing models and reproducing results. Building interactive analysis tools on top of these systems often requires substantial additional programming effort, shifting focus away from scientific inquiry toward software engineering.
 
-Diff Studio addresses these limitations by providing a browser-native environment that combines performance with ease of use. It offers a low-code interface with extensive functionalities for in-browser modeling and analysis of ODE-based systems.
+Diff Studio addresses these limitations by providing a **browser-native**, **interactive modeling environment** that combines numerical performance with ease of use. It supports low-code model definition, immediate visual feedback, and seamless sharing of fully reproducible simulations via the web.
 
 # The solution: Diff Studio
 
-Web-based modeling with ODEs introduces additional challenges. Methods utilizing WebAssembly [@wasm2025] or Pyodide [@pyodide2025] allow reuse of existing numerical libraries. WebAssembly provides near-native performance by allowing numerical methods written in C/C++ or Rust to be compiled for the browser. However, it often requires recompilation when equations or model structure change. This limits its flexibility for iterative model design. Pyodide offers a WebAssembly-based Python distribution that enables the use of NumPy, SciPy, and other scientific libraries. However, it has large package sizes, may incur performance overhead, and integrates less seamlessly with browser APIs. In contrast, pure JavaScript/TypeScript implementations offer a flexible and performant solution, with libraries such as Math.js [@mathjs] and odex-js [@odexjs]. They expose low-level APIs, so end users need programming expertise.
+Delivering high-performance ODE modeling in the browser introduces additional technical challenges. Approaches based on WebAssembly [@wasm2025] or Pyodide [@pyodide2025] enable reuse of existing numerical libraries but impose important trade-offs. WebAssembly offers near-native performance for code written in C/C++ or Rust, but typically requires recompilation when equations or model structure change, limiting flexibility during iterative model design. Pyodide provides a WebAssembly-based Python environment that supports NumPy and SciPy but incurs large download sizes, potential performance overhead, and less seamless integration with browser APIs and reactive user interfaces.
 
-Recognizing these trade-offs, Diff Studio adopts a TypeScript-native approach paired with declarative modeling to eliminate the need for programming expertise. The Diff Grok library provides numerical methods for solving problems specified in a declarative form. It includes:
+In contrast, pure JavaScript and TypeScript solutions integrate naturally with the browser execution model and user interface frameworks. However, existing libraries such as Math.js [@mathjs] and odex-js [@odexjs] expose low-level APIs and generally require programming expertise from end users.
 
-- **Solving tools:** numerical methods and computational pipelines. The library implements the modified Rosenbrock triple (MRT) [@Shampine1997], the ROS3PRw [@jax2021], and the ROS34PRw [@rang2015improved] methods. They support both stiff and non-stiff systems. Performance was benchmarked on **Robertson** [@robertson1966solution], **HIRES** [@schafer1975new], **VDPOL** [@vanderpol1926relaxation], **OREGO** [@hairer2002solving2], **E5** [@hairer2002solving2], and **Pollution** [@verwer1994gauss]. Diff Grok allows users to obtain modeling results in near-real time (see \autoref{fig:performance}). Computational pipelines support multi-stage modeling and solving of IVPs in web workers. This enables parallel computations and analyses, including parameter optimization and sensitivity studies.
-- **Declarative modeling language:** a domain-specific language for specifying problems. It provides the ability to define IVPs as text containing equations and model input annotations.
+Diff Studio adopts a TypeScript-native approach combined with declarative modeling to eliminate the need for programming expertise while preserving performance and flexibility. Its core numerical engine, Diff Grok, provides:
+
+* **Solving tools**: A collection of numerical methods. Diff Grok implements the modified Rosenbrock triple (MRT) [@Shampine1997], ROS3PRw [@jax2021], and ROS34PRw [@rang2015improved] methods, supporting both stiff and non-stiff systems. Performance was benchmarked on standard test problems including Robertson [@robertson1966solution], HIRES [@schafer1975new], VDPOL [@vanderpol1926relaxation], OREGO [@hairer2002solving2], E5 [@hairer2002solving2], and Pollution [@verwer1994gauss]. The results demonstrate near-real-time performance suitable for interactive exploration (see \autoref{fig:performance}).
+
+* **Computational pipelines**: Support for multi-stage modeling and solving workflows executed in web workers, enabling parallel computation. These pipelines are used for parameter optimization and sensitivity analysis directly in the browser.
+
+* **Declarative modeling language**: A domain-specific language for specifying IVPs as text, including equations and annotated model inputs. This representation supports automatic interface generation.
 
 ![Diff Grok performance: computational time comparison.\label{fig:performance}](./images/dg-performance.png)
 
-Diff Studio integrates the Diff Grok library with the Datagrok platform [@datagrok]. This web application provides an equations editor (\autoref{fig:dseditor}) and enables model analysis via an autogenerated user interface (\autoref{fig:autoui}).
+Diff Studio integrates Diff Grok into the Datagrok platform, providing a complete web application for ODE modeling. It includes an equations editor (\autoref{fig:dseditor}), an autogenerated interactive user interface (\autoref{fig:autoui}), and rich visualization capabilities.
 
-![Pharmacokinetic-pharmacodynamic simulation with Diff Studio: the equation editor, numerical solution, and its visualization. The view displays the declarative model specification with input annotations.\label{fig:dseditor}](./images/ds-editor.png)
+![Pharmacokinetic–pharmacodynamic simulation in Diff Studio, showing the declarative model specification, numerical solution, and interactive visualization.\label{fig:dseditor}](./images/ds-editor.png)
 
-In Diff Studio, each time the user adjusts sliders or modifies any inputs, the application automatically recalculates the results. The high-performance Diff Grok library performs these computations almost in real time. Visualizations are updated immediately. This enables rapid investigation of model behavior.
+A defining feature of Diff Studio is its real-time interactivity. Whenever a user adjusts a parameter or moves a slider, the system automatically recomputes the solution and updates all visualizations. Diff Grok enables these updates to occur almost instantaneously, supporting rapid hypothesis testing and intuitive exploration of model behavior.
 
-Models and results can be shared using URLs. Collaborators can reproduce computations without installing additional software. They can also continue exploring the models interactively. Datagrok also provides sensitivity analysis and parameter optimization features.
+Diff Studio also emphasizes reproducibility and collaboration. Models, parameter settings, and results can be shared via URLs, allowing collaborators to reproduce simulations without installing software or configuring environments. Shared models remain fully interactive, enabling continued exploration and comparison.
 
-Thus, Diff Studio serves as a comprehensive modeling environment and a centralized hub for ODE-based models.
+Beyond basic simulation, Datagrok provides built-in sensitivity analysis and parameter optimization, allowing users to study parameter influence and fit models to data. Together, these capabilities position Diff Studio as a centralized, browser-based hub for ODE-driven modeling, exploration, and collaboration.
 
-![Diff Studio in model exploration mode, showing the autogenerated UI. Adjusting sliders or modifying any inputs automatically updates the results.\label{fig:autoui}](./images/ds-ui.png)
+![Diff Studio in model exploration mode, showing the autogenerated user interface with live parameter controls.\label{fig:autoui}](./images/ds-ui.png)
 
 ## Availability
 
-Links:
-
-- [Diff Grok](https://github.com/datagrok-ai/diff-grok)
-- [Diff Studio](https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio)
-
-Run Diff Studio online [here](https://public.datagrok.ai/apps/DiffStudio) or complete an interactive [tutorial](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations).
+* Diff Grok: [https://github.com/datagrok-ai/diff-grok](https://github.com/datagrok-ai/diff-grok)
+* Diff Studio: [https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio](https://github.com/datagrok-ai/public/tree/master/packages/DiffStudio)
+* Run Diff Studio online: [https://public.datagrok.ai/apps/DiffStudio](https://public.datagrok.ai/apps/DiffStudio)
+* Interactive tutorial: [https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations](https://public.datagrok.ai/apps/tutorials/Tutorials/Scientificcomputing/Differentialequations)
 
 # Acknowledgements
 
-The authors are grateful to the entire **Datagrok** team and the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved the project.
+The authors thank the entire **Datagrok** team and the **JnJ ModelHub** project team for their contributions and feedback, which significantly improved this work.
 
 # Conflicts of interest
 
