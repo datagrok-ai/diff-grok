@@ -1,9 +1,9 @@
 // Performance tests
 
 import {perfProbs} from '../../index';
-import {methods, TIMEOUT_MS} from './test-defs';
+import {implicitMethods, TIMEOUT_MS} from './test-defs';
 
-methods.forEach((method, name) => {
+implicitMethods.forEach((method, name) => {
   perfProbs.forEach((odes) => {
     test(`Performance: method - ${name}, problem - ${odes.name}`, () => {
       const start = performance.now();

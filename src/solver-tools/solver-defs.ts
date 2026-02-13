@@ -153,6 +153,7 @@ export enum ERROR_MSG {
   MRT_FAILS = 'The modified Rosenbrock triple method fails',
   ROS3PRW_FAILS = 'The ROS3PRw method fails',
   ROS34PRW_FAILS = 'The ROS34PRw method fails',
+  RK4_FAILS = 'The Runge-Kutta-Fehlberg 4(5) method fails',
 };
 
 /** Callback action

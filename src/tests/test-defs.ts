@@ -1,7 +1,15 @@
 /* eslint-disable max-len */
-import {mrt, ros3prw, ros34prw} from '../../index';
+import {mrt, ros3prw, ros34prw, rk4} from '../../index';
 
 export const methods = new Map([
+  ['MRT', mrt],
+  ['ROS3PRw', ros3prw],
+  ['ROS34PRw', ros34prw],
+  ['RK4', rk4],
+]);
+
+/** Implicit methods suitable for stiff performance benchmarks */
+export const implicitMethods = new Map([
   ['MRT', mrt],
   ['ROS3PRw', ros3prw],
   ['ROS34PRw', ros34prw],
