@@ -12,10 +12,13 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 
 * Solving both [stiff](https://en.wikipedia.org/wiki/Stiff_equation) and non-stiff equations
 * Fast computations
-* A set of Rosenbrock–Wanner-type methods:
+* Implicit methods (for stiff ODEs) — Rosenbrock–Wanner type:
   * The modified Rosenbrock triple ([MRT](https://doi.org/10.1137/S1064827594276424))
   * The [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
   * The [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
+* Explicit methods (for non-stiff ODEs):
+  * The Runge-Kutta-Fehlberg 4(5) method ([RK4](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods))
+  * The Adams-Bashforth predictor-corrector method of order 5 ([AB5](https://en.wikipedia.org/wiki/Linear_multistep_method))
 * Scripting:
   * declarative specification of models
   * auto-generated JavaScript code
@@ -67,9 +70,14 @@ on the segment $[t_0, t_1]$ with the step $h$:
 
 1. Import `ODEs` and a desired numerical method:
 
+   Implicit methods (for stiff ODEs):
    * `mrt` - the [MRT](https://doi.org/10.1137/S1064827594276424) method
    * `ros3prw`- the [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
    * `ros34prw` - the [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
+
+   Explicit methods (for non-stiff ODEs):
+   * `rk4` - the Runge-Kutta-Fehlberg 4(5) method
+   * `ab5` - the Adams-Bashforth-Moulton predictor-corrector method of order 5
 
 2. Specify `ODEs` object that defines a problem:
 

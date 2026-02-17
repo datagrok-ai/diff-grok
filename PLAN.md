@@ -240,7 +240,17 @@ export const implicitMethods = new Map([
 ]);
 ```
 
-### 5. Update Project Documentation
+### 5. Update README.md
+
+**File**: `README.md`
+
+Update the README to reflect the new method:
+
+**Features section** — Add method to the appropriate category (implicit or explicit).
+
+**Solving > General section** — Add method to the list of importable numerical methods.
+
+### 6. Update Project Documentation
 
 **File**: `CLAUDE.md`
 
@@ -261,7 +271,7 @@ Update the documentation to reflect the new method:
 
 **Testing section** — Update test counts and method lists as appropriate.
 
-### 6. Build, Lint, and Test
+### 7. Build, Lint, and Test
 
 ```bash
 # Clean any compiled JS files (they interfere with ts-jest)
