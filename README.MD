@@ -18,6 +18,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
   * The [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
 * Explicit methods (for non-stiff ODEs):
   * Runge-Kutta type:
+    * The Bogacki-Shampine 3(2) method ([RK3](https://en.wikipedia.org/wiki/Bogacki%E2%80%93Shampine_method))
     * The Runge-Kutta-Fehlberg method ([RK4](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method))
     * The Dormand-Prince 5(4) method ([RKDP](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method))
   * Adams-Bashforth-Moulton type:
@@ -80,6 +81,7 @@ on the segment $[t_0, t_1]$ with the step $h$:
    * `ros34prw` - the [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
 
    Explicit methods (for non-stiff ODEs) — Runge-Kutta type:
+   * `rk3` - the Bogacki-Shampine 3(2) method
    * `rk4` - the Runge-Kutta-Fehlberg 4(5) method
    * `rkdp` - the Dormand-Prince 5(4) method
 

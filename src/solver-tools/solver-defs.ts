@@ -157,6 +157,7 @@ export enum ERROR_MSG {
   AB5_FAILS = 'The Adams-Bashforth-Moulton 5 method fails',
   AB4_FAILS = 'The Adams-Bashforth-Moulton 4 method fails',
   RKDP_FAILS = 'The Dormand-Prince 5(4) method fails',
+  RK3_FAILS = 'The Bogacki-Shampine 3(2) method fails',
 };
 
 /** Callback action

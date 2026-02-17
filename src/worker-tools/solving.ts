@@ -1,6 +1,6 @@
 // Tools for solving IVPs in web-workers
 
-import {SolverMethod, mrt, ros3prw, ros34prw, ODEs, getCallback, rk4, ab5, ab4, rkdp} from '../solver-tools';
+import {SolverMethod, mrt, ros3prw, ros34prw, ODEs, getCallback, rk4, ab5, ab4, rkdp, rk3} from '../solver-tools';
 import {Func} from '../solver-tools/solver-defs';
 import {IVP2WebWorker, getFunc} from './scripting';
 
@@ -29,6 +29,9 @@ function getMethod(name: string | undefined): SolverMethod {
 
   case 'rkdp':
     return rkdp;
+
+  case 'rk3':
+    return rk3;
 
   default:
     return ros34prw;

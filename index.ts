@@ -1,4 +1,4 @@
-export {Func, ODEs, mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, CallbackAction, DEFAULT_OPTIONS, SolverOptions,
+export {Func, ODEs, mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, CallbackAction, DEFAULT_OPTIONS, SolverOptions,
   getCallback, SolverMethod, Callback, IterCheckerCallback, TimeCheckerCallback} from './src/solver-tools';
 
 export {perfProbs, corrProbs, CorrProblem, refPoints, printRobertson, printHires, printOrego,
