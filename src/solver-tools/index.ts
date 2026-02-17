@@ -5,7 +5,7 @@ export {ros34prw} from './ros34prw-method';
 export {rk4} from './rk4-method';
 export {ab5} from './ab5-method';
 export {ab4} from './ab4-method';
-export {rk5} from './rk5-method';
+export {rkdp} from './rkdp-method';
 export {CallbackAction, DEFAULT_OPTIONS, SolverOptions, SolverMethod} from './solver-defs';
 export {getCallback} from './callbacks/callback-tools';
 export {Callback} from './callbacks/callback-base';

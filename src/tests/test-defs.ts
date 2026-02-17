@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rk5} from '../../index';
+import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp} from '../../index';
 
 export const methods = new Map([
   ['MRT', mrt],
@@ -8,7 +8,7 @@ export const methods = new Map([
   ['RK4', rk4],
   ['AB5', ab5],
   ['AB4', ab4],
-  ['RK5', rk5],
+  ['RKDP', rkdp],
 ]);
 
 /** Implicit methods suitable for stiff performance benchmarks */

@@ -1,4 +1,4 @@
-/* The Dormand-Prince 5(4) method (RK5).
+/* The Dormand-Prince 5(4) method (RKDP).
 
    An explicit adaptive Runge-Kutta method of order 5 with an embedded
    4th-order error estimate for step size control. Uses the FSAL (First
@@ -73,7 +73,7 @@ const E7 = -1.0 / 40.0;
  * @param callback computations control callback
  * @returns solution of the problem
 */
-export function rk5(odes: ODEs, callback?: Callback): Float64Array[] {
+export function rkdp(odes: ODEs, callback?: Callback): Float64Array[] {
   const f = odes.func;
 
   // operating variables
@@ -198,7 +198,7 @@ export function rk5(odes: ODEs, callback?: Callback): Float64Array[] {
         h = max(hTemp, REDUCE_COEF * h);
         tNew = t + h;
         if (tNew == t)
-          throw new Error(ERROR_MSG.RK5_FAILS);
+          throw new Error(ERROR_MSG.RKDP_FAILS);
       } else {
         if (errmax > ERR_CONTR)
           hNext = SAFETY * h * errmax**PSGROW;
@@ -259,4 +259,4 @@ export function rk5(odes: ODEs, callback?: Callback): Float64Array[] {
     solution[i + 1] = yArrs[i];
 
   return solution;
-} // rk5
+} // rkdp

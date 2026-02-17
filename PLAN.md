@@ -240,7 +240,22 @@ export const implicitMethods = new Map([
 ]);
 ```
 
-### 5. Update README.md
+### 5. Update Web Worker Solving
+
+**File**: `src/worker-tools/solving.ts`
+
+Add the new method to the `getMethod` switch and its import:
+
+```typescript
+import {SolverMethod, mrt, ros3prw, ros34prw, ODEs, getCallback, rk4, ab5, ab4, rkdp, <methodName>} from '../solver-tools';
+```
+
+```typescript
+case '<methodName>':
+  return <methodName>;
+```
+
+### 6. Update README.md
 
 **File**: `README.md`
 
@@ -250,7 +265,9 @@ Update the README to reflect the new method:
 
 **Solving > General section** — Add method to the list of importable numerical methods.
 
-### 6. Update Project Documentation
+**Important**: Keep the alphabetic order of methods in README lists.
+
+### 7. Update Project Documentation
 
 **File**: `CLAUDE.md`
 
@@ -271,7 +288,7 @@ Update the documentation to reflect the new method:
 
 **Testing section** — Update test counts and method lists as appropriate.
 
-### 7. Build, Lint, and Test
+### 8. Build, Lint, and Test
 
 ```bash
 # Clean any compiled JS files (they interfere with ts-jest)
