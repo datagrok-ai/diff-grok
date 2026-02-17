@@ -240,7 +240,28 @@ export const implicitMethods = new Map([
 ]);
 ```
 
-### 5. Build, Lint, and Test
+### 5. Update Project Documentation
+
+**File**: `CLAUDE.md`
+
+Update the documentation to reflect the new method:
+
+**Module Structure section** — Add method to the appropriate category:
+```markdown
+- **`src/solver-tools/`** — Core numerical solvers
+  - **Implicit methods** (for stiff ODEs): `mrt`, `ros3prw`, `ros34prw`, `<methodName>`
+    - OR -
+  - **Explicit methods** (for non-stiff ODEs): `rk4`, `<methodName>`
+```
+
+**Data Flow section** — Add method to solver list:
+```markdown
+2. Call solver method (`mrt`/`ros3prw`/`ros34prw`/`rk4`/`<methodName>`) → returns Float64Array[]
+```
+
+**Testing section** — Update test counts and method lists as appropriate.
+
+### 6. Build, Lint, and Test
 
 ```bash
 # Clean any compiled JS files (they interfere with ts-jest)

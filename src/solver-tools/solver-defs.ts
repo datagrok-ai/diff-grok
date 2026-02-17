@@ -154,6 +154,7 @@ export enum ERROR_MSG {
   ROS3PRW_FAILS = 'The ROS3PRw method fails',
   ROS34PRW_FAILS = 'The ROS34PRw method fails',
   RK4_FAILS = 'The Runge-Kutta-Fehlberg 4(5) method fails',
+  AB5_FAILS = 'The Adams-Bashforth-Moulton 5 method fails',
 };
 
 /** Callback action
