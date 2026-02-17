@@ -19,6 +19,8 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 * Explicit methods (for non-stiff ODEs):
   * The Runge-Kutta-Fehlberg 4(5) method ([RK4](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods))
   * The Adams-Bashforth predictor-corrector method of order 5 ([AB5](https://en.wikipedia.org/wiki/Linear_multistep_method))
+  * The Adams-Bashforth predictor-corrector method of order 4 ([AB4](https://en.wikipedia.org/wiki/Linear_multistep_method))
+  * The Dormand-Prince 5(4) method ([RK5](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method))
 * Scripting:
   * declarative specification of models
   * auto-generated JavaScript code
@@ -78,6 +80,8 @@ on the segment $[t_0, t_1]$ with the step $h$:
    Explicit methods (for non-stiff ODEs):
    * `rk4` - the Runge-Kutta-Fehlberg 4(5) method
    * `ab5` - the Adams-Bashforth-Moulton predictor-corrector method of order 5
+   * `ab4` - the Adams-Bashforth-Moulton predictor-corrector method of order 4
+   * `rk5` - the Dormand-Prince 5(4) method
 
 2. Specify `ODEs` object that defines a problem:
 
