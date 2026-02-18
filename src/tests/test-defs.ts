@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3} from '../../index';
+import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, lsodaWeb, lsoda} from '../../index';
 
 export const methods = new Map([
   ['MRT', mrt],
@@ -10,6 +10,8 @@ export const methods = new Map([
   ['AB4', ab4],
   ['RKDP', rkdp],
   ['RK3', rk3],
+  ['LSODA web version', lsodaWeb],
+  ['LSODA', lsoda],
 ]);
 
 /** Implicit methods suitable for stiff performance benchmarks */
@@ -17,6 +19,8 @@ export const implicitMethods = new Map([
   ['MRT', mrt],
   ['ROS3PRw', ros3prw],
   ['ROS34PRw', ros34prw],
+  //['LSODA web version', lsodaWeb],
+  ['LSODA', lsoda],
 ]);
 
 export const MAX_MAD = 0.1;

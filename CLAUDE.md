@@ -31,6 +31,9 @@ npx jest src/tests/correctness.test.ts
   - **Implicit methods** (for stiff ODEs): `mrt` (Modified Rosenbrock Triple), `ros3prw`, `ros34prw`
     - Require Jacobian computation and linear system solves
     - Use LU decomposition for solving W*k = b at each stage
+  - **Automatic methods** (stiffness-detecting): `lsoda` (fixed-order Adams-4 + BDF2), `lsodaWeb` (variable-order Nordsieck Adams/BDF)
+    - Automatically switch between non-stiff (Adams) and stiff (BDF) modes
+    - Use consecutive rejection counting (Adams→BDF) and periodic trial steps (BDF→Adams)
   - **Explicit methods** (for non-stiff ODEs): `rk3` (Bogacki-Shampine 3(2)), `rk4` (Runge-Kutta-Fehlberg 4(5)), `ab5` (Adams-Bashforth-Moulton 5), `ab4` (Adams-Bashforth-Moulton 4), `rkdp` (Dormand-Prince 5(4))
     - Only require function evaluations (no Jacobian)
     - Include `hMax` constraint to prevent poor interpolation
@@ -58,7 +61,7 @@ npx jest src/tests/correctness.test.ts
 ### Data Flow
 
 1. Define problem as `ODEs` object (programmatic) or parse model string via `getIVP()`
-2. Call solver method (`mrt`/`ros3prw`/`ros34prw`/`rk3`/`rk4`/`ab5`/`ab4`/`rkdp`) → returns `Float64Array[]` (argument values + solution columns)
+2. Call solver method (`mrt`/`ros3prw`/`ros34prw`/`rk3`/`rk4`/`ab5`/`ab4`/`rkdp`/`lsoda`/`lsodaWeb`) → returns `Float64Array[]` (argument values + solution columns)
 3. For complex models: create pipeline via `getPipelineCreator()` → `applyPipeline()`
 
 ### Performance Patterns
@@ -78,13 +81,13 @@ npx jest src/tests/correctness.test.ts
 
 Tests are in `src/tests/` using Jest with ts-jest:
 - `correctness.test.ts` — Validates solver accuracy against reference solutions (threshold: MAX_MAD = 0.1)
-  - Tests all methods (implicit + explicit) against 6 problems with known exact solutions (8 methods total)
+  - Tests all methods (implicit + explicit + automatic) against 6 problems with known exact solutions (10 methods total)
   - 3 non-stiff problems (1D, 2D, 3D) + 3 stiff problems (1D, 2D, 3D)
 - `performance.test.ts` — Benchmarks solver speed on stiff problems (timeout: 10,000ms)
-  - Tests only implicit methods (MRT, ROS3PRw, ROS34PRw) — explicit methods not suitable for stiff benchmarks
+  - Tests implicit and automatic methods (MRT, ROS3PRw, ROS34PRw, LSODA, LSODA web version)
   - Test problems: Robertson, HIRES, VDPOL, OREGO, E5, Pollution
 - `pipeline.test.ts` — Pipeline integration tests (3 model types)
-- Method definitions in `test-defs.ts`: `methods` map (all 8 solvers), `implicitMethods` map (stiff-capable only)
+- Method definitions in `test-defs.ts`: `methods` map (all 10 solvers), `implicitMethods` map (stiff-capable only)
 
 ## Key Types
 
