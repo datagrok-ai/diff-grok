@@ -20,7 +20,7 @@ export const implicitMethods = new Map([
   ['ROS3PRw', ros3prw],
   ['ROS34PRw', ros34prw],
   //['LSODA web version', lsodaWeb],
-  ['LSODA', lsoda],
+  //['LSODA', lsoda],
 ]);
 
 export const MAX_MAD = 0.1;
