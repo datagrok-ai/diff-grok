@@ -19,6 +19,89 @@ const ONE_MINUS_2D = 1.0 - TWO_D;
 const ALPHA_MAX = 5;
 const ALPHA_MIN = 0.2;
 
+/** Compute the initial step size using the Hairer-Norsett-Wanner algorithm.
+ *  @param t0    initial time
+ *  @param y0    initial state vector
+ *  @param f     right-hand side function
+ *  @param tol   scalar tolerance (plays the role of rtol)
+ *  @param dim   dimension of the system
+ *  @param p     order of the method (p = 2 for MRT)
+ *  @param tEnd  end of the integration interval (used to cap h0)
+ *  @returns     estimated initial step size
+ */
+function initialStepSize(
+  t0: number,
+  y0: Float64Array,
+  f: (t: number, y: Float64Array, out: Float64Array) => void,
+  tol: number,
+  dim: number,
+  p: number,
+  tEnd: number,
+): number {
+  const f0 = new Float64Array(dim);
+  const f1 = new Float64Array(dim);
+  const y1 = new Float64Array(dim);
+  const sc = new Float64Array(dim);
+
+  // Step 1: scale vector (sc[i] = |y0[i]| + TINY)
+  for (let i = 0; i < dim; ++i)
+    sc[i] = Math.abs(y0[i]) + TINY;
+
+  // Step 2: evaluate the right-hand side at the initial point
+  f(t0, y0, f0);
+
+  // Step 3: compute scaled norms d0 = ||y0/sc||, d1 = ||f0/sc||
+  let d0 = 0.0;
+  let d1 = 0.0;
+
+  for (let i = 0; i < dim; ++i) {
+    d0 = Math.max(d0, Math.abs(y0[i]) / sc[i]);
+    d1 = Math.max(d1, Math.abs(f0[i]) / sc[i]);
+  }
+
+  // Step 4: first guess
+  let h0: number;
+
+  if (d0 < 1e-5 || d1 < 1e-5)
+    h0 = 1e-6;
+  else
+    h0 = 0.01 * d0 / d1;
+
+  // Cap h0 to the integration interval
+  h0 = Math.min(h0, Math.abs(tEnd - t0));
+
+  // Step 5: explicit Euler probe to estimate the second derivative
+  for (let i = 0; i < dim; ++i)
+    y1[i] = y0[i] + h0 * f0[i];
+
+  f(t0 + h0, y1, f1);
+
+  let d2 = 0.0;
+
+  for (let i = 0; i < dim; ++i)
+    d2 = Math.max(d2, Math.abs(f1[i] - f0[i]) / sc[i]);
+
+  d2 /= h0;
+
+  // Step 6: refine using the method order
+  //   h1 = (tol / max(d1, d2))^(1/(p+1))
+  const maxD = Math.max(d1, d2);
+  let h1: number;
+
+  if (maxD <= 1e-15)
+    h1 = Math.max(1e-6, h0 * 1e-3);
+  else
+    h1 = Math.pow(tol / maxD, 1.0 / (p + 1));
+
+  // Step 7: final initial step size
+  h0 = Math.min(100.0 * h0, h1);
+
+  // Safety: clip to the integration interval
+  h0 = Math.min(h0, Math.abs(tEnd - t0));
+
+  return h0;
+}
+
 /** Solve initial value problem the modified Rosenbrock triple (MRT) method
  * @param odes initial value problem for ordinary differential equations
  * @param callback computations control callback
@@ -64,22 +147,24 @@ const ALPHA_MIN = 0.2;
  * ```
 */
 export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
-  console.log(`MRT method is used to solve the problem "${odes.name}".`);
   /** right-hand side of the IVP solved */
   const f = odes.func;
-
   // operating variables
   const t0 = odes.arg.start;
   const t1 = odes.arg.finish;
-  let h = odes.arg.step;
-  const hDataframe = h;
+  const hDataframe = odes.arg.step;
   const tolerance = odes.tolerance;
-
-  /** number of solution dataframe rows */
-  const rowCount = Math.trunc((t1 - t0) / h) + 1;
 
   /** dimension of the problem */
   const dim = odes.initial.length;
+
+  // compute the initial step size automatically
+  let h = initialStepSize(t0, new Float64Array(odes.initial), f, tolerance, dim, 2, t1);
+
+  //console.log(`MRT, the problem "${odes.name}", grid step: ${hDataframe}, initial step size: ${h}.`);
+
+  /** number of solution dataframe rows */
+  const rowCount = Math.trunc((t1 - t0) / hDataframe) + 1;
   const dimSquared = dim * dim;
 
   /** independent variable values */
