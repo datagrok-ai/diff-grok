@@ -10,8 +10,8 @@ export const methods = new Map([
   ['AB4', ab4],
   ['RKDP', rkdp],
   ['RK3', rk3],
-  ['LSODA web version', lsodaWeb],
-  ['LSODA', lsoda],
+  //['LSODA web version', lsodaWeb],
+  //['LSODA', lsoda],
 ]);
 
 /** Implicit methods suitable for stiff performance benchmarks */
