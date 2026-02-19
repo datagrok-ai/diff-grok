@@ -13,6 +13,8 @@ import {luDecomp, luSolve, solve1d2d} from './lin-alg-tools';
 // Quantities used in Rosenbrock method (see [1], [2] for more details)
 const D = 1.0 - Math.sqrt(2.0) / 2.0;
 const E32 = 6.0 + Math.sqrt(2.0);
+const TWO_D = 2.0 * D;
+const ONE_MINUS_2D = 1.0 - TWO_D;
 
 /** Solve initial value problem the modified Rosenbrock triple (MRT) method
  * @param odes initial value problem for ordinary differential equations
@@ -262,15 +264,17 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
       }
     } // while (true)
 
-    // compute lineraly interpolated results and store them in dataframe
+    // compute dense output using Shampine-Reichelt continuous extension
+    const hStep = t - tPrev;
     while (timeDataframe < t) {
-      const cLeft = (t - timeDataframe) / (t - tPrev);
-      const cRight = 1.0 - cLeft;
+      const s = (timeDataframe - tPrev) / hStep;
+      const b1 = s * (1.0 - s) / ONE_MINUS_2D;
+      const b2 = s * (s - TWO_D) / ONE_MINUS_2D;
 
       tArr[index] = timeDataframe;
 
       for (let j = 0; j < dim; ++j)
-        yArrs[j][index] = cRight * y[j] + cLeft * yPrev[j];
+        yArrs[j][index] = yPrev[j] + hStep * (b1 * k1[j] + b2 * k2[j]);
 
       timeDataframe += hDataframe;
       ++index;
