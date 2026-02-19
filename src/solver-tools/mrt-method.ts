@@ -5,8 +5,7 @@
    [2] https://doi.org/10.1016/S0898-1221(00)00175-9
 */
 
-import {ODEs, max, abs, SAFETY, PSHRNK, PSGROW, REDUCE_COEF, GROW_COEF,
-  ERR_CONTR, TINY, EPS, tDerivative, jacobian, ERROR_MSG} from './solver-defs';
+import {ODEs, max, min, abs, SAFETY, TINY, EPS, tDerivative, jacobian, ERROR_MSG} from './solver-defs';
 import {Callback} from './callbacks/callback-base';
 import {luDecomp, luSolve, solve1d2d} from './lin-alg-tools';
 
@@ -15,6 +14,10 @@ const D = 1.0 - Math.sqrt(2.0) / 2.0;
 const E32 = 6.0 + Math.sqrt(2.0);
 const TWO_D = 2.0 * D;
 const ONE_MINUS_2D = 1.0 - TWO_D;
+
+// Adaptive step size control bounds (see MRT.md, Section 6)
+const ALPHA_MAX = 5;
+const ALPHA_MIN = 0.2;
 
 /** Solve initial value problem the modified Rosenbrock triple (MRT) method
  * @param odes initial value problem for ordinary differential equations
@@ -61,6 +64,7 @@ const ONE_MINUS_2D = 1.0 - TWO_D;
  * ```
 */
 export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
+  console.log(`MRT method is used to solve the problem "${odes.name}".`);
   /** right-hand side of the IVP solved */
   const f = odes.func;
 
@@ -95,7 +99,6 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
   let flag = true;
   let index = 1;
   let errmax = 0;
-  let hTemp = 0;
   let tNew = 0;
 
   // 0 BUFFERS & TEMP STRUCTURES
@@ -243,18 +246,16 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
         errmax = max(errmax, abs(yErr[i] / yScale[i]));
       errmax /= tolerance;
 
-      // processing the error obtained
+      // adaptive step size control (see MRT.md, Section 6)
       if (errmax > 1) {
-        hTemp = SAFETY * h * errmax**PSHRNK;
-        h = max(hTemp, REDUCE_COEF * h);
+        // step rejected: reduce step size, but not below ALPHA_MIN factor
+        h = h * max(ALPHA_MIN, SAFETY * errmax ** (-1 / 3));
         tNew = t + h;
         if (tNew == t)
           throw new Error(ERROR_MSG.MRT_FAILS);
       } else {
-        if (errmax > ERR_CONTR)
-          hNext = SAFETY * h * errmax**PSGROW;
-        else
-          hNext = GROW_COEF * h;
+        // step accepted: grow step size, but not above ALPHA_MAX factor
+        hNext = h * min(ALPHA_MAX, SAFETY * errmax ** (-1 / 3));
         t = t + h;
 
         for (let i = 0; i < dim; ++i)
