@@ -1,4 +1,4 @@
-import { LsodaContext, MXNCF } from './common';
+import {LsodaContext, MXNCF} from './common';
 
 /**
  * Handle corrector convergence failure.
@@ -14,14 +14,16 @@ export function corfailure(ctx: LsodaContext, told: number): number {
   c.rmax = 2.;
   c.tn = told;
 
-  for (let j = c.nq; j >= 1; j--)
-    for (let i1 = j; i1 <= c.nq; i1++)
+  for (let j = c.nq; j >= 1; j--) {
+    for (let i1 = j; i1 <= c.nq; i1++) {
       for (let i = 1; i <= neq; i++)
         c.yh[i1][i] -= c.yh[i1 + 1][i];
-
-  if (Math.abs(c.h) <= hmin * 1.00001 || c.ncf === MXNCF) {
-    return 2;
+    }
   }
+
+  if (Math.abs(c.h) <= hmin * 1.00001 || c.ncf === MXNCF)
+    return 2;
+
 
   c.ipup = c.miter;
   return 1;

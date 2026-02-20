@@ -1,11 +1,24 @@
 import {
-  LsodaContext, LsodaCommon, LsodaOpt, LsodaFunc, ETA,
+  LsodaContext, LsodaCommon, LsodaOpt, LsodaFunc, NordsieckSnapshot, ETA,
 } from './common';
-import { vmnorm } from './blas';
-import { intdy } from './intdy';
-import { stoda } from './stoda';
+import {vmnorm} from './blas';
+import {intdy} from './intdy';
+import {stoda} from './stoda';
+import {DenseOutput} from './dense';
 
 // ---- Internal helpers ----
+
+function captureSnapshot(c: LsodaCommon, neq: number): NordsieckSnapshot {
+  const nq = c.nq;
+  const yh: Float64Array[] = new Array(nq + 1);
+  for (let j = 0; j <= nq; j++) {
+    const row = new Float64Array(neq);
+    for (let i = 0; i < neq; i++)
+      row[i] = c.yh[j + 1][i + 1]; // convert 1-based to 0-based
+    yh[j] = row;
+  }
+  return {tn: c.tn, h: c.h, hu: c.hu, nq, yh};
+}
 
 function ewset(ctx: LsodaContext, ycur: Float64Array): void {
   const c = ctx.common!;
@@ -168,9 +181,9 @@ export function lsodaReset(ctx: LsodaContext): void {
  * Free context resources. In JS/TS, this is mostly a no-op (GC handles it).
  */
 export function lsodaFree(ctx: LsodaContext): void {
-  if (ctx.error) {
+  if (ctx.error)
     console.error(`unhandled error message: ${ctx.error}`);
-  }
+
   ctx.common = null;
 }
 
@@ -195,7 +208,7 @@ export function lsoda(
   function hardfailure(msg: string): { t: number; state: number } {
     ctx.error = msg;
     ctx.state = -3;
-    return { t, state: ctx.state };
+    return {t, state: ctx.state};
   }
 
   function softfailure(code: number, msg: string): { t: number; state: number } {
@@ -204,18 +217,19 @@ export function lsoda(
       y[i] = c.yh[1][i];
     t = c.tn;
     ctx.state = code;
-    return { t, state: ctx.state };
+    return {t, state: ctx.state};
   }
 
   function successreturn(): { t: number; state: number } {
     for (let i = 1; i <= neq; i++)
       y[i] = c.yh[1][i];
     t = c.tn;
-    if (itask === 4 || itask === 5)
+    if (itask === 4 || itask === 5) {
       if (ihit)
         t = tcrit;
+    }
     ctx.state = 2;
-    return { t, state: ctx.state };
+    return {t, state: ctx.state};
   }
 
   function intdyreturn(): { t: number; state: number } {
@@ -228,12 +242,12 @@ export function lsoda(
     }
     t = tout;
     ctx.state = 2;
-    return { t, state: ctx.state };
+    return {t, state: ctx.state};
   }
 
-  if (c === null) {
+  if (c === null)
     return hardfailure('[lsoda] illegal common block did you call lsoda_prepare?');
-  }
+
 
   // Block b: initial/continuation call setup
   let h0: number = 0;
@@ -244,17 +258,16 @@ export function lsoda(
   if (ctx.state === 1 || ctx.state === 3) {
     h0 = opt.h0;
     if (ctx.state === 1) {
-      if ((tout - t) * h0 < 0.) {
+      if ((tout - t) * h0 < 0.)
         return hardfailure(`[lsoda] tout = ${tout} behind t = ${t}. integration direction is given by ${h0}`);
-      }
     }
   }
 
   const itask = opt.itask;
 
-  if (ctx.state === 3) {
+  if (ctx.state === 3)
     jstart = -1;
-  }
+
 
   // Block c: initial call only (state == 1)
   if (ctx.state === 1) {
@@ -264,9 +277,9 @@ export function lsoda(
 
     if (itask === 4 || itask === 5) {
       tcrit = opt.tcrit;
-      if ((tcrit - tout) * (tout - t) < 0.) {
+      if ((tcrit - tout) * (tout - t) < 0.)
         return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tout');
-      }
+
       if (h0 !== 0. && (t + h0 - tcrit) * h0 > 0.)
         h0 = tcrit - t;
     }
@@ -285,18 +298,17 @@ export function lsoda(
     // Load and invert ewt
     ewset(ctx, y);
     for (let i = 1; i <= neq; i++) {
-      if (c.ewt[i] <= 0.) {
+      if (c.ewt[i] <= 0.)
         return hardfailure(`[lsoda] ewt[${i}] = ${c.ewt[i]} <= 0.`);
-      }
     }
 
     // Compute initial step size h0 if not given
     if (h0 === 0.) {
       const tdist = Math.abs(tout - t);
       const w0 = Math.max(Math.abs(t), Math.abs(tout));
-      if (tdist < 2. * ETA * w0) {
+      if (tdist < 2. * ETA * w0)
         return hardfailure('[lsoda] tout too close to t to start integration');
-      }
+
       let tol = 0.;
       for (let i = 1; i <= neq; i++)
         tol = Math.max(tol, rtol[i]);
@@ -333,68 +345,66 @@ export function lsoda(
     c.nslast = c.nst;
 
     switch (itask) {
-      case 1:
-        if ((c.tn - tout) * c.h >= 0.) {
-          return intdyreturn();
-        }
-        break;
-      case 2:
-        break;
-      case 3: {
-        const tp = c.tn - c.hu * (1. + 100. * ETA);
-        if ((tp - tout) * c.h > 0.) {
-          return hardfailure(`[lsoda] itask = ${itask} and tout behind tcur - hu`);
-        }
-        if ((c.tn - tout) * c.h < 0.) break;
-        return successreturn();
-      }
-      case 4:
+    case 1:
+      if ((c.tn - tout) * c.h >= 0.)
+        return intdyreturn();
+
+      break;
+    case 2:
+      break;
+    case 3: {
+      const tp = c.tn - c.hu * (1. + 100. * ETA);
+      if ((tp - tout) * c.h > 0.)
+        return hardfailure(`[lsoda] itask = ${itask} and tout behind tcur - hu`);
+
+      if ((c.tn - tout) * c.h < 0.) break;
+      return successreturn();
+    }
+    case 4:
+      tcrit = opt.tcrit;
+      if ((c.tn - tcrit) * c.h > 0.)
+        return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tcur');
+
+      if ((tcrit - tout) * c.h < 0.)
+        return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tout');
+
+      if ((c.tn - tout) * c.h >= 0.)
+        return intdyreturn();
+
+      // fall through to case 5 logic
+      // eslint-disable-next-line no-fallthrough
+    case 5:
+      if (itask === 5) {
         tcrit = opt.tcrit;
-        if ((c.tn - tcrit) * c.h > 0.) {
+        if ((c.tn - tcrit) * c.h > 0.)
           return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tcur');
+      }
+      {
+        const hmx = Math.abs(c.tn) + Math.abs(c.h);
+        ihit = Math.abs(c.tn - tcrit) <= (100. * ETA * hmx) ? 1 : 0;
+        if (ihit) {
+          t = tcrit;
+          return successreturn();
         }
-        if ((tcrit - tout) * c.h < 0.) {
-          return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tout');
-        }
-        if ((c.tn - tout) * c.h >= 0.) {
-          return intdyreturn();
-        }
-        // fall through to case 5 logic
-        // eslint-disable-next-line no-fallthrough
-      case 5:
-        if (itask === 5) {
-          tcrit = opt.tcrit;
-          if ((c.tn - tcrit) * c.h > 0.) {
-            return hardfailure('[lsoda] itask = 4 or 5 and tcrit behind tcur');
-          }
-        }
-        {
-          const hmx = Math.abs(c.tn) + Math.abs(c.h);
-          ihit = Math.abs(c.tn - tcrit) <= (100. * ETA * hmx) ? 1 : 0;
-          if (ihit) {
-            t = tcrit;
-            return successreturn();
-          }
-          const tnext = c.tn + c.h * (1. + 4. * ETA);
-          if ((tnext - tcrit) * c.h <= 0.) break;
-          c.h = (tcrit - c.tn) * (1. - 4. * ETA);
-          if (ctx.state === 2) jstart = -2;
-        }
-        break;
+        const tnext = c.tn + c.h * (1. + 4. * ETA);
+        if ((tnext - tcrit) * c.h <= 0.) break;
+        c.h = (tcrit - c.tn) * (1. - 4. * ETA);
+        if (ctx.state === 2) jstart = -2;
+      }
+      break;
     }
   }
 
   // Block e: main integration loop
   while (true) {
     if (ctx.state !== 1 || c.nst !== 0) {
-      if ((c.nst - c.nslast) >= opt.mxstep) {
+      if ((c.nst - c.nslast) >= opt.mxstep)
         return softfailure(-1, `[lsoda] ${opt.mxstep} steps taken before reaching tout`);
-      }
+
       ewset(ctx, c.yh[1]);
       for (let i = 1; i <= neq; i++) {
-        if (c.ewt[i] <= 0.) {
+        if (c.ewt[i] <= 0.)
           return softfailure(-6, `[lsoda] ewt[${i}] = ${c.ewt[i]} <= 0.`);
-        }
       }
     }
 
@@ -403,20 +413,24 @@ export function lsoda(
       const scaled = tolsf * 200.;
       if (c.nst === 0) {
         return hardfailure(
-          `lsoda -- at start of problem, too much accuracy requested for precision of machine, suggested scaling factor = ${scaled}`,
+          'lsoda -- at start of problem, too much accuracy requested' +
+          ` for precision of machine, suggested scaling factor = ${scaled}`,
         );
       }
       return softfailure(-2,
-        `lsoda -- at t = ${t}, too much accuracy requested for precision of machine, suggested scaling factor = ${scaled}`,
+        `lsoda -- at t = ${t}, too much accuracy requested` +
+        ` for precision of machine, suggested scaling factor = ${scaled}`,
       );
     }
 
     if ((c.tn + c.h) === c.tn) {
       c.nhnil++;
       if (c.nhnil <= opt.mxhnil) {
-        console.error(`lsoda -- warning..internal t = ${c.tn} and h = ${c.h} are such that t + h = t on the next step`);
+        console.error(`lsoda -- warning..internal t = ${c.tn} and h = ${c.h} are` +
+          ' such that t + h = t on the next step');
         if (c.nhnil === opt.mxhnil) {
-          console.error(`lsoda -- above warning has been issued ${c.nhnil} times, it will not be issued again for this problem`);
+          console.error(`lsoda -- above warning has been issued ${c.nhnil}` +
+            ' times, it will not be issued again for this problem');
         }
       }
     }
@@ -426,15 +440,23 @@ export function lsoda(
 
     if (kflag === 0) {
       // Block f: successful return from stoda
+      // Dense output: capture snapshot
+      if (ctx.snapshots)
+        ctx.snapshots.push(captureSnapshot(c, neq));
+
       jstart = 1;
       if (c.meth !== c.mused) {
         c.tsw = c.tn;
         jstart = -1;
         if (opt.ixpr) {
-          if (c.meth === 2)
-            console.error(`[lsoda] a switch to the stiff method has occurred at t = ${c.tn}, tentative step size h = ${c.h}, step nst = ${c.nst}`);
-          if (c.meth === 1)
-            console.error(`[lsoda] a switch to the nonstiff method has occurred at t = ${c.tn}, tentative step size h = ${c.h}, step nst = ${c.nst}`);
+          if (c.meth === 2) {
+            console.error('[lsoda] a switch to the stiff method has occurred' +
+              ` at t = ${c.tn}, tentative step size h = ${c.h}, step nst = ${c.nst}`);
+          }
+          if (c.meth === 1) {
+            console.error('[lsoda] a switch to the nonstiff method has occurred' +
+              ` at t = ${c.tn}, tentative step size h = ${c.h}, step nst = ${c.nst}`);
+          }
         }
       }
 
@@ -442,25 +464,25 @@ export function lsoda(
         if ((c.tn - tout) * c.h < 0.) continue;
         return intdyreturn();
       }
-      if (itask === 2) {
+      if (itask === 2)
         return successreturn();
-      }
+
       if (itask === 3) {
-        if ((c.tn - tout) * c.h >= 0.) {
+        if ((c.tn - tout) * c.h >= 0.)
           return successreturn();
-        }
+
         continue;
       }
       if (itask === 4) {
         tcrit = opt.tcrit;
-        if ((c.tn - tout) * c.h >= 0.) {
+        if ((c.tn - tout) * c.h >= 0.)
           return intdyreturn();
-        } else {
+        else {
           const hmx = Math.abs(c.tn) + Math.abs(c.h);
           ihit = Math.abs(c.tn - tcrit) <= (100. * ETA * hmx) ? 1 : 0;
-          if (ihit) {
+          if (ihit)
             return successreturn();
-          }
+
           const tnext = c.tn + c.h * (1. + 4. * ETA);
           if ((tnext - tcrit) * c.h <= 0.) continue;
           c.h = (tcrit - c.tn) * (1. - 4. * ETA);
@@ -489,12 +511,14 @@ export function lsoda(
       }
       if (kflag === -1) {
         return softfailure(-4,
-          `lsoda -- at t = ${c.tn} and step size h = ${c.h}, the error test failed repeatedly or with abs(h) = hmin`,
+          `lsoda -- at t = ${c.tn} and step size h = ${c.h},` +
+          ' the error test failed repeatedly or with abs(h) = hmin',
         );
       }
       if (kflag === -2) {
         return softfailure(-5,
-          `lsoda -- at t = ${c.tn} and step size h = ${c.h}, the corrector convergence failed repeatedly or with abs(h) = hmin`,
+          `lsoda -- at t = ${c.tn} and step size h = ${c.h},` +
+          ' the corrector convergence failed repeatedly or with abs(h) = hmin',
         );
       }
     }
@@ -509,7 +533,7 @@ export function lsoda(
 export type OdeFunction = (t: number, y: Float64Array, ydot: Float64Array, data?: any) => number;
 
 export interface LsodaSolveResult {
-  y: number[];
+  y: Float64Array;
   t: number;
 }
 
@@ -519,10 +543,11 @@ export interface LsodaSolveResult {
 export class Lsoda {
   private ctx: LsodaContext;
   private internalY: Float64Array;
+  private denseEnabled: boolean = false;
 
   constructor(
     f: OdeFunction, neq: number,
-    opt?: Partial<LsodaOpt>, data?: any,
+    opt?: Partial<LsodaOpt & { dense: boolean }>, data?: any,
   ) {
     // Wrap user's 0-based function to internal 1-based convention
     const wrappedFunc: LsodaFunc = (t, y, ydot, data) => {
@@ -548,21 +573,24 @@ export class Lsoda {
         const r = new Float64Array(neq + 1);
         for (let i = 0; i < neq; i++) r[i + 1] = opt.rtol[i];
         fullOpt.rtol = r;
-      } else {
+      } else
         fullOpt.rtol = opt.rtol;
-      }
     }
     if (opt?.atol) {
       if (opt.atol.length === neq) {
         const a = new Float64Array(neq + 1);
         for (let i = 0; i < neq; i++) a[i + 1] = opt.atol[i];
         fullOpt.atol = a;
-      } else {
+      } else
         fullOpt.atol = opt.atol;
-      }
     }
 
     lsodaPrepare(this.ctx, fullOpt);
+
+    if (opt?.dense) {
+      this.denseEnabled = true;
+      this.ctx.snapshots = [];
+    }
   }
 
   /**
@@ -570,7 +598,7 @@ export class Lsoda {
    * y: 0-based array of state values.
    * Returns updated { y, t }.
    */
-  solve(y: number[], t: number, tout: number): LsodaSolveResult {
+  solve(y: ArrayLike<number>, t: number, tout: number): LsodaSolveResult {
     const neq = this.ctx.neq;
     // Copy 0-based user y into 1-based internal array
     for (let i = 0; i < neq; i++)
@@ -579,17 +607,26 @@ export class Lsoda {
     const result = lsoda(this.ctx, this.internalY, t, tout);
 
     // Copy back to 0-based
-    const out: number[] = new Array(neq);
+    const out = new Float64Array(neq);
     for (let i = 0; i < neq; i++)
       out[i] = this.internalY[i + 1];
 
-    return { y: out, t: result.t };
+    return {y: out, t: result.t};
   }
 
-  get state(): number { return this.ctx.state; }
-  get error(): string | null { return this.ctx.error; }
+  get state(): number {return this.ctx.state;}
+  get error(): string | null {return this.ctx.error;}
+
+  /** Returns a DenseOutput interpolator from collected snapshots. */
+  getDenseOutput(): DenseOutput {
+    if (!this.ctx.snapshots || this.ctx.snapshots.length === 0)
+      throw new Error('[Lsoda] dense output not enabled or no steps taken — pass { dense: true } in options');
+    return new DenseOutput(this.ctx.snapshots, this.ctx.neq);
+  }
 
   reset(): void {
     lsodaReset(this.ctx);
+    if (this.denseEnabled)
+      this.ctx.snapshots = [];
   }
 }

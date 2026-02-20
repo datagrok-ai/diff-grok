@@ -1,8 +1,8 @@
-import { LsodaContext, ETA, MAXCOR } from './common';
-import { vmnorm } from './blas';
-import { prja } from './prja';
-import { solsy } from './solsy';
-import { corfailure } from './corfailure';
+import {LsodaContext, ETA, MAXCOR} from './common';
+import {vmnorm} from './blas';
+import {prja} from './prja';
+import {solsy} from './solsy';
+import {corfailure} from './corfailure';
 
 /** Mutable state passed between correction and stoda */
 export interface CorrectionState {
@@ -41,9 +41,8 @@ export function correction(
         c.rc = 1.;
         c.nslp = c.nst;
         c.crate = 0.7;
-        if (!ierpj) {
+        if (!ierpj)
           return corfailure(ctx, told);
-        }
       }
       for (let i = 1; i <= neq; i++)
         c.acor[i] = 0.;
@@ -97,9 +96,9 @@ export function correction(
     // Corrector iteration failed to converge
     cs.m++;
     if (cs.m === MAXCOR || (cs.m >= 2 && cs.del > 2. * cs.delp)) {
-      if (c.miter === 0 || c.jcur === 1) {
+      if (c.miter === 0 || c.jcur === 1)
         return corfailure(ctx, told);
-      }
+
       c.ipup = c.miter;
       // Restart corrector if Jacobian is recomputed
       cs.m = 0;

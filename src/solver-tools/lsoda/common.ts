@@ -34,17 +34,17 @@ export type LsodaFunc = (t: number, y: Float64Array, ydot: Float64Array, data: a
 
 // Solver options
 export interface LsodaOpt {
-  ixpr: number;     // print flag
-  mxstep: number;   // max internal steps per call
-  mxhnil: number;   // max step size warnings
-  mxordn: number;   // max Adams order (1-12)
-  mxords: number;   // max BDF order (1-5)
-  tcrit: number;    // critical time for itask 4,5
-  h0: number;       // initial step size (0 = auto)
-  hmax: number;     // max absolute step size
-  hmin: number;     // min absolute step size
-  hmxi: number;     // 1/hmax (computed)
-  itask: number;    // integration task (1-5)
+  ixpr: number; // print flag
+  mxstep: number; // max internal steps per call
+  mxhnil: number; // max step size warnings
+  mxordn: number; // max Adams order (1-12)
+  mxords: number; // max BDF order (1-5)
+  tcrit: number; // critical time for itask 4,5
+  h0: number; // initial step size (0 = auto)
+  hmax: number; // max absolute step size
+  hmin: number; // min absolute step size
+  hmxi: number; // 1/hmax (computed)
+  itask: number; // integration task (1-5)
   rtol: Float64Array; // relative tolerance (1-indexed)
   atol: Float64Array; // absolute tolerance (1-indexed)
 }
@@ -106,6 +106,15 @@ export class LsodaCommon {
   miter: number = 0;
 }
 
+// Snapshot of the Nordsieck array at a successful step (0-based arrays)
+export interface NordsieckSnapshot {
+  tn: number; // right edge of the step
+  h: number; // step size used
+  hu: number; // last successful step size (for range check)
+  nq: number; // method order
+  yh: Float64Array[]; // yh[0..nq], each of length neq (0-based copies)
+}
+
 // Solver context
 export class LsodaContext {
   func: LsodaFunc;
@@ -115,6 +124,7 @@ export class LsodaContext {
   error: string | null = null;
   common: LsodaCommon | null = null;
   opt: LsodaOpt | null = null;
+  snapshots: NordsieckSnapshot[] | null = null;
 
   constructor(func: LsodaFunc, neq: number, data?: any) {
     this.func = func;

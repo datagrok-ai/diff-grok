@@ -1,4 +1,4 @@
-import { LsodaContext, ETA } from './common';
+import {LsodaContext, ETA} from './common';
 
 /**
  * Interpolate solution at time t using Nordsieck history array.

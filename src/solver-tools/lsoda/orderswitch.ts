@@ -1,5 +1,5 @@
-import { LsodaContext, sm1 } from './common';
-import { vmnorm } from './blas';
+import {LsodaContext, sm1} from './common';
+import {vmnorm} from './blas';
 
 /** Mutable rh output */
 export interface OrderSwitchResult {
@@ -71,11 +71,12 @@ export function orderswitch(
   // If meth = 1 and h is restricted by stability, bypass 10% test
   if (c.meth === 1) {
     const pdh = Math.max(Math.abs(c.h) * c.pdlast, 0.000001);
-    if (out.rh * pdh * 1.00001 < sm1[newq])
+    if (out.rh * pdh * 1.00001 < sm1[newq]) {
       if (kflag === 0 && out.rh < 1.1) {
         c.ialth = 3;
         return 0;
       }
+    }
   } else {
     if (kflag === 0 && out.rh < 1.1) {
       c.ialth = 3;
@@ -86,9 +87,9 @@ export function orderswitch(
   if (kflag <= -2)
     out.rh = Math.min(out.rh, 0.2);
 
-  if (newq === c.nq) {
+  if (newq === c.nq)
     return 1;
-  }
+
   c.nq = newq;
   return 2;
 }

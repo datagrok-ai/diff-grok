@@ -175,7 +175,7 @@ export function dgefa(a: Float64Array[], n: number, ipvt: Int32Array): number {
 
     // Column elimination with row indexing
     for (let i = k + 1; i <= n; i++) {
-      let t2 = a[i][j];
+      const t2 = a[i][j];
       if (j !== k) {
         a[i][j] = a[i][k];
         a[i][k] = t2;
@@ -223,7 +223,7 @@ export function dgesl(
   // Solve Transpose(U) * y = b
   for (let k = 1; k <= n - 1; k++) {
     const j = ipvt[k];
-    let t = b[j];
+    const t = b[j];
     if (j !== k) {
       b[j] = b[k];
       b[k] = t;

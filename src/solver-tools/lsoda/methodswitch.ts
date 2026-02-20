@@ -1,5 +1,5 @@
-import { LsodaContext, ETA, RATIO, sm1, cm1, cm2 } from './common';
-import { vmnorm } from './blas';
+import {LsodaContext, ETA, RATIO, sm1, cm1, cm2} from './common';
+import {vmnorm} from './blas';
 
 /** Mutable rh output */
 export interface MethodSwitchResult {

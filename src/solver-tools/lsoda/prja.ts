@@ -1,5 +1,5 @@
-import { LsodaContext, ETA, SQRTETA } from './common';
-import { vmnorm, fnorm, dgefa } from './blas';
+import {LsodaContext, ETA, SQRTETA} from './common';
+import {vmnorm, fnorm, dgefa} from './blas';
 
 /**
  * Compute and process the matrix P = I - h * el[1] * J,

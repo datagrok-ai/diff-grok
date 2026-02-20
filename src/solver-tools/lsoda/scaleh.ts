@@ -1,4 +1,4 @@
-import { LsodaContext, sm1 } from './common';
+import {LsodaContext, sm1} from './common';
 
 /**
  * Scale step size. Rescales the yh array when h changes.

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, lsodaWeb, lsoda} from '../../index';
+import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3} from '../../index';
 
 export const methods = new Map([
   ['MRT', mrt],

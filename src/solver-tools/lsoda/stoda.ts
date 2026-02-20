@@ -1,10 +1,10 @@
-import { LsodaContext, CCMAX, MSBP } from './common';
-import { vmnorm } from './blas';
-import { cfode } from './cfode';
-import { scaleh } from './scaleh';
-import { correction, CorrectionState } from './correction';
-import { orderswitch, OrderSwitchResult } from './orderswitch';
-import { methodswitch, MethodSwitchResult } from './methodswitch';
+import {LsodaContext, CCMAX, MSBP} from './common';
+import {vmnorm} from './blas';
+import {cfode} from './cfode';
+import {scaleh} from './scaleh';
+import {correction, CorrectionState} from './correction';
+import {orderswitch, OrderSwitchResult} from './orderswitch';
+import {methodswitch, MethodSwitchResult} from './methodswitch';
 
 /**
  * Perform one step of the integration.
@@ -89,9 +89,9 @@ export function stoda(ctx: LsodaContext, y: Float64Array, jstart: number): numbe
   // --- Main integration loop ---
 
   let dsm = 0.0;
-  const cs: CorrectionState = { del: 0, delp: delp, m: 0 };
-  const osResult: OrderSwitchResult = { rh: 0 };
-  const msResult: MethodSwitchResult = { rh: 0 };
+  const cs: CorrectionState = {del: 0, delp: delp, m: 0};
+  const osResult: OrderSwitchResult = {rh: 0};
+  const msResult: MethodSwitchResult = {rh: 0};
   let rh: number;
 
   outer:
@@ -109,10 +109,12 @@ export function stoda(ctx: LsodaContext, y: Float64Array, jstart: number): numbe
       c.tn += c.h;
 
       // Prediction: multiply yh by Pascal triangle matrix
-      for (let j = c.nq; j >= 1; j--)
-        for (let i1 = j; i1 <= c.nq; i1++)
+      for (let j = c.nq; j >= 1; j--) {
+        for (let i1 = j; i1 <= c.nq; i1++) {
           for (let i = 1; i <= neq; i++)
             c.yh[i1][i] += c.yh[i1 + 1][i];
+        }
+      }
 
       const pnorm = vmnorm(neq, c.yh[1], c.ewt);
 
@@ -222,10 +224,12 @@ export function stoda(ctx: LsodaContext, y: Float64Array, jstart: number): numbe
       c.tn = told;
 
       // Retract yh array
-      for (let j = c.nq; j >= 1; j--)
-        for (let i1 = j; i1 <= c.nq; i1++)
+      for (let j = c.nq; j >= 1; j--) {
+        for (let i1 = j; i1 <= c.nq; i1++) {
           for (let i = 1; i <= neq; i++)
             c.yh[i1][i] -= c.yh[i1 + 1][i];
+        }
+      }
 
       c.rmax = 2.;
       if (Math.abs(c.h) <= hmin * 1.00001) {

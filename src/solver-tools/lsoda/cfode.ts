@@ -1,4 +1,4 @@
-import { LsodaContext } from './common';
+import {LsodaContext} from './common';
 
 /**
  * Set coefficients for the current method.
