@@ -638,7 +638,7 @@ node src/examples/basic-use.js
 ## References
 
 * L. Petzold, "Automatic Selection of Methods for Solving Stiff and Nonstiff Systems of Ordinary Differential Equations," *SIAM J. Sci. Stat. Comput.*, 4(1), 136–148, 1983. [doi:10.1137/0904010](https://doi.org/10.1137/0904010)
-* A. C. Hindmarsh, "ODEPACK, A Systematized Collection of ODE Solvers," *Scientific Computing*, R. S. Stepleman et al. (eds.), North-Holland, Amsterdam, pp. 55–64, 1983. [doi:10.1145/36.37](https://doi.org/10.1145/36.37)
+* A. C. Hindmarsh, "ODEPACK, A Systematized Collection of ODE Solvers," *Scientific Computing*, R. S. Stepleman et al. (eds.), North-Holland, Amsterdam, pp. 55–64, 1983. [link](https://computing.llnl.gov/sites/default/files/ODEPACK_pub1_u88007.pdf)
 * The LSODA solver is ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
 * T. Rang and L. Angermann, "New Rosenbrock W-Methods of Order 3 for Partial Differential Algebraic Equations of Index 1," *BIT Numer. Math.*, 45, 761–787, 2005. [doi:10.1007/s10543-005-0035-y](https://doi.org/10.1016/j.cam.2015.03.010)
 * E. Hairer and G. Wanner, *Solving Ordinary Differential Equations II: Stiff and Differential-Algebraic Problems*, Springer, 1996. [doi:10.1137/S1064827594276424](https://doi.org/10.1137/S1064827594276424)
