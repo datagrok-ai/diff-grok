@@ -617,7 +617,7 @@ export function lsodaWeb(odes: ODEs, callback?: Callback): Float64Array[] {
     yArrs[i][rowCount - 1] = y[i];
 
   // 4. PREPARE OUTPUT
-  const solution = Array<Float64Array>(dim);
+  const solution = Array<Float64Array>(dim + 1);
   solution[0] = tArr;
   for (let i = 0; i < dim; i++)
     solution[i + 1] = yArrs[i];
@@ -1501,7 +1501,7 @@ export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
     yArrs[i][rowCount - 1] = y[i];
 
   // 4. prepare output
-  const solution = Array<Float64Array>(dim);
+  const solution = Array<Float64Array>(dim + 1);
   solution[0] = tArr;
   for (let i = 0; i < dim; ++i)
     solution[i + 1] = yArrs[i];

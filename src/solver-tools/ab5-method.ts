@@ -384,7 +384,7 @@ export function ab5(odes: ODEs, callback?: Callback): Float64Array[] {
     yArrs[i][rowCount - 1] = y[i];
 
   // 4. prepare output
-  const solution = Array<Float64Array>(dim);
+  const solution = Array<Float64Array>(dim + 1);
 
   // independent variable
   solution[0] = tArr;
