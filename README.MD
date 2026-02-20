@@ -17,7 +17,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
   * The [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
   * The [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
 * Automatic methods (stiffness-detecting):
-  * LSODA — automatic switching between Adams-Bashforth-Moulton 4 (non-stiff) and BDF2 (stiff)
+  * LSODA — variable-order Nordsieck-based automatic switching between Adams (non-stiff) and BDF (stiff)
 * Explicit methods (for non-stiff ODEs):
   * Runge-Kutta type:
     * The Bogacki-Shampine 3(2) method ([RK3](https://en.wikipedia.org/wiki/Bogacki%E2%80%93Shampine_method))
@@ -82,8 +82,8 @@ on the segment $[t_0, t_1]$ with the step $h$:
    * `ros3prw`- the [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
    * `ros34prw` - the [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
 
-   Automatic method (stiffness-detecting):
-   * `lsoda` - automatic switching between Adams-4 (non-stiff) and BDF2 (stiff)
+   Automatic methods (stiffness-detecting):
+   * `lsoda` - variable-order Nordsieck-based automatic switching between Adams (non-stiff) and BDF (stiff)
 
    Explicit methods (for non-stiff ODEs) — Runge-Kutta type:
    * `rk3` - the Bogacki-Shampine 3(2) method

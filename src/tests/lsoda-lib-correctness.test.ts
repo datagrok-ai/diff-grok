@@ -87,7 +87,7 @@ function solveAndCheck(
 const nonStiffProbs = corrProbs.filter((p) => p.odes.name.startsWith('non-stiff'));
 const stiffProbs = corrProbs.filter((p) => p.odes.name.startsWith('stiff'));
 
-describe('LSODA solver', () => {
+describe('LSODA LIB', () => {
   it('should solve Robertson chemical kinetics with expected accuracy', () => {
     const neq = 3;
     const rtol = new Float64Array([1.0e-4, 1.0e-4, 1.0e-4]);
