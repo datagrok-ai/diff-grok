@@ -6,18 +6,18 @@
 [![Build Status](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml)
 [![Run tests](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml)
 
-A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. This library focuses on solving [stiff equations](https://en.wikipedia.org/wiki/Stiff_equation).
+A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. The primary solver is [LSODA](https://doi.org/10.1137/0904010) — a variable-order method that automatically detects stiffness and switches between Adams (non-stiff) and BDF (stiff) formulations.
 
 ## Features
 
 * Solving both [stiff](https://en.wikipedia.org/wiki/Stiff_equation) and non-stiff equations
 * Fast computations
-* Implicit methods (for stiff ODEs) — Rosenbrock–Wanner type:
+* Automatic stiffness-detecting method (primary):
+  * [LSODA](https://doi.org/10.1137/0904010) - variable-order Nordsieck-based solver with automatic switching between Adams (non-stiff) and BDF (stiff) methods ([Petzold, 1983](https://doi.org/10.1137/0904010); [Hindmarsh, 1983](https://computing.llnl.gov/sites/default/files/ODEPACK_pub1_u88007.pdf)). Ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
+* Implicit methods (for stiff ODEs) - Rosenbrock–Wanner type:
   * The modified Rosenbrock triple ([MRT](https://doi.org/10.1137/S1064827594276424))
   * The [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
   * The [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
-* Automatic methods (stiffness-detecting):
-  * LSODA — variable-order Nordsieck-based automatic switching between Adams (non-stiff) and BDF (stiff)
 * Explicit methods (for non-stiff ODEs):
   * Runge-Kutta type:
     * The Bogacki-Shampine 3(2) method ([RK3](https://en.wikipedia.org/wiki/Bogacki%E2%80%93Shampine_method))
@@ -45,7 +45,7 @@ Minimal "Hello World" example:
 ```typescript
 // example.ts
 
-import {ODEs, mrt} from 'diff-grok';
+import {ODEs, lsoda} from 'diff-grok';
 
 const task: ODEs = {
   name: 'Example',
@@ -58,7 +58,7 @@ const task: ODEs = {
   solutionColNames: ['y(t)'],
 };
 
-const solution = mrt(task);
+const solution = lsoda(task);
 
 console.log('t:', solution[0]);
 console.log('y(t):', solution[1]);
@@ -77,13 +77,13 @@ on the segment $[t_0, t_1]$ with the step $h$:
 
 1. Import `ODEs` and a desired numerical method:
 
+   Automatic method (recommended):
+   * `lsoda` - [LSODA](https://doi.org/10.1137/0904010) variable-order solver with automatic switching between Adams (non-stiff) and BDF (stiff)
+
    Implicit methods (for stiff ODEs):
    * `mrt` - the [MRT](https://doi.org/10.1137/S1064827594276424) method
    * `ros3prw`- the [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
    * `ros34prw` - the [ROS34PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
-
-   Automatic methods (stiffness-detecting):
-   * `lsoda` - variable-order Nordsieck-based automatic switching between Adams (non-stiff) and BDF (stiff)
 
    Explicit methods (for non-stiff ODEs) — Runge-Kutta type:
    * `rk3` - the Bogacki-Shampine 3(2) method
@@ -126,10 +126,10 @@ x(0) = 1 \\
 y(0) = -1
 \end{cases}$$
 
-To solve it on the segment $[0, 2]$ with the step $0.01$ using the [MRT](https://doi.org/10.1137/S1064827594276424) method with the tolerance $10^{-7}$, we start with imports:
+To solve it on the segment $[0, 2]$ with the step $0.01$ using [LSODA](https://doi.org/10.1137/0904010) with the tolerance $10^{-7}$, we start with imports:
 
 ```typescript
-import {ODEs, mrt} from 'diff-grok';
+import {ODEs, lsoda} from 'diff-grok';
 ```
 
 Next, we create
@@ -156,7 +156,7 @@ const task: ODEs = {
 Finally, we call the specified numerical method to solve `task`:
 
 ```typescript
-const solution = mrt(task);
+const solution = lsoda(task);
 ```
 
 Currently, `solution` contains:
@@ -196,27 +196,27 @@ The following [classic problems](https://archimede.uniba.it/~testset/testsetivps
   * describes a chemical reaction part of the air pollution model designed at The Dutch National Institute of Public Health and Environmental Protection
   * [pollution.ts](./src/examples/pollution.ts)
 
-The MRT, ROS3PRw and ROS34PRw methods demonstrate the following time performance (AMD Ryzen 5 5600H 3.30 GHz CPU):
+The LSODA, MRT, ROS3PRw and ROS34PRw methods demonstrate the following time performance (AMD Ryzen 5 5600H 3.30 GHz CPU):
 
-|Problem|Segment|Points|Tolerance|MRT, ms|ROS3PRw, ms|ROS34PRw, ms|
-|-|-|-|-|-|-|-|
-|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|[0, 10E+11]|40K|1E-7|103|446|285|
-|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|[0, 321.8122]|32K|1E-10|222|362|215|
-|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|[0, 2000]|20K|1E-12|963|1576|760|
-|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|[0, 360]|36K|1E-8|381|483|199|
-|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|[0, 10E+13]|40K|1E-6|14|17|8|
-|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|[0, 60]|30K|1E-6|36|50|23|
+|Problem|Segment|Points|Tolerance|LSODA, ms|MRT, ms|ROS3PRw, ms|ROS34PRw, ms|
+|-|-|-|-|-|-|-|-|
+|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|[0, 10E+11]|40K|1E-7|67|103|446|285|
+|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|[0, 321.8122]|32K|1E-10|125|222|362|215|
+|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|[0, 2000]|20K|1E-12|268|963|1576|760|
+|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|[0, 360]|36K|1E-8|76|381|483|199|
+|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|[0, 10E+13]|40K|1E-6|7|14|17|8|
+|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|[0, 60]|30K|1E-6|12|36|50|23|
 
 Maximum absolute deviations (MADs) from the reference solutions obtained using SciPy (Radau) are summarized in the table below:
 
-|Problem|MRT|ROS3PRw|ROS34PRw|
-|-|-|-|-|
-|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|1.87e-8|1.88e-8|1.88e-8|
-|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|4.80e-11|1.05e-14|2.87e-14|
-|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|5.12e-4|5.12e-4|5.12e-4|
-|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|3.05e-5|3.45e-7|2.31e-6|
-|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|1.12e-19| 1.33e-19|3.40e-17|
-|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|4.06e-10|9.16e-12|1.58e-10|
+|Problem|LSODA|MRT|ROS3PRw|ROS34PRw|
+|-|-|-|-|-|
+|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|1.87e-8|1.87e-8|1.88e-8|1.88e-8|
+|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|1.51e-11|4.80e-11|1.05e-14|2.87e-14|
+|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|5.12e-4|5.12e-4|5.12e-4|5.12e-4|
+|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|3.84e-6|3.05e-5|3.45e-7|2.31e-6|
+|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|3.02e-19|1.12e-19| 1.33e-19|3.40e-17|
+|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|1.23e-10|4.06e-10|9.16e-12|1.58e-10|
 
 Run [check-methods.ts](./src/examples/check-methods.ts) to reproduce these results (see [here](#examples) how to run scripts standalone).
 
@@ -585,7 +585,7 @@ Diff Grok contains a set of examples located in the folder [src/examples](./src/
 
 |File|Features|
 |-|-|
-|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [MRT](https://doi.org/10.1137/S1064827594276424) method.|
+|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [LSODA](https://doi.org/10.1137/0904010) method.|
 |[check-methods.ts](./src/examples/check-methods.ts)| Checks the [performance](#performance) of numerical methods.|
 |[corr-probs.ts](./src/examples/corr-probs.ts)|Solves a set of problems with exact solutions and evaluate the deviation.|
 |[cyclic-model.ts](./src/examples/cyclic-model.ts)| Considers pharmacokinetic-pharmacodynamic (PK-PD) simulation and shows how to apply pipelines and cyclic models.|
@@ -634,6 +634,14 @@ node src/examples/basic-use.js
 ```
 
 </details>
+
+## References
+
+* L. Petzold, "Automatic Selection of Methods for Solving Stiff and Nonstiff Systems of Ordinary Differential Equations," *SIAM J. Sci. Stat. Comput.*, 4(1), 136–148, 1983. [doi:10.1137/0904010](https://doi.org/10.1137/0904010)
+* A. C. Hindmarsh, "ODEPACK, A Systematized Collection of ODE Solvers," *Scientific Computing*, R. S. Stepleman et al. (eds.), North-Holland, Amsterdam, pp. 55–64, 1983. [doi:10.1145/36.37](https://doi.org/10.1145/36.37)
+* The LSODA solver is ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
+* T. Rang and L. Angermann, "New Rosenbrock W-Methods of Order 3 for Partial Differential Algebraic Equations of Index 1," *BIT Numer. Math.*, 45, 761–787, 2005. [doi:10.1007/s10543-005-0035-y](https://doi.org/10.1016/j.cam.2015.03.010)
+* E. Hairer and G. Wanner, *Solving Ordinary Differential Equations II: Stiff and Differential-Algebraic Problems*, Springer, 1996. [doi:10.1137/S1064827594276424](https://doi.org/10.1137/S1064827594276424)
 
 ## Contributing
 
