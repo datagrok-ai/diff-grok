@@ -34,11 +34,11 @@ function getMethod(name: string | undefined): SolverMethod {
   case 'rk3':
     return rk3;
 
-  case 'ros34prw':
-    return ros34prw;
+  case 'lsoda':
+    return lsoda;
 
   default:
-    return lsoda;
+    return ros34prw;
   }
 }
 

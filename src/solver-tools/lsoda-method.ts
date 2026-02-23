@@ -65,7 +65,6 @@ function wrapFunc(f: ODEs['func']): (t: number, y: Float64Array, ydot: Float64Ar
  * }
 */
 export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
-  console.log('Solving with LSODA method...');
   // 1. Extract problem parameters
   const t0 = odes.arg.start;
   const t1 = odes.arg.finish;

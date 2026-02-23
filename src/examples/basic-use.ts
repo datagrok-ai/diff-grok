@@ -8,7 +8,7 @@
     on [0, 2] with the step 0.01.
  */
 
-import {ODEs, lsoda} from '../../index';
+import {ODEs, mrt} from '../../index';
 
 // Declare the problem
 const task: ODEs = {
@@ -30,7 +30,7 @@ const task: ODEs = {
 
 try {
   // Solve the problem
-  const solution = lsoda(task);
+  const solution = mrt(task);
 
   // Output results
   console.log(task.arg.name, '    ', task.solutionColNames[0], '  ', task.solutionColNames[1]);

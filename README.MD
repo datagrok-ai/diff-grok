@@ -12,7 +12,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 
 * Solving both [stiff](https://en.wikipedia.org/wiki/Stiff_equation) and non-stiff equations
 * Fast computations
-* Automatic stiffness-detecting method (primary):
+* Automatic stiffness-detecting method:
   * [LSODA](https://doi.org/10.1137/0904010) - variable-order Nordsieck-based solver with automatic switching between Adams (non-stiff) and BDF (stiff) methods ([Petzold, 1983](https://doi.org/10.1137/0904010); [Hindmarsh, 1983](https://computing.llnl.gov/sites/default/files/ODEPACK_pub1_u88007.pdf)). Ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
 * Implicit methods (for stiff ODEs) - Rosenbrock–Wanner type:
   * The modified Rosenbrock triple ([MRT](https://doi.org/10.1137/S1064827594276424))
@@ -45,7 +45,7 @@ Minimal "Hello World" example:
 ```typescript
 // example.ts
 
-import {ODEs, lsoda} from 'diff-grok';
+import {ODEs, mrt} from 'diff-grok';
 
 const task: ODEs = {
   name: 'Example',
@@ -58,7 +58,7 @@ const task: ODEs = {
   solutionColNames: ['y(t)'],
 };
 
-const solution = lsoda(task);
+const solution = mrt(task);
 
 console.log('t:', solution[0]);
 console.log('y(t):', solution[1]);
@@ -77,7 +77,7 @@ on the segment $[t_0, t_1]$ with the step $h$:
 
 1. Import `ODEs` and a desired numerical method:
 
-   Automatic method (recommended):
+   Automatic method:
    * `lsoda` - [LSODA](https://doi.org/10.1137/0904010) variable-order solver with automatic switching between Adams (non-stiff) and BDF (stiff)
 
    Implicit methods (for stiff ODEs):
