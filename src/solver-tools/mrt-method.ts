@@ -5,14 +5,102 @@
    [2] https://doi.org/10.1016/S0898-1221(00)00175-9
 */
 
-import {ODEs, max, abs, SAFETY, PSHRNK, PSGROW, REDUCE_COEF, GROW_COEF,
-  ERR_CONTR, TINY, EPS, tDerivative, jacobian, ERROR_MSG} from './solver-defs';
+import {ODEs, max, min, abs, SAFETY, TINY, EPS, tDerivative, jacobian, ERROR_MSG} from './solver-defs';
 import {Callback} from './callbacks/callback-base';
 import {luDecomp, luSolve, solve1d2d} from './lin-alg-tools';
 
 // Quantities used in Rosenbrock method (see [1], [2] for more details)
 const D = 1.0 - Math.sqrt(2.0) / 2.0;
 const E32 = 6.0 + Math.sqrt(2.0);
+const TWO_D = 2.0 * D;
+const ONE_MINUS_2D = 1.0 - TWO_D;
+
+// Adaptive step size control bounds (see MRT.md, Section 6)
+const ALPHA_MAX = 5;
+const ALPHA_MIN = 0.2;
+
+/** Compute the initial step size using the Hairer-Norsett-Wanner algorithm.
+ *  @param t0    initial time
+ *  @param y0    initial state vector
+ *  @param f     right-hand side function
+ *  @param tol   scalar tolerance (plays the role of rtol)
+ *  @param dim   dimension of the system
+ *  @param p     order of the method (p = 2 for MRT)
+ *  @param tEnd  end of the integration interval (used to cap h0)
+ *  @returns     estimated initial step size
+ */
+function initialStepSize(
+  t0: number,
+  y0: Float64Array,
+  f: (t: number, y: Float64Array, out: Float64Array) => void,
+  tol: number,
+  dim: number,
+  p: number,
+  tEnd: number,
+): number {
+  const f0 = new Float64Array(dim);
+  const f1 = new Float64Array(dim);
+  const y1 = new Float64Array(dim);
+  const sc = new Float64Array(dim);
+
+  // Step 1: scale vector (sc[i] = |y0[i]| + TINY)
+  for (let i = 0; i < dim; ++i)
+    sc[i] = Math.abs(y0[i]) + TINY;
+
+  // Step 2: evaluate the right-hand side at the initial point
+  f(t0, y0, f0);
+
+  // Step 3: compute scaled norms d0 = ||y0/sc||, d1 = ||f0/sc||
+  let d0 = 0.0;
+  let d1 = 0.0;
+
+  for (let i = 0; i < dim; ++i) {
+    d0 = Math.max(d0, Math.abs(y0[i]) / sc[i]);
+    d1 = Math.max(d1, Math.abs(f0[i]) / sc[i]);
+  }
+
+  // Step 4: first guess
+  let h0: number;
+
+  if (d0 < 1e-5 || d1 < 1e-5)
+    h0 = 1e-6;
+  else
+    h0 = 0.01 * d0 / d1;
+
+  // Cap h0 to the integration interval
+  h0 = Math.min(h0, Math.abs(tEnd - t0));
+
+  // Step 5: explicit Euler probe to estimate the second derivative
+  for (let i = 0; i < dim; ++i)
+    y1[i] = y0[i] + h0 * f0[i];
+
+  f(t0 + h0, y1, f1);
+
+  let d2 = 0.0;
+
+  for (let i = 0; i < dim; ++i)
+    d2 = Math.max(d2, Math.abs(f1[i] - f0[i]) / sc[i]);
+
+  d2 /= h0;
+
+  // Step 6: refine using the method order
+  //   h1 = (tol / max(d1, d2))^(1/(p+1))
+  const maxD = Math.max(d1, d2);
+  let h1: number;
+
+  if (maxD <= 1e-15)
+    h1 = Math.max(1e-6, h0 * 1e-3);
+  else
+    h1 = Math.pow(tol / maxD, 1.0 / (p + 1));
+
+  // Step 7: final initial step size
+  h0 = Math.min(100.0 * h0, h1);
+
+  // Safety: clip to the integration interval
+  h0 = Math.min(h0, Math.abs(tEnd - t0));
+
+  return h0;
+}
 
 /** Solve initial value problem the modified Rosenbrock triple (MRT) method
  * @param odes initial value problem for ordinary differential equations
@@ -61,19 +149,22 @@ const E32 = 6.0 + Math.sqrt(2.0);
 export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
   /** right-hand side of the IVP solved */
   const f = odes.func;
-
   // operating variables
   const t0 = odes.arg.start;
   const t1 = odes.arg.finish;
-  let h = odes.arg.step;
-  const hDataframe = h;
+  const hDataframe = odes.arg.step;
   const tolerance = odes.tolerance;
-
-  /** number of solution dataframe rows */
-  const rowCount = Math.trunc((t1 - t0) / h) + 1;
 
   /** dimension of the problem */
   const dim = odes.initial.length;
+
+  // compute the initial step size automatically
+  let h = initialStepSize(t0, new Float64Array(odes.initial), f, tolerance, dim, 2, t1);
+
+  //console.log(`MRT, the problem "${odes.name}", grid step: ${hDataframe}, initial step size: ${h}.`);
+
+  /** number of solution dataframe rows */
+  const rowCount = Math.trunc((t1 - t0) / hDataframe) + 1;
   const dimSquared = dim * dim;
 
   /** independent variable values */
@@ -93,7 +184,6 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
   let flag = true;
   let index = 1;
   let errmax = 0;
-  let hTemp = 0;
   let tNew = 0;
 
   // 0 BUFFERS & TEMP STRUCTURES
@@ -241,18 +331,16 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
         errmax = max(errmax, abs(yErr[i] / yScale[i]));
       errmax /= tolerance;
 
-      // processing the error obtained
+      // adaptive step size control (see MRT.md, Section 6)
       if (errmax > 1) {
-        hTemp = SAFETY * h * errmax**PSHRNK;
-        h = max(hTemp, REDUCE_COEF * h);
+        // step rejected: reduce step size, but not below ALPHA_MIN factor
+        h = h * max(ALPHA_MIN, SAFETY * errmax ** (-1 / 3));
         tNew = t + h;
         if (tNew == t)
           throw new Error(ERROR_MSG.MRT_FAILS);
       } else {
-        if (errmax > ERR_CONTR)
-          hNext = SAFETY * h * errmax**PSGROW;
-        else
-          hNext = GROW_COEF * h;
+        // step accepted: grow step size, but not above ALPHA_MAX factor
+        hNext = h * min(ALPHA_MAX, SAFETY * errmax ** (-1 / 3));
         t = t + h;
 
         for (let i = 0; i < dim; ++i)
@@ -262,15 +350,17 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
       }
     } // while (true)
 
-    // compute lineraly interpolated results and store them in dataframe
+    // compute dense output using Shampine-Reichelt continuous extension
+    const hStep = t - tPrev;
     while (timeDataframe < t) {
-      const cLeft = (t - timeDataframe) / (t - tPrev);
-      const cRight = 1.0 - cLeft;
+      const s = (timeDataframe - tPrev) / hStep;
+      const b1 = s * (1.0 - s) / ONE_MINUS_2D;
+      const b2 = s * (s - TWO_D) / ONE_MINUS_2D;
 
       tArr[index] = timeDataframe;
 
       for (let j = 0; j < dim; ++j)
-        yArrs[j][index] = cRight * y[j] + cLeft * yPrev[j];
+        yArrs[j][index] = yPrev[j] + hStep * (b1 * k1[j] + b2 * k2[j]);
 
       timeDataframe += hDataframe;
       ++index;
@@ -294,7 +384,7 @@ export function mrt(odes: ODEs, callback?: Callback): Float64Array[] {
     yArrs[i][rowCount - 1] = y[i];
 
   // 4. prepare output
-  const solution = Array<Float64Array>(dim);
+  const solution = Array<Float64Array>(dim + 1);
 
   // independent variable
   solution[0] = tArr;

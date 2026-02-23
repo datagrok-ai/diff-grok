@@ -47,7 +47,9 @@ const model = `#name: PK-PD
   Kin = 0.2 {caption: Kin; category: Parameters; min: 0.1; max: 0.5} [The first-order production constant]
   Kout = 0.2 {caption: Kout; category: Parameters; min: 0.1; max: 0.5} [The first-order dissipation rate constant]
   
-#tolerance: 1e-9`;
+#tolerance: 1e-9
+
+#meta.solver: {method: 'rkdp'; maxTimeMs: 5000}`;
 
 /** 2. Generate IVP-objects: for the main thread & for computations in webworkers */
 const ivp = DGL.getIVP(model);
