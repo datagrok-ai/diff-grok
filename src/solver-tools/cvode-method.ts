@@ -34,13 +34,27 @@ export function cvode(odes: ODEs, callback?: Callback): Float64Array[] {
     maxSteps: 50000,
   });
 
-  // Warmup: a tiny initial step bootstraps the BDF method for extremely stiff problems
-  const warmupTout = t0 + Math.min(step, 1.0) * 1e-5;
-  if (warmupTout > t0 && warmupTout < t1) {
+  // Warmup: a tiny initial step bootstraps the BDF method for extremely stiff problems.
+  // Try 1e-k for k from 4 to 10, picking the largest step that succeeds.
+  const base = Math.min(step, 1.0);
+  let warmupOk = false;
+  for (let k = 4; k <= 15; k++) {
+    const warmupTout = t0 + base * Math.pow(10, -k);
+    if (warmupTout <= t0 || warmupTout >= t1)
+      continue;
+
     const wr = solver.solve(warmupTout);
-    if (wr.flag < 0)
-      throw new Error(ERROR_MSG.CVODE_FAILS);
+    if (wr.flag >= 0) {
+      warmupOk = true;
+      break;
+    }
+
+    // No reset available — recreate solver to retry with a smaller warmup step
+    solver.reInit(t0, Float64Array.from(odes.initial));
   }
+
+  if (!warmupOk)
+    throw new Error(ERROR_MSG.CVODE_FAILS);
 
   // Build output grid
   const gridPoints = Math.trunc((t1 - t0) / step) + 1;
