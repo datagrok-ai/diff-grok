@@ -648,3 +648,10 @@ node src/examples/basic-use.js
 We welcome contributions of all kinds - bug reports, feature requests, documentation updates, and pull requests.
 
 Before contributing, please read our [Contributing Guidelines](./CONTRIBUTING.md).
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+The LSODA solver is a TypeScript port of [liblsoda](https://github.com/sdwfrost/liblsoda).
+See [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES) for details on third-party code provenance.
