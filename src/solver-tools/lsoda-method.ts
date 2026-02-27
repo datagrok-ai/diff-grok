@@ -88,15 +88,31 @@ export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
   let y: ArrayLike<number> = [...odes.initial];
   let t = t0;
 
-  // Warmup: a tiny initial step bootstraps the BDF method for extremely stiff problems
-  const warmupTout = t0 + Math.min(step, 1.0) * 1e-5;
-  if (warmupTout > t0 && warmupTout < t1) {
+  // Warmup: a tiny initial step bootstraps the BDF method for extremely stiff problems.
+  // Try 1e-k for k from 4 to 10, picking the largest step that succeeds.
+  const base = Math.min(step, 1.0);
+  let warmupOk = false;
+  for (let k = 4; k <= 10; k++) {
+    const warmupTout = t0 + base * Math.pow(10, -k);
+    if (warmupTout <= t0 || warmupTout >= t1)
+      continue;
+
     const wr = solver.solve(y, t, warmupTout);
-    y = wr.y;
-    t = wr.t;
-    if (solver.state <= 0)
-      throw new Error(ERROR_MSG.LSODA_FAILS);
+    if (solver.state > 0) {
+      y = wr.y;
+      t = wr.t;
+      warmupOk = true;
+      break;
+    }
+
+    // Reset solver to retry with a smaller warmup step
+    solver.reset();
+    y = [...odes.initial];
+    t = t0;
   }
+
+  if (!warmupOk && t === t0)
+    throw new Error(ERROR_MSG.LSODA_FAILS);
 
   const gridPoints = Math.trunc((t1 - t0) / step) + 1;
   const numCheckpoints = Math.min(gridPoints, 1000);
