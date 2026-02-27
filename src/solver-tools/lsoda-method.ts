@@ -84,8 +84,6 @@ export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
   // 3. Integrate through checkpoints, collecting Nordsieck snapshots for dense output.
   //    Checkpoints are spaced coarsely (up to 1000) so the solver handles adaptive
   //    stepping internally; mxstep per call stays within bounds.
-  if (callback)
-    callback.onIterationStart();
 
   let y: ArrayLike<number> = [...odes.initial];
   let t = t0;
@@ -105,6 +103,10 @@ export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
   const cpStep = (t1 - t0) / numCheckpoints;
 
   for (let i = 1; i <= numCheckpoints; i++) {
+    // check whether to go on computations
+    if (callback)
+      callback.onIterationStart();
+
     const tout = (i < numCheckpoints) ? t0 + i * cpStep : t1;
     const result = solver.solve(y, t, tout);
     y = result.y;

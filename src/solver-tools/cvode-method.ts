@@ -34,9 +34,6 @@ export function cvode(odes: ODEs, callback?: Callback): Float64Array[] {
     maxSteps: 50000,
   });
 
-  if (callback)
-    callback.onIterationStart();
-
   // Warmup: a tiny initial step bootstraps the BDF method for extremely stiff problems
   const warmupTout = t0 + Math.min(step, 1.0) * 1e-5;
   if (warmupTout > t0 && warmupTout < t1) {
@@ -58,6 +55,10 @@ export function cvode(odes: ODEs, callback?: Callback): Float64Array[] {
 
   // Integrate to each grid point using CV_NORMAL mode (interpolates to exact tout)
   for (let i = 1; i < gridPoints; i++) {
+    // check whether to go on computations
+    if (callback)
+      callback.onIterationStart();
+
     const tout = (i < gridPoints - 1) ? t0 + i * step : t1;
     const result = solver.solve(tout);
 
