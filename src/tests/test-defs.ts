@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, lsoda} from '../../index';
+import {mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, lsoda, cvode} from '../../index';
 
 export const methods = new Map([
   ['MRT', mrt],
@@ -11,6 +11,7 @@ export const methods = new Map([
   ['RKDP', rkdp],
   ['RK3', rk3],
   ['LSODA', lsoda],
+  ['CVODE', cvode],
 ]);
 
 /** Implicit methods suitable for stiff performance benchmarks */
@@ -19,6 +20,12 @@ export const implicitMethods = new Map([
   ['ROS3PRw', ros3prw],
   ['ROS34PRw', ros34prw],
   ['LSODA', lsoda],
+  ['CVODE', cvode],
+]);
+
+/** Performance problems to skip per method (known limitations) */
+export const perfExclusions = new Map<string, Set<string>>([
+  ['CVODE', new Set(['E5'])],
 ]);
 
 export const MAX_MAD = 0.1;

@@ -159,6 +159,7 @@ export enum ERROR_MSG {
   RKDP_FAILS = 'The Dormand-Prince 5(4) method fails',
   RK3_FAILS = 'The Bogacki-Shampine 3(2) method fails',
   LSODA_FAILS = 'The LSODA method fails',
+  CVODE_FAILS = 'The CVODE method fails',
 };
 
 /** Callback action

@@ -8,6 +8,7 @@ export {ab4} from './ab4-method';
 export {rkdp} from './rkdp-method';
 export {rk3} from './rk3-method';
 export {lsoda} from './lsoda-method';
+export {cvode} from './cvode-method';
 export {CallbackAction, DEFAULT_OPTIONS, SolverOptions, SolverMethod} from './solver-defs';
 export {getCallback} from './callbacks/callback-tools';
 export {Callback} from './callbacks/callback-base';

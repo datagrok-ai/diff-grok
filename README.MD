@@ -6,7 +6,7 @@
 [![Build Status](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml)
 [![Run tests](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml)
 
-A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. The primary solver is [LSODA](https://doi.org/10.1137/0904010) — a variable-order method that automatically detects stiffness and switches between Adams (non-stiff) and BDF (stiff) formulations.
+A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. The primary solvers are [LSODA](https://doi.org/10.1137/0904010) — a variable-order method that automatically detects stiffness and switches between Adams (non-stiff) and BDF (stiff) formulations — and [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) — a variable-order, variable-step solver from the SUNDIALS suite supporting both Adams and BDF methods.
 
 ## Features
 
@@ -14,6 +14,8 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
 * Fast computations
 * Automatic stiffness-detecting method:
   * [LSODA](https://doi.org/10.1137/0904010) - variable-order Nordsieck-based solver with automatic switching between Adams (non-stiff) and BDF (stiff) methods ([Petzold, 1983](https://doi.org/10.1137/0904010); [Hindmarsh, 1983](https://computing.llnl.gov/sites/default/files/ODEPACK_pub1_u88007.pdf)). Ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
+* Variable-order multistep method:
+  * [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) - variable-order, variable-step solver from the [SUNDIALS](https://github.com/LLNL/sundials) suite with BDF (stiff) and Adams (non-stiff) modes ([Hindmarsh et al., 2005](https://doi.org/10.1145/1089014.1089020); [Cohen & Hindmarsh, 1996](https://doi.org/10.1063/1.4822377)). Ported to TypeScript from SUNDIALS CVODE v7.5.0
 * Implicit methods (for stiff ODEs) - Rosenbrock–Wanner type:
   * The modified Rosenbrock triple ([MRT](https://doi.org/10.1137/S1064827594276424))
   * The [ROS3PRw](https://doi.org/10.1016/j.cam.2015.03.010) method
@@ -45,7 +47,7 @@ Minimal "Hello World" example:
 ```typescript
 // example.ts
 
-import {ODEs, mrt} from 'diff-grok';
+import {ODEs, cvode} from 'diff-grok';
 
 const task: ODEs = {
   name: 'Example',
@@ -58,7 +60,7 @@ const task: ODEs = {
   solutionColNames: ['y(t)'],
 };
 
-const solution = mrt(task);
+const solution = cvode(task);
 
 console.log('t:', solution[0]);
 console.log('y(t):', solution[1]);
@@ -79,6 +81,9 @@ on the segment $[t_0, t_1]$ with the step $h$:
 
    Automatic method:
    * `lsoda` - [LSODA](https://doi.org/10.1137/0904010) variable-order solver with automatic switching between Adams (non-stiff) and BDF (stiff)
+
+   Variable-order multistep method:
+   * `cvode` - [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) variable-order BDF solver from the SUNDIALS suite
 
    Implicit methods (for stiff ODEs):
    * `mrt` - the [MRT](https://doi.org/10.1137/S1064827594276424) method
@@ -196,27 +201,29 @@ The following [classic problems](https://archimede.uniba.it/~testset/testsetivps
   * describes a chemical reaction part of the air pollution model designed at The Dutch National Institute of Public Health and Environmental Protection
   * [pollution.ts](./src/examples/pollution.ts)
 
-The LSODA, MRT, ROS3PRw and ROS34PRw methods demonstrate the following time performance (AMD Ryzen 5 5600H 3.30 GHz CPU):
+The LSODA, CVODE, MRT, ROS3PRw and ROS34PRw methods demonstrate the following time performance (AMD Ryzen 5 5600H 3.30 GHz CPU):
 
-|Problem|Segment|Points|Tolerance|LSODA, ms|MRT, ms|ROS3PRw, ms|ROS34PRw, ms|
-|-|-|-|-|-|-|-|-|
-|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|[0, 10E+11]|40K|1E-7|67|175|446|285|
-|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|[0, 321.8122]|32K|1E-10|125|122|362|215|
-|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|[0, 2000]|20K|1E-12|268|492|1576|760|
-|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|[0, 360]|36K|1E-8|76|205|483|199|
-|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|[0, 10E+13]|40K|1E-6|7|6|17|8|
-|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|[0, 60]|30K|1E-6|12|18|50|23|
+|Problem|Segment|Points|Tolerance|LSODA, ms|CVODE, ms|MRT, ms|ROS3PRw, ms|ROS34PRw, ms|
+|-|-|-|-|-|-|-|-|-|
+|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|[0, 10E+11]|40K|1E-7|67|85|175|446|285|
+|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|[0, 321.8122]|32K|1E-10|125|142|122|362|215|
+|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|[0, 2000]|20K|1E-12|268|352|492|1576|760|
+|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|[0, 360]|36K|1E-8|76|98|205|483|199|
+|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|[0, 10E+13]|40K|1E-6|7|*|6|17|8|
+|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|[0, 60]|30K|1E-6|12|15|18|50|23|
+
+\* E5 is skipped for CVODE: the extremely stiff rate constants (spanning 20 orders of magnitude) cause convergence failures with the dense direct linear solver.
 
 Maximum absolute deviations (MADs) from the reference solutions obtained using SciPy (Radau) are summarized in the table below:
 
-|Problem|LSODA|MRT|ROS3PRw|ROS34PRw|
-|-|-|-|-|-|
-|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|1.87e-8|1.87e-8|1.88e-8|1.88e-8|
-|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|1.51e-11|4.80e-11|1.05e-14|2.87e-14|
-|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|5.12e-4|5.12e-4|5.12e-4|5.12e-4|
-|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|3.84e-6|3.05e-5|3.45e-7|2.31e-6|
-|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|3.02e-19|1.12e-19| 1.33e-19|3.40e-17|
-|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|1.23e-10|4.06e-10|9.16e-12|1.58e-10|
+|Problem|LSODA|CVODE|MRT|ROS3PRw|ROS34PRw|
+|-|-|-|-|-|-|
+|[Rober](https://archimede.uniba.it/~testset/report/rober.pdf)|1.87e-8|1.87e-8|1.87e-8|1.88e-8|1.88e-8|
+|[HIRES](https://archimede.uniba.it/~testset/report/hires.pdf)|1.51e-11|2.10e-11|4.80e-11|1.05e-14|2.87e-14|
+|[VDPOL](https://archimede.uniba.it/~testset/report/vdpol.pdf)|5.12e-4|5.12e-4|5.12e-4|5.12e-4|5.12e-4|
+|[OREGO](https://archimede.uniba.it/~testset/report/orego.pdf)|3.84e-6|5.20e-6|3.05e-5|3.45e-7|2.31e-6|
+|[E5](https://archimede.uniba.it/~testset/report/e5.pdf)|3.02e-19|*|1.12e-19| 1.33e-19|3.40e-17|
+|[Pollution](https://archimede.uniba.it/~testset/report/pollu.pdf)|1.23e-10|2.15e-10|4.06e-10|9.16e-12|1.58e-10|
 
 Run [check-methods.ts](./src/examples/check-methods.ts) to reproduce these results (see [here](#examples) how to run scripts standalone).
 
@@ -585,7 +592,7 @@ Diff Grok contains a set of examples located in the folder [src/examples](./src/
 
 |File|Features|
 |-|-|
-|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [LSODA](https://doi.org/10.1137/0904010) method.|
+|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) method.|
 |[check-methods.ts](./src/examples/check-methods.ts)| Checks the [performance](#performance) of numerical methods.|
 |[corr-probs.ts](./src/examples/corr-probs.ts)|Solves a set of problems with exact solutions and evaluate the deviation.|
 |[cyclic-model.ts](./src/examples/cyclic-model.ts)| Considers pharmacokinetic-pharmacodynamic (PK-PD) simulation and shows how to apply pipelines and cyclic models.|
@@ -640,6 +647,9 @@ node src/examples/basic-use.js
 * L. Petzold, "Automatic Selection of Methods for Solving Stiff and Nonstiff Systems of Ordinary Differential Equations," *SIAM J. Sci. Stat. Comput.*, 4(1), 136–148, 1983. [doi:10.1137/0904010](https://doi.org/10.1137/0904010)
 * A. C. Hindmarsh, "ODEPACK, A Systematized Collection of ODE Solvers," *Scientific Computing*, R. S. Stepleman et al. (eds.), North-Holland, Amsterdam, pp. 55–64, 1983. [link](https://computing.llnl.gov/sites/default/files/ODEPACK_pub1_u88007.pdf)
 * The LSODA solver is ported to TypeScript from the C library [liblsoda](https://github.com/sdwfrost/liblsoda)
+* A. C. Hindmarsh et al., "SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers," *ACM Trans. Math. Softw.*, 31(3), 363–396, 2005. [doi:10.1145/1089014.1089020](https://doi.org/10.1145/1089014.1089020)
+* S. D. Cohen and A. C. Hindmarsh, "CVODE, a Stiff/Nonstiff ODE Solver in C," *Computers in Physics*, 10(2), 138–143, 1996. [doi:10.1063/1.4822377](https://doi.org/10.1063/1.4822377)
+* The CVODE solver is ported to TypeScript from [SUNDIALS CVODE v7.5.0](https://github.com/LLNL/sundials)
 * T. Rang and L. Angermann, "New Rosenbrock W-Methods of Order 3 for Partial Differential Algebraic Equations of Index 1," *BIT Numer. Math.*, 45, 761–787, 2005. [doi:10.1007/s10543-005-0035-y](https://doi.org/10.1016/j.cam.2015.03.010)
 * E. Hairer and G. Wanner, *Solving Ordinary Differential Equations II: Stiff and Differential-Algebraic Problems*, Springer, 1996. [doi:10.1137/S1064827594276424](https://doi.org/10.1137/S1064827594276424)
 
@@ -654,4 +664,5 @@ Before contributing, please read our [Contributing Guidelines](./CONTRIBUTING.md
 This project is licensed under the [MIT License](./LICENSE).
 
 The LSODA solver is a TypeScript port of [liblsoda](https://github.com/sdwfrost/liblsoda).
+The CVODE solver is a TypeScript port of [SUNDIALS CVODE](https://github.com/LLNL/sundials).
 See [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES) for details on third-party code provenance.

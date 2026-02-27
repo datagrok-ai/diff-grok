@@ -42,7 +42,9 @@ const model = `#name: M|M|2|2
 
 #parameters:
   arrival = 10   {min: 1; max: 100; category: Means; caption: arrival;  units: min} [Mean arrival time]
-  service = 100  {min: 1; max: 100; category: Means; caption: service; units: min} [Mean service time]`;
+  service = 100  {min: 1; max: 100; category: Means; caption: service; units: min} [Mean service time]
+  
+#meta.solver: {method: 'cvode'}`;
 
 /** 2. Generate IVP-objects: for the main thread & for computations in webworkers */
 const ivp = DGL.getIVP(model);
