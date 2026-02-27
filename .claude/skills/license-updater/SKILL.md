@@ -7,9 +7,10 @@ description: >
   TypeScript/JavaScript), asks to add license headers to source files, needs
   to create or update a THIRD_PARTY_LICENSES file, or wants to ensure proper
   license compliance for derived works. Also trigger when the user provides
-  a link to an upstream library and a folder of ported code and asks about
-  licensing. Keywords: license, attribution, port, third-party, copyright,
-  THIRD_PARTY_LICENSES, license header, BSD, MIT, Apache, derived work.
+  a link to or local path of an upstream library and a folder of ported code
+  and asks about licensing. Keywords: license, attribution, port, third-party,
+  copyright, THIRD_PARTY_LICENSES, license header, BSD, MIT, Apache, derived
+  work.
 ---
 
 # License Updater
@@ -19,7 +20,7 @@ third-party code — especially code ported from one language to another.
 
 ## When to use
 
-- User provides a **source library URL** and a **folder with ported files**
+- User provides a **source library URL or local path** and a **folder with ported files**
 - User asks to "add license headers", "update THIRD_PARTY_LICENSES", or
   "set up licensing for ported code"
 - User mentions porting/translating code from an external project
@@ -28,8 +29,10 @@ third-party code — especially code ported from one language to another.
 
 The user provides two things:
 
-1. **Source library URL** — a GitHub (or similar) link to the upstream project
-   whose code was ported. Example: `https://github.com/sdwfrost/liblsoda`
+1. **Source library URL or local path** — a GitHub (or similar) link to the
+   upstream project whose code was ported, or a local filesystem path to a
+   cloned/downloaded copy of the library.
+   Examples: `https://github.com/sdwfrost/liblsoda`, `src/solver-tools/cvode-7.5.0`
 2. **Ported files path** — a path (relative to the repo root) to the folder
    containing the ported TypeScript (or other language) files.
    Example: `src/solver-tools/lsoda`
@@ -44,7 +47,10 @@ Follow these steps in order:
 
 ### Step 1: Discover upstream license
 
-Use `web_fetch` to open the source library URL. Look for:
+If the user provided a **URL**, use `web_fetch` to open the source library URL.
+If the user provided a **local path**, read files directly from the filesystem.
+
+Look for:
 
 1. A `LICENSE` or `COPYING` file in the repository root
 2. License badges or mentions in the README
