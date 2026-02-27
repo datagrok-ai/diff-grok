@@ -16,17 +16,17 @@
 // Public API for the CVODE solver module
 
 // High-level class API
-export { Cvode } from './cvode_class';
-export type { OdeFunction, CvodeOptions, CvodeSolveResult } from './cvode_class';
+export {Cvode} from './cvode_class';
+export type {OdeFunction, CvodeOptions, CvodeSolveResult} from './cvode_class';
 
 // Low-level procedural API
-export { cvodeCreate, cvodeInit, cvode } from './cvode';
-export { cvodeGetDky } from './common';
-export { cvodeSetLinearSolver, cvodeSetJacFn } from './cvode_ls';
-export { cvodeRootInit } from './cvode_root';
+export {cvodeCreate, cvodeInit, cvode} from './cvode';
+export {cvodeGetDky} from './common';
+export {cvodeSetLinearSolver, cvodeSetJacFn} from './cvode_ls';
+export {cvodeRootInit} from './cvode_root';
 
 // Configuration and statistics
-export type { CvodeStats } from './cvode_io';
+export type {CvodeStats} from './cvode_io';
 export {
   cvodeSStolerances,
   cvodeSVtolerances,
@@ -53,8 +53,8 @@ export {
 } from './cvode_io';
 
 // Types and constants
-export type { CvodeRhsFn, CvodeJacFn, CvodeRootFn } from './common';
-export { CvodeMem, CvLsMem } from './common';
+export type {CvodeRhsFn, CvodeJacFn, CvodeRootFn} from './common';
+export {CvodeMem, CvLsMem} from './common';
 export {
   CV_ADAMS, CV_BDF,
   CV_NORMAL, CV_ONE_STEP,

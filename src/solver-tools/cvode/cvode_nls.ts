@@ -12,12 +12,12 @@
  * for the full license text and provenance chain of the original code.
  */
 
-import { CvodeMem, wrmsNorm, vLinearSum, vScale, vConst,
-         CV_SUCCESS, CV_BDF, CV_ADAMS, CV_RHSFUNC_FAIL, CV_LSETUP_FAIL, CV_LSOLVE_FAIL,
-         RHSFUNC_RECVR, SUN_NLS_CONV_RECVR, SUN_NLS_CONTINUE,
-         CV_NO_FAILURES, CV_FAIL_BAD_J, CV_FAIL_OTHER,
-         FIRST_CALL, PREV_CONV_FAIL, PREV_ERR_FAIL, DO_ERROR_TEST,
-         NLS_MAXCOR, CRDOWN, RDIV, ONEPSM } from './common';
+import {CvodeMem, wrmsNorm, vLinearSum, vScale, vConst,
+  CV_SUCCESS, CV_BDF, CV_ADAMS, CV_RHSFUNC_FAIL, CV_LSETUP_FAIL, CV_LSOLVE_FAIL,
+  RHSFUNC_RECVR, SUN_NLS_CONV_RECVR, SUN_NLS_CONTINUE,
+  CV_NO_FAILURES, CV_FAIL_BAD_J, CV_FAIL_OTHER,
+  FIRST_CALL, PREV_CONV_FAIL, PREV_ERR_FAIL, DO_ERROR_TEST,
+  NLS_MAXCOR, CRDOWN, RDIV, ONEPSM} from './common';
 
 /**
  * cvNls - Solve the nonlinear system for one step.
@@ -35,9 +35,9 @@ export function cvNls(mem: CvodeMem, nflag: number): number {
 
   // Decide whether to call linear solver setup
   if (mem.cv_lsetup) {
-    mem.convfail = (nflag === FIRST_CALL || nflag === PREV_ERR_FAIL)
-      ? CV_NO_FAILURES
-      : CV_FAIL_OTHER;
+    mem.convfail = (nflag === FIRST_CALL || nflag === PREV_ERR_FAIL) ?
+      CV_NO_FAILURES :
+      CV_FAIL_OTHER;
 
     callSetup = (nflag === PREV_CONV_FAIL) || (nflag === PREV_ERR_FAIL) ||
                 (mem.cv_nst === 0) || (mem.first_step_after_resize) ||
@@ -56,11 +56,11 @@ export function cvNls(mem: CvodeMem, nflag: number): number {
 
   // Dispatch to Newton or fixed-point
   let flag: number;
-  if (mem.cv_lmm === CV_BDF) {
+  if (mem.cv_lmm === CV_BDF)
     flag = cvNewtonIteration(mem, callSetup);
-  } else {
+  else
     flag = cvFixedPointIteration(mem);
-  }
+
 
   if (flag !== CV_SUCCESS) return flag;
 
@@ -68,9 +68,9 @@ export function cvNls(mem: CvodeMem, nflag: number): number {
   vLinearSum(1.0, mem.cv_zn[0], 1.0, mem.cv_acor, mem.cv_y, N);
 
   // Compute acnrm if not already done
-  if (!mem.cv_acnrmcur) {
+  if (!mem.cv_acnrmcur)
     mem.cv_acnrm = wrmsNorm(N, mem.cv_acor, mem.cv_ewt);
-  }
+
 
   // Update Jacobian status
   mem.cv_jcur = false;
@@ -99,9 +99,9 @@ function cvNewtonIteration(mem: CvodeMem, callSetup: boolean): number {
     if (retval > 0) return RHSFUNC_RECVR;
 
     // Call lsetup
-    const jcurPtr = { value: false };
+    const jcurPtr = {value: false};
     retval = mem.cv_lsetup!(mem, mem.convfail, mem.cv_y, mem.cv_ftemp, jcurPtr,
-                            mem.cv_vtemp1, mem.cv_vtemp2, mem.cv_vtemp3);
+      mem.cv_vtemp1, mem.cv_vtemp2, mem.cv_vtemp3);
     mem.cv_nsetups++;
 
     mem.cv_jcur = jcurPtr.value;
@@ -130,9 +130,9 @@ function cvNewtonIteration(mem: CvodeMem, callSetup: boolean): number {
     // Compute residual: b = rl1*zn[1] + acor - gamma*ftemp
     // Store in tempv as the RHS for the linear solve
     const b = mem.cv_tempv;
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       b[i] = mem.cv_rl1 * mem.cv_zn[1][i] + mem.cv_acor[i] - mem.cv_gamma * mem.cv_ftemp[i];
-    }
+
 
     // Solve: (I - gamma*J) * delta = -b, so pass b (which is G, so we negate)
     // Actually the convention is lsolve solves (I-gamma*J)*x = b
@@ -185,18 +185,18 @@ function cvFixedPointIteration(mem: CvodeMem): number {
 
     // Compute new ycor: rl1 * (h * f - zn[1])
     // First: tempv = h * tempv - zn[1]
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       mem.cv_tempv[i] = mem.cv_h * mem.cv_tempv[i] - mem.cv_zn[1][i];
-    }
+
     // Then scale by rl1
     const newAcor = mem.cv_vtemp1;
     vScale(mem.cv_rl1, mem.cv_tempv, newAcor, N);
 
     // Compute delta = newAcor - acor
     const delta = mem.cv_tempv;
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       delta[i] = newAcor[i] - mem.cv_acor[i];
-    }
+
 
     // Update acor
     for (let i = 0; i < N; i++) mem.cv_acor[i] = newAcor[i];
@@ -230,28 +230,28 @@ function cvFixedPointIteration(mem: CvodeMem): number {
  */
 function cvNlsConvTest(mem: CvodeMem, del: number, m: number, tol: number): number {
   // Update convergence rate estimate
-  if (m > 0) {
+  if (m > 0)
     mem.cv_crate = Math.max(CRDOWN * mem.cv_crate, del / mem.cv_delp);
-  }
+
 
   // Test for convergence
   const dcon = del * Math.min(1.0, mem.cv_crate) / tol;
 
   if (dcon <= 1.0) {
     // Converged
-    if (m === 0) {
+    if (m === 0)
       mem.cv_acnrm = del;
-    } else {
+    else
       mem.cv_acnrm = wrmsNorm(mem.cv_N, mem.cv_acor, mem.cv_ewt);
-    }
+
     mem.cv_acnrmcur = true;
     return CV_SUCCESS;
   }
 
   // Check for divergence
-  if (m >= 1 && del > RDIV * mem.cv_delp) {
+  if (m >= 1 && del > RDIV * mem.cv_delp)
     return SUN_NLS_CONV_RECVR;
-  }
+
 
   // Save del and continue
   mem.cv_delp = del;

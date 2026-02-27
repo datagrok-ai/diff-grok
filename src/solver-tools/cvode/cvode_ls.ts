@@ -18,11 +18,11 @@
 // Instead of SUNDIALS' SUNLinearSolver / SUNMatrix abstraction, we use
 // direct Float64Array[] matrices and dgefa / dgesl from dense_linalg.ts.
 
-import { CvodeMem, CvLsMem, CvodeJacFn, wrmsNorm,
-         CV_SUCCESS, CV_RHSFUNC_FAIL, RHSFUNC_RECVR,
-         CV_NO_FAILURES, CV_FAIL_BAD_J, CV_FAIL_OTHER,
-         CVLS_MSBJ, CVLS_DGMAX, ONEPSM } from './common';
-import { dgefa, dgesl } from './dense_linalg';
+import {CvodeMem, CvLsMem, CvodeJacFn, wrmsNorm,
+  CV_SUCCESS, CV_RHSFUNC_FAIL, RHSFUNC_RECVR,
+  CV_NO_FAILURES, CV_FAIL_BAD_J, CV_FAIL_OTHER,
+  CVLS_MSBJ, CVLS_DGMAX, ONEPSM} from './common';
+import {dgefa, dgesl} from './dense_linalg';
 
 /**
  * cvodeSetLinearSolver - Initialize the dense linear solver.
@@ -101,9 +101,9 @@ function cvLsInitialize(mem: CvodeMem): number {
  * - If gamma changed significantly (|gamrat - 1| > dgmax_jbad)
  */
 function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
-                   fpred: Float64Array, jcurPtr: { value: boolean },
-                   tmp1: Float64Array, tmp2: Float64Array,
-                   tmp3: Float64Array): number {
+  fpred: Float64Array, jcurPtr: { value: boolean },
+  tmp1: Float64Array, tmp2: Float64Array,
+  tmp3: Float64Array): number {
   const lmem = mem.cv_lmem!;
   const N = mem.cv_N;
   let retval: number;
@@ -114,17 +114,16 @@ function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
 
   if (!jbad) {
     // Check gamma ratio
-    if (Math.abs(mem.cv_gamrat - 1.0) > lmem.dgmax_jbad) {
+    if (Math.abs(mem.cv_gamrat - 1.0) > lmem.dgmax_jbad)
       jok = false;
-    }
+
     // Check steps since last Jacobian
-    if (mem.cv_nst >= lmem.nstlj + lmem.msbj) {
+    if (mem.cv_nst >= lmem.nstlj + lmem.msbj)
       jok = false;
-    }
+
     // Check convfail
-    if (convfail === CV_FAIL_BAD_J) {
+    if (convfail === CV_FAIL_BAD_J)
       jok = false;
-    }
   }
 
   if (jok) {
@@ -133,9 +132,9 @@ function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
 
     // Copy savedJ to A and form I - gamma*J
     for (let i = 0; i < N; i++) {
-      for (let j = 0; j < N; j++) {
+      for (let j = 0; j < N; j++)
         lmem.A[i][j] = -mem.cv_gamma * lmem.savedJ[i][j];
-      }
+
       lmem.A[i][i] += 1.0;
     }
   } else {
@@ -146,11 +145,11 @@ function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
     jcurPtr.value = true;
 
     // Evaluate Jacobian
-    if (lmem.jacDQ) {
+    if (lmem.jacDQ)
       retval = cvLsDQJac(mem, mem.cv_tn, ypred, fpred, lmem.savedJ, tmp1, tmp2);
-    } else {
+    else
       retval = lmem.jacFn!(mem.cv_tn, ypred, fpred, lmem.savedJ, mem.cv_user_data);
-    }
+
 
     if (retval < 0) {
       lmem.jbad = true;
@@ -163,9 +162,9 @@ function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
 
     // Form A = I - gamma*J
     for (let i = 0; i < N; i++) {
-      for (let j = 0; j < N; j++) {
+      for (let j = 0; j < N; j++)
         lmem.A[i][j] = -mem.cv_gamma * lmem.savedJ[i][j];
-      }
+
       lmem.A[i][i] += 1.0;
     }
   }
@@ -184,7 +183,7 @@ function cvLsSetup(mem: CvodeMem, convfail: number, ypred: Float64Array,
  * cvLsSolve - Solve the linear system A*x = b using LU factors.
  */
 function cvLsSolve(mem: CvodeMem, b: Float64Array, weight: Float64Array,
-                   ycur: Float64Array, fcur: Float64Array): number {
+  ycur: Float64Array, fcur: Float64Array): number {
   const lmem = mem.cv_lmem!;
   const N = mem.cv_N;
 
@@ -193,9 +192,8 @@ function cvLsSolve(mem: CvodeMem, b: Float64Array, weight: Float64Array,
   // Apply gamma/gammap correction if gamma has changed since last setup
   if (mem.cv_gamrat !== 1.0) {
     const factor = 2.0 / (1.0 + mem.cv_gamrat);
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       b[i] *= factor;
-    }
   }
 
   return CV_SUCCESS;
@@ -209,7 +207,7 @@ function cvLsSolve(mem: CvodeMem, b: Float64Array, weight: Float64Array,
  *   J[:,j] = (f(t, y + sigma_j*e_j) - f(t, y)) / sigma_j
  */
 function cvLsDQJac(mem: CvodeMem, t: number, y: Float64Array, fy: Float64Array,
-                   J: Float64Array[], tmp1: Float64Array, tmp2: Float64Array): number {
+  J: Float64Array[], tmp1: Float64Array, tmp2: Float64Array): number {
   const N = mem.cv_N;
   const lmem = mem.cv_lmem!;
   const uround = 2.2204460492503131e-16;
@@ -236,9 +234,8 @@ function cvLsDQJac(mem: CvodeMem, t: number, y: Float64Array, fy: Float64Array,
 
     // Compute column j of Jacobian: (f_perturbed - f) / inc
     const inc_inv = 1.0 / inc;
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       J[i][j] = (tmp2[i] - fy[i]) * inc_inv;
-    }
   }
 
   return CV_SUCCESS;

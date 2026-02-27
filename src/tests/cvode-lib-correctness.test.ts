@@ -309,9 +309,9 @@ describe('CVODE LIB', () => {
 
         // getDky at the output time should match the solve result
         const dky = solver.getDky(result.t, 0);
-        for (let j = 0; j < neq; j++) {
+        for (let j = 0; j < neq; j++)
           expect(Math.abs(dky[j] - result.y[j])).toBeLessThan(1e-12);
-        }
+
 
         tout *= 10.0;
       }
@@ -342,9 +342,8 @@ describe('CVODE LIB', () => {
 
         // getDky at the output point should return finite values
         const dky = solver.getDky(result.t, 0);
-        for (let j = 0; j < neq; j++) {
+        for (let j = 0; j < neq; j++)
           expect(Number.isFinite(dky[j])).toBe(true);
-        }
       }
     });
 
@@ -362,15 +361,14 @@ describe('CVODE LIB', () => {
 
       // getDky at the last output time should succeed
       const dkyEnd = solver.getDky(result.t, 0);
-      for (let j = 0; j < neq; j++) {
+      for (let j = 0; j < neq; j++)
         expect(Number.isFinite(dkyEnd[j])).toBe(true);
-      }
+
 
       // Query derivative (k=1) - first derivative at output time
       const dkyDeriv = solver.getDky(result.t, 1);
-      for (let j = 0; j < neq; j++) {
+      for (let j = 0; j < neq; j++)
         expect(Number.isFinite(dkyDeriv[j])).toBe(true);
-      }
     });
 
     corrProbs.forEach(({odes, exact}) => {

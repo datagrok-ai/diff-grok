@@ -1,6 +1,7 @@
 // A script for checking performance
 
-import {ODEs, corrProbs, CorrProblem, mrt, ros3prw, ros34prw, perfProbs, refPoints} from '../../index';
+import {ODEs, corrProbs, CorrProblem, mrt, ros3prw, ros34prw, rk4, ab5, ab4, rkdp, rk3, lsoda, cvode,
+  perfProbs, refPoints} from '../../index';
 
 /** Return numerical solution error: maximum absolute deviation between approximate & exact solutions */
 function getError(method: (odes: ODEs) => Float64Array[], corProb: CorrProblem): number {
@@ -40,20 +41,34 @@ function getDeviationFromReferencePoint(solution: Float64Array[], refPoint: Floa
   return absolute;
 } // getDeviationFromReferencePoint
 
-const methods = new Map([
+const implicitMethods = new Map([
   ['MRT', mrt],
   ['ROS3PRw', ros3prw],
   ['ROS34PRw', ros34prw],
+  ['LSODA', lsoda],
+  ['CVODE', cvode],
+]);
+
+const methods = new Map([
+  ...implicitMethods,
+  ['RK4', rk4],
+  ['AB5', ab5],
+  ['AB4', ab4],
+  ['RKDP', rkdp],
+  ['RK3', rk3],
 ]);
 
 console.log('Performance\n');
 
-methods.forEach((method, name) => {
+implicitMethods.forEach((method, name) => {
   console.log(' ', name);
 
   console.log('           PROBLEM   TIME,MS   ERR*');
 
   perfProbs.forEach((odes, idx) => {
+    if (name === 'CVODE' && odes.name === 'E5')
+      return;
+
     const start = Date.now();
     const solution = method(odes);
     const absErr = getDeviationFromReferencePoint(solution.slice(1), refPoints[idx]).toExponential(2);

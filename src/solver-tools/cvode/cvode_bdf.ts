@@ -12,7 +12,7 @@
  * for the full license text and provenance chain of the original code.
  */
 
-import { CvodeMem } from './common';
+import {CvodeMem} from './common';
 
 /**
  * cvSetBDF - Compute BDF method coefficients l[] and tq[]
@@ -29,7 +29,7 @@ import { CvodeMem } from './common';
  *   tq[5] = derivative for order q+2 vector
  */
 export function cvSetBDF(mem: CvodeMem): void {
-  let alpha0: number, alpha0_hat: number, xi_inv: number, xistar_inv: number, hsum: number;
+  let alpha0: number; let alpha0_hat: number; let xi_inv: number; let xistar_inv: number; let hsum: number;
 
   mem.cv_l[0] = 1.0;
   mem.cv_l[1] = 1.0;
@@ -46,9 +46,8 @@ export function cvSetBDF(mem: CvodeMem): void {
       hsum += mem.cv_tau[j - 1];
       xi_inv = mem.cv_h / hsum;
       alpha0 -= 1.0 / j;
-      for (let i = j; i >= 1; i--) {
+      for (let i = j; i >= 1; i--)
         mem.cv_l[i] += mem.cv_l[i - 1] * xi_inv;
-      }
     }
 
     // j = q
@@ -58,9 +57,8 @@ export function cvSetBDF(mem: CvodeMem): void {
     xi_inv = mem.cv_h / hsum;
     alpha0_hat = -mem.cv_l[1] - xi_inv;
 
-    for (let i = mem.cv_q; i >= 1; i--) {
+    for (let i = mem.cv_q; i >= 1; i--)
       mem.cv_l[i] += mem.cv_l[i - 1] * xistar_inv;
-    }
   }
 
   cvSetTqBDF(mem, hsum, alpha0, alpha0_hat, xi_inv, xistar_inv);
@@ -83,9 +81,9 @@ function cvSetTqBDF(mem: CvodeMem, hsum: number, alpha0: number,
       const A4 = alpha0_hat + xi_inv;
       const Cpinv = (1.0 - A4 + A3) / A3;
       mem.cv_tq[1] = Math.abs(C * Cpinv);
-    } else {
+    } else
       mem.cv_tq[1] = 1.0;
-    }
+
     hsum += mem.cv_tau[mem.cv_q];
     const xi_inv2 = mem.cv_h / hsum;
     const A5 = alpha0 - 1.0 / (mem.cv_q + 1);
@@ -117,9 +115,9 @@ export function cvIncreaseBDF(mem: CvodeMem): void {
       prod *= xi;
       alpha0 -= 1.0 / (j + 1);
       alpha1 += 1.0 / xi;
-      for (let i = j + 2; i >= 2; i--) {
+      for (let i = j + 2; i >= 2; i--)
         mem.cv_l[i] = mem.cv_l[i] * xiold + mem.cv_l[i - 1];
-      }
+
       xiold = xi;
     }
   }
@@ -151,9 +149,8 @@ export function cvDecreaseBDF(mem: CvodeMem): void {
   for (let j = 1; j <= mem.cv_q - 2; j++) {
     hsum += mem.cv_tau[j];
     const xi = hsum / mem.cv_hscale;
-    for (let i = j + 2; i >= 2; i--) {
+    for (let i = j + 2; i >= 2; i--)
       mem.cv_l[i] = mem.cv_l[i] * xi + mem.cv_l[i - 1];
-    }
   }
 
   if (mem.cv_q > 2) {

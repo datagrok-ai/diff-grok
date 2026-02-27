@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**diff-grok** is a zero-dependency TypeScript library for solving initial value problems (IVPs) for ordinary differential equations (ODEs), focused on stiff equations. It implements Rosenbrock-Wanner type numerical methods and includes a declarative model scripting system.
+**diff-grok** is a zero-dependency TypeScript library for solving initial value problems (IVPs) for ordinary differential equations (ODEs), focused on stiff equations. It implements Rosenbrock-Wanner type numerical methods, a port of SUNDIALS CVODE, and includes a declarative model scripting system.
 
 ## Build & Development Commands
 
@@ -31,9 +31,12 @@ npx jest src/tests/correctness.test.ts
   - **Implicit methods** (for stiff ODEs): `mrt` (Modified Rosenbrock Triple), `ros3prw`, `ros34prw`
     - Require Jacobian computation and linear system solves
     - Use LU decomposition for solving W*k = b at each stage
-  - **Automatic methods** (stiffness-detecting): `lsoda` (variable-order Nordsieck Adams/BDF with automatic switching)
+  - **Automatic methods** (stiffness-detecting): `lsoda` (variable-order Nordsieck Adams/BDF with automatic switching), `cvode` (SUNDIALS CVODE variable-order Adams/BDF)
     - Automatically switch between non-stiff (Adams) and stiff (BDF) modes
-    - Use consecutive rejection counting (Adams→BDF) and periodic trial steps (BDF→Adams)
+    - `lsoda`: consecutive rejection counting (Adams→BDF) and periodic trial steps (BDF→Adams)
+    - `cvode`: TypeScript port of SUNDIALS CVODE v7.5.0; variable-order variable-step with Newton iteration + dense LU; supports rootfinding and dense output (`getDky`); wrapper uses BDF mode with warmup for extremely stiff problems
+    - CVODE module in `src/solver-tools/cvode/` (12 files): `cvode.ts` (main loop), `cvode_class.ts` (high-level `Cvode` class), `cvode_adams.ts`/`cvode_bdf.ts` (method coefficients), `cvode_nls.ts` (Newton solver), `cvode_ls.ts` (linear solver), `cvode_hin.ts` (initial step estimation), `cvode_root.ts` (rootfinding), `cvode_io.ts` (config/stats), `dense_linalg.ts` (LU), `common.ts` (types/constants)
+    - CVODE standard interface wrapper in `src/solver-tools/cvode-method.ts`
   - **Explicit methods** (for non-stiff ODEs): `rk3` (Bogacki-Shampine 3(2)), `rk4` (Runge-Kutta-Fehlberg 4(5)), `ab5` (Adams-Bashforth-Moulton 5), `ab4` (Adams-Bashforth-Moulton 4), `rkdp` (Dormand-Prince 5(4))
     - Only require function evaluations (no Jacobian)
     - Include `hMax` constraint to prevent poor interpolation
@@ -61,7 +64,7 @@ npx jest src/tests/correctness.test.ts
 ### Data Flow
 
 1. Define problem as `ODEs` object (programmatic) or parse model string via `getIVP()`
-2. Call solver method (`mrt`/`ros3prw`/`ros34prw`/`rk3`/`rk4`/`ab5`/`ab4`/`rkdp`/`lsoda`) → returns `Float64Array[]` (argument values + solution columns)
+2. Call solver method (`mrt`/`ros3prw`/`ros34prw`/`rk3`/`rk4`/`ab5`/`ab4`/`rkdp`/`lsoda`/`cvode`) → returns `Float64Array[]` (argument values + solution columns)
 3. For complex models: create pipeline via `getPipelineCreator()` → `applyPipeline()`
 
 ### Performance Patterns
@@ -86,6 +89,9 @@ Tests are in `src/tests/` using Jest with ts-jest:
 - `performance.test.ts` — Benchmarks solver speed on stiff problems (timeout: 10,000ms)
   - Tests implicit and automatic methods (MRT, ROS3PRw, ROS34PRw, LSODA)
   - Test problems: Robertson, HIRES, VDPOL, OREGO, E5, Pollution
+- `cvode-lib-correctness.test.ts` — CVODE-specific validation (low-level procedural API + high-level `Cvode` class)
+  - Robertson kinetics, non-stiff (Adams) and stiff (BDF) problems, rootfinding, dense output, error handling, re-initialization
+- `cvode-lib-performance.test.ts` — CVODE benchmarks on stiff problems (Robertson, HIRES, VDPOL, OREGO, E5, Pollution)
 - `pipeline.test.ts` — Pipeline integration tests (3 model types)
 - Method definitions in `test-defs.ts`: `methods` map (all 11 solvers), `implicitMethods` map (stiff-capable only)
 

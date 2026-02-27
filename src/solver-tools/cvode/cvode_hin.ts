@@ -15,9 +15,9 @@
 // CVODE TypeScript port - Initial step size estimation
 // Ported from SUNDIALS CVODE cvode.c (cvHin, cvUpperBoundH0, cvYddNorm)
 
-import { CvodeMem, wrmsNorm, vLinearSum, vScale, CV_SUCCESS,
-         CV_RHSFUNC_FAIL, RHSFUNC_RECVR, CV_TOO_CLOSE,
-         HLB_FACTOR, HUB_FACTOR, H_BIAS, MAX_ITERS, TINY } from './common';
+import {CvodeMem, wrmsNorm, vLinearSum, vScale, CV_SUCCESS,
+  CV_RHSFUNC_FAIL, RHSFUNC_RECVR, CV_TOO_CLOSE,
+  HLB_FACTOR, HUB_FACTOR, H_BIAS, MAX_ITERS, TINY} from './common';
 
 /**
  * cvHin - Compute initial step size h0.
@@ -38,13 +38,13 @@ export function cvHin(mem: CvodeMem, tout: number): number {
 
   // Set lower and upper bounds on h0, initial guess
   const hlb = HLB_FACTOR * tround;
-  let hub = cvUpperBoundH0(mem, tdist);
+  const hub = cvUpperBoundH0(mem, tdist);
 
   // Initial guess - geometric mean
   let hg = Math.sqrt(hlb * hub);
-  if (hub < 100.0 * hlb) {
+  if (hub < 100.0 * hlb)
     hg = 0.5 * hub;
-  }
+
 
   // Iterate to estimate ydd norm
   let hnew = hg;
@@ -61,11 +61,11 @@ export function cvHin(mem: CvodeMem, tout: number): number {
     const yddnrm = result.yddnrm;
 
     // If yddnrm is zero, use current hg
-    if (yddnrm * hub * hub > 2.0) {
+    if (yddnrm * hub * hub > 2.0)
       hnew = Math.sqrt(2.0 / yddnrm);
-    } else {
+    else
       hnew = Math.sqrt(hg * hub);
-    }
+
 
     // Refine: make hnew be a geometric mean biased toward smaller
     hnew = H_BIAS * hnew + (1.0 - H_BIAS) * hg;
@@ -81,12 +81,12 @@ export function cvHin(mem: CvodeMem, tout: number): number {
   hnew = Math.max(hnew, hlb);
 
   // Apply bounds on step size
-  if (mem.cv_hmax_inv > 0.0) {
+  if (mem.cv_hmax_inv > 0.0)
     hnew = Math.min(hnew, 1.0 / mem.cv_hmax_inv);
-  }
-  if (mem.cv_hmin > 0.0) {
+
+  if (mem.cv_hmin > 0.0)
     hnew = Math.max(hnew, mem.cv_hmin);
-  }
+
 
   // Bound by tdist
   hnew = Math.min(hnew, tdist);
@@ -115,9 +115,9 @@ function cvUpperBoundH0(mem: CvodeMem, tdist: number): number {
   let hub = HUB_FACTOR * tdist;
 
   // Use smaller of two bounds
-  if (hub * hub_inv > 1.0) {
+  if (hub * hub_inv > 1.0)
     hub = 1.0 / hub_inv;
-  }
+
 
   return hub;
 }
@@ -137,8 +137,8 @@ function cvYddNorm(mem: CvodeMem, hg: number): { retval: number; yddnrm: number 
   // Evaluate f(t0 + hg, y)
   const retval = mem.cv_f!(mem.cv_tn + hg, mem.cv_y, mem.cv_tempv, mem.cv_user_data);
   mem.cv_nfe++;
-  if (retval < 0) return { retval: CV_RHSFUNC_FAIL, yddnrm: 0 };
-  if (retval > 0) return { retval: RHSFUNC_RECVR, yddnrm: 0 };
+  if (retval < 0) return {retval: CV_RHSFUNC_FAIL, yddnrm: 0};
+  if (retval > 0) return {retval: RHSFUNC_RECVR, yddnrm: 0};
 
   // tempv = (f(t0+hg, y) - zn[1]) / hg  (estimate of y'')
   const hg_inv = 1.0 / hg;
@@ -146,5 +146,5 @@ function cvYddNorm(mem: CvodeMem, hg: number): { retval: number; yddnrm: number 
 
   const yddnrm = wrmsNorm(N, mem.cv_tempv, mem.cv_ewt);
 
-  return { retval: CV_SUCCESS, yddnrm };
+  return {retval: CV_SUCCESS, yddnrm};
 }

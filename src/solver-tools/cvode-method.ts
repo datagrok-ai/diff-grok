@@ -18,9 +18,47 @@ import {Cvode} from './cvode/cvode_class';
  * @param odes initial value problem for ordinary differential equations
  * @param callback computations control callback
  * @returns solution of the problem
+ * @example
+ * // Example. Solve the following initial value problem using the CVODE method:
+ * //   dx/dt = x + y - t
+ * //   dy/dt = x * y + t
+ * //   x(0) = 1
+ * //   y(0) = -1
+ * // on [0, 2] with the step 0.01.
+ * import { ODEs, cvode } from 'diff-grok';
+ *
+ * const task: ODEs = {
+ *   name: 'Example', // name of your model
+ *   arg: {
+ *       name: 't',  // name of the argument
+ *       start: 0,   // initial value of the argument
+ *       finish: 2,  // final value of the argument
+ *       step: 0.01, // solution grid step
+ *   },
+ *   initial: [1, -1], // initial values
+ *   func: (t: number, y: Float64Array, output: Float64Array) => { // right-hand side of the system
+ *     output[0] = y[0] + y[1] - t; // 1-st equation
+ *     output[1] = y[0] * y[1] + t; // 2-nd equation
+ *   },
+ *   tolerance: 1e-7, // tolerance
+ *   solutionColNames: ['x', 'y'], // names of solution functions
+ * };
+ *
+ * try {
+ *   // Solve the problem using the CVODE method
+ *   const solution = cvode(task);
+ *
+ *   // Print a table with the results
+ *   console.log(task.arg.name, task.solutionColNames[0], task.solutionColNames[1]);
+ *   const length = solution[0].length;
+ *   for (let i = 0; i < length; ++i)
+ *     console.log(solution[0][i], solution[1][i], solution[2][i]);
+ * } catch (err) {
+ *   console.log('Solver failed: ', err instanceof Error ? err.message : 'Unknown problem!');
+ * }
+ * ```
  */
 export function cvode(odes: ODEs, callback?: Callback): Float64Array[] {
-  console.log('Solving with CVODE method...');
   const t0 = odes.arg.start;
   const t1 = odes.arg.finish;
   const step = odes.arg.step;

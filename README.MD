@@ -52,9 +52,9 @@ import {ODEs, cvode} from 'diff-grok';
 const task: ODEs = {
   name: 'Example',
   arg: {name: 't', start: 0, finish: 1, step: 0.1},
-  initial: [1, -1],
+  initial: [1],
   func: (t: number, y: Float64Array, output: Float64Array) => {
-    out[0] = y[0] - t;
+    output[0] = y[0] - t;
   },
   tolerance: 1e-7,
   solutionColNames: ['y(t)'],
@@ -592,7 +592,7 @@ Diff Grok contains a set of examples located in the folder [src/examples](./src/
 
 |File|Features|
 |-|-|
-|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) method.|
+|[basic-use.ts](./src/examples/basic-use.ts)|Minimal "Hello World" example. Illustrates the use of the [MRT](https://doi.org/10.1137/S1064827594276424) method.|
 |[check-methods.ts](./src/examples/check-methods.ts)| Checks the [performance](#performance) of numerical methods.|
 |[corr-probs.ts](./src/examples/corr-probs.ts)|Solves a set of problems with exact solutions and evaluate the deviation.|
 |[cyclic-model.ts](./src/examples/cyclic-model.ts)| Considers pharmacokinetic-pharmacodynamic (PK-PD) simulation and shows how to apply pipelines and cyclic models.|

@@ -24,7 +24,7 @@
 export const ADAMS_Q_MAX = 12;
 export const BDF_Q_MAX = 5;
 export const Q_MAX = 12;
-export const L_MAX = 13;       // Q_MAX + 1
+export const L_MAX = 13; // Q_MAX + 1
 export const NUM_TESTS = 5;
 
 // --- Linear multistep method types ---
@@ -32,8 +32,8 @@ export const CV_ADAMS = 1;
 export const CV_BDF = 2;
 
 // --- Task types ---
-export const CV_NORMAL = 1;    // integrate to tout, interpolate
-export const CV_ONE_STEP = 2;  // take one internal step
+export const CV_NORMAL = 1; // integrate to tout, interpolate
+export const CV_ONE_STEP = 2; // take one internal step
 
 // --- Return values (success) ---
 export const CV_SUCCESS = 0;
@@ -80,9 +80,9 @@ export const BIAS3 = 10.0;
 export const LONG_WAIT = 10;
 
 // --- Failure limits ---
-export const MXNCF = 10;      // max convergence failures per step
-export const MXNEF = 7;       // max error test failures per step
-export const MXNEF1 = 3;      // max error test failures on first step
+export const MXNCF = 10; // max convergence failures per step
+export const MXNEF = 7; // max error test failures per step
+export const MXNEF1 = 3; // max error test failures on first step
 
 // --- Internal action flags ---
 export const DO_ERROR_TEST = 2;
@@ -94,9 +94,9 @@ export const PREV_ERR_FAIL = 9;
 export const RHSFUNC_RECVR = 10;
 
 // --- Tolerance types ---
-export const CV_NN = 0;       // no tolerances set
-export const CV_SS = 1;       // scalar-scalar
-export const CV_SV = 2;       // scalar-vector
+export const CV_NN = 0; // no tolerances set
+export const CV_SS = 1; // scalar-scalar
+export const CV_SV = 2; // scalar-vector
 
 // --- Nonlinear solver failure types ---
 export const CV_NO_FAILURES = 0;
@@ -113,9 +113,9 @@ export const CORTES = 0.1;
 export const TINY = 1.0e-10;
 
 // --- Nonlinear solver constants ---
-export const NLS_MAXCOR = 3;  // max corrector iterations
-export const CRDOWN = 0.3;    // convergence rate damping
-export const RDIV = 2.0;      // divergence threshold
+export const NLS_MAXCOR = 3; // max corrector iterations
+export const CRDOWN = 0.3; // convergence rate damping
+export const RDIV = 2.0; // divergence threshold
 
 // --- SUNNonlinearSolver return codes (simplified) ---
 export const SUN_NLS_CONTINUE = 901;
@@ -138,7 +138,7 @@ export const RTFOUND = 1;
 export const CLOSERT = 3;
 
 // --- Linear solver constants (from cvode_ls_impl.h) ---
-export const CVLS_MSBJ = 51;  // max steps between Jacobian evals
+export const CVLS_MSBJ = 51; // max steps between Jacobian evals
 export const CVLS_DGMAX = 0.2; // gamma change threshold for Jacobian redo
 
 // ============================================================================

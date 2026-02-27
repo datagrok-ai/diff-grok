@@ -26,9 +26,9 @@ import {
   CV_ROOT_RETURN,
 } from './common';
 
-import { cvodeCreate, cvodeInit, cvode } from './cvode';
-import { cvodeSetLinearSolver, cvodeSetJacFn } from './cvode_ls';
-import { cvodeRootInit } from './cvode_root';
+import {cvodeCreate, cvodeInit, cvode} from './cvode';
+import {cvodeSetLinearSolver, cvodeSetJacFn} from './cvode_ls';
+import {cvodeRootInit} from './cvode_root';
 import {
   CvodeStats,
   cvodeGetIntegratorStats,
@@ -147,11 +147,11 @@ export class Cvode {
     const rtol = opts.rtol ?? 1e-4;
     const atol = opts.atol ?? 1e-6;
 
-    if (typeof atol === 'number') {
+    if (typeof atol === 'number')
       cvodeSStolerances(this.mem, rtol, atol);
-    } else {
+    else
       cvodeSVtolerances(this.mem, rtol, atol);
-    }
+
 
     // --- 5. Set up dense linear solver (required for BDF; optional but useful for Adams) ---
     cvodeSetLinearSolver(this.mem);
@@ -203,7 +203,7 @@ export class Cvode {
    * @returns CvodeSolveResult with { t, y, flag, rootsFound? }
    */
   solve(tout: number): CvodeSolveResult {
-    const { flag, t } = cvode(this.mem, tout, this.yout, CV_NORMAL);
+    const {flag, t} = cvode(this.mem, tout, this.yout, CV_NORMAL);
     return this._buildResult(t, flag);
   }
 
@@ -214,7 +214,7 @@ export class Cvode {
    * @returns CvodeSolveResult with { t, y, flag, rootsFound? }
    */
   step(): CvodeSolveResult {
-    const { flag, t } = cvode(this.mem, 1e30, this.yout, CV_ONE_STEP);
+    const {flag, t} = cvode(this.mem, 1e30, this.yout, CV_ONE_STEP);
     return this._buildResult(t, flag);
   }
 
@@ -229,9 +229,9 @@ export class Cvode {
   getDky(t: number, k: number): Float64Array {
     const dky = new Float64Array(this.neq);
     const flag = cvodeGetDky(this.mem, t, k, dky);
-    if (flag !== 0) {
+    if (flag !== 0)
       throw new Error(`[Cvode] getDky failed: t=${t} out of range or k=${k} invalid`);
-    }
+
     return dky;
   }
 
@@ -259,7 +259,7 @@ export class Cvode {
 
   private _buildResult(t: number, flag: number): CvodeSolveResult {
     const y = new Float64Array(this.yout); // copy
-    const result: CvodeSolveResult = { t, y, flag };
+    const result: CvodeSolveResult = {t, y, flag};
 
     if (flag === CV_ROOT_RETURN) {
       // Return a copy of the root direction info array

@@ -32,11 +32,11 @@ function solveBenchmarkAndCheck(
   if (opts?.rtol && opts?.atol) {
     cvodeOpts.rtol = opts.rtol[0];
     cvodeOpts.atol = opts.atol;
-  } else if (opts?.rtol) {
+  } else if (opts?.rtol)
     cvodeOpts.rtol = opts.rtol[0];
-  } else if (opts?.atol) {
+  else if (opts?.atol)
     cvodeOpts.atol = opts.atol;
-  } else {
+  else {
     cvodeOpts.rtol = tol;
     cvodeOpts.atol = tol;
   }
@@ -53,7 +53,7 @@ function solveBenchmarkAndCheck(
     expect(result.flag).toBeGreaterThanOrEqual(0);
   }
 
-  let t = opts?.warmupTout ?? ode.arg.start;
+  const t = opts?.warmupTout ?? ode.arg.start;
   let tout = t + ode.arg.step;
   const finish = ode.arg.finish;
   let lastResult: CvodeSolveResult;

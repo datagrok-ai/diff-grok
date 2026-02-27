@@ -105,9 +105,9 @@ export function cvRcheck1(mem: CvodeMem): number {
   const nrtfn = mem.cv_nrtfn;
   const N = mem.cv_N;
 
-  for (let i = 0; i < nrtfn; i++) {
+  for (let i = 0; i < nrtfn; i++)
     mem.cv_iroots[i] = 0;
-  }
+
 
   mem.cv_tlo = mem.cv_tn;
   mem.cv_ttol = (Math.abs(mem.cv_tn) + Math.abs(mem.cv_h)) * UROUND * HUNDRED;
@@ -115,9 +115,9 @@ export function cvRcheck1(mem: CvodeMem): number {
   // Evaluate g at initial t and check for zero values
   const retval = mem.cv_gfun!(mem.cv_tlo, mem.cv_zn[0], mem.cv_glo, mem.cv_user_data);
   mem.cv_nge = 1;
-  if (retval !== 0) {
+  if (retval !== 0)
     return CV_RTFUNC_FAIL;
-  }
+
 
   let zroot = false;
   for (let i = 0; i < nrtfn; i++) {
@@ -126,9 +126,9 @@ export function cvRcheck1(mem: CvodeMem): number {
       mem.cv_gactive[i] = 0; // SUNFALSE
     }
   }
-  if (!zroot) {
+  if (!zroot)
     return CV_SUCCESS;
-  }
+
 
   // Some g_i is zero at t0; look at g at t0+(small increment)
   const hratio = Math.max(mem.cv_ttol / Math.abs(mem.cv_h), PT1);
@@ -140,9 +140,9 @@ export function cvRcheck1(mem: CvodeMem): number {
 
   const retval2 = mem.cv_gfun!(tplus, mem.cv_y, mem.cv_ghi, mem.cv_user_data);
   mem.cv_nge++;
-  if (retval2 !== 0) {
+  if (retval2 !== 0)
     return CV_RTFUNC_FAIL;
-  }
+
 
   // Re-activate components where g moved away from zero
   for (let i = 0; i < nrtfn; i++) {
@@ -170,9 +170,9 @@ export function cvRcheck2(mem: CvodeMem): number {
   const nrtfn = mem.cv_nrtfn;
   const N = mem.cv_N;
 
-  if (mem.cv_irfnd === 0) {
+  if (mem.cv_irfnd === 0)
     return CV_SUCCESS;
-  }
+
 
   // Get y at tlo via interpolation
   cvodeGetDky(mem, mem.cv_tlo, 0, mem.cv_y);
@@ -180,14 +180,14 @@ export function cvRcheck2(mem: CvodeMem): number {
   // Evaluate g(tlo, y)
   let retval = mem.cv_gfun!(mem.cv_tlo, mem.cv_y, mem.cv_glo, mem.cv_user_data);
   mem.cv_nge++;
-  if (retval !== 0) {
+  if (retval !== 0)
     return CV_RTFUNC_FAIL;
-  }
+
 
   let zroot = false;
-  for (let i = 0; i < nrtfn; i++) {
+  for (let i = 0; i < nrtfn; i++)
     mem.cv_iroots[i] = 0;
-  }
+
   for (let i = 0; i < nrtfn; i++) {
     if (mem.cv_gactive[i] === 0) continue;
     if (Math.abs(mem.cv_glo[i]) === ZERO) {
@@ -195,9 +195,9 @@ export function cvRcheck2(mem: CvodeMem): number {
       mem.cv_iroots[i] = 1;
     }
   }
-  if (!zroot) {
+  if (!zroot)
     return CV_SUCCESS;
-  }
+
 
   // One or more g_i has a zero at tlo. Check g at tlo+smallh.
   mem.cv_ttol = (Math.abs(mem.cv_tn) + Math.abs(mem.cv_h)) * UROUND * HUNDRED;
@@ -208,15 +208,15 @@ export function cvRcheck2(mem: CvodeMem): number {
     const hratio = smallh / mem.cv_h;
     // y = y + hratio * zn[1]
     vLinearSum(ONE, mem.cv_y, hratio, mem.cv_zn[1], mem.cv_y, N);
-  } else {
+  } else
     cvodeGetDky(mem, tplus, 0, mem.cv_y);
-  }
+
 
   retval = mem.cv_gfun!(tplus, mem.cv_y, mem.cv_ghi, mem.cv_user_data);
   mem.cv_nge++;
-  if (retval !== 0) {
+  if (retval !== 0)
     return CV_RTFUNC_FAIL;
-  }
+
 
   // Check for close roots (error return), new zero at tlo+smallh,
   // and g_i that changed from zero to nonzero.
@@ -224,20 +224,19 @@ export function cvRcheck2(mem: CvodeMem): number {
   for (let i = 0; i < nrtfn; i++) {
     if (mem.cv_gactive[i] === 0) continue;
     if (Math.abs(mem.cv_ghi[i]) === ZERO) {
-      if (mem.cv_iroots[i] === 1) {
+      if (mem.cv_iroots[i] === 1)
         return CLOSERT;
-      }
+
       zroot = true;
       mem.cv_iroots[i] = 1;
     } else {
-      if (mem.cv_iroots[i] === 1) {
+      if (mem.cv_iroots[i] === 1)
         mem.cv_glo[i] = mem.cv_ghi[i];
-      }
     }
   }
-  if (zroot) {
+  if (zroot)
     return RTFOUND;
-  }
+
 
   return CV_SUCCESS;
 }
@@ -275,32 +274,31 @@ export function cvRcheck3(mem: CvodeMem): number {
   // Evaluate g(thi, y) and call cvRootfind
   const retval = mem.cv_gfun!(mem.cv_thi, mem.cv_y, mem.cv_ghi, mem.cv_user_data);
   mem.cv_nge++;
-  if (retval !== 0) {
+  if (retval !== 0)
     return CV_RTFUNC_FAIL;
-  }
+
 
   mem.cv_ttol = (Math.abs(mem.cv_tn) + Math.abs(mem.cv_h)) * UROUND * HUNDRED;
   const ier = cvRootfind(mem);
-  if (ier === CV_RTFUNC_FAIL) {
+  if (ier === CV_RTFUNC_FAIL)
     return CV_RTFUNC_FAIL;
-  }
+
 
   // Re-activate g components that moved away from zero
   for (let i = 0; i < nrtfn; i++) {
-    if (mem.cv_gactive[i] === 0 && mem.cv_grout[i] !== ZERO) {
+    if (mem.cv_gactive[i] === 0 && mem.cv_grout[i] !== ZERO)
       mem.cv_gactive[i] = 1; // SUNTRUE
-    }
   }
 
   mem.cv_tlo = mem.cv_trout;
-  for (let i = 0; i < nrtfn; i++) {
+  for (let i = 0; i < nrtfn; i++)
     mem.cv_glo[i] = mem.cv_grout[i];
-  }
+
 
   // If no root found, return CV_SUCCESS
-  if (ier === CV_SUCCESS) {
+  if (ier === CV_SUCCESS)
     return CV_SUCCESS;
-  }
+
 
   // If a root was found, interpolate to get y(trout) and return
   cvodeGetDky(mem, mem.cv_trout, 0, mem.cv_y);
@@ -343,9 +341,8 @@ function cvRootfind(mem: CvodeMem): number {
   for (let i = 0; i < nrtfn; i++) {
     if (mem.cv_gactive[i] === 0) continue;
     if (Math.abs(mem.cv_ghi[i]) === ZERO) {
-      if (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO) {
+      if (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)
         zroot = true;
-      }
     } else {
       if ((mem.cv_glo[i] * mem.cv_ghi[i] < 0) &&
           (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)) {
@@ -363,19 +360,18 @@ function cvRootfind(mem: CvodeMem): number {
   // Return CV_SUCCESS if no zero was found, or set iroots and return RTFOUND.
   if (!sgnchg) {
     mem.cv_trout = mem.cv_thi;
-    for (let i = 0; i < nrtfn; i++) {
+    for (let i = 0; i < nrtfn; i++)
       mem.cv_grout[i] = mem.cv_ghi[i];
-    }
-    if (!zroot) {
+
+    if (!zroot)
       return CV_SUCCESS;
-    }
+
     for (let i = 0; i < nrtfn; i++) {
       mem.cv_iroots[i] = 0;
       if (mem.cv_gactive[i] === 0) continue;
       if ((Math.abs(mem.cv_ghi[i]) === ZERO) &&
-          (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)) {
+          (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO))
         mem.cv_iroots[i] = mem.cv_glo[i] > 0 ? -1 : 1;
-      }
     }
     return RTFOUND;
   }
@@ -389,18 +385,18 @@ function cvRootfind(mem: CvodeMem): number {
 
   for (;;) {
     // If interval size is already less than tolerance ttol, break.
-    if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol) {
+    if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol)
       break;
-    }
+
 
     // Set weight alph.
     // On the first two passes, set alph = 1. Thereafter, reset alph
     // according to the side of the subinterval where the sign change was found.
-    if (sideprev === side) {
+    if (sideprev === side)
       alph = (side === 2) ? alph * TWO : alph * HALF;
-    } else {
+    else
       alph = ONE;
-    }
+
 
     // Set next root approximation tmid and get g(tmid).
     // If tmid is too close to tlo or thi, adjust it inward.
@@ -423,9 +419,9 @@ function cvRootfind(mem: CvodeMem): number {
     cvodeGetDky(mem, tmid, 0, mem.cv_y);
     const retval = mem.cv_gfun!(tmid, mem.cv_y, mem.cv_grout, mem.cv_user_data);
     mem.cv_nge++;
-    if (retval !== 0) {
+    if (retval !== 0)
       return CV_RTFUNC_FAIL;
-    }
+
 
     // Check in which subinterval g changes sign, and reset imax.
     // Set side = 1 if sign change is on low side, or 2 if on high side.
@@ -437,9 +433,8 @@ function cvRootfind(mem: CvodeMem): number {
     for (let i = 0; i < nrtfn; i++) {
       if (mem.cv_gactive[i] === 0) continue;
       if (Math.abs(mem.cv_grout[i]) === ZERO) {
-        if (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO) {
+        if (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)
           zroot = true;
-        }
       } else {
         if ((mem.cv_glo[i] * mem.cv_grout[i] < 0) &&
             (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)) {
@@ -457,37 +452,36 @@ function cvRootfind(mem: CvodeMem): number {
     if (sgnchg) {
       // Sign change found in (tlo, tmid); replace thi with tmid.
       mem.cv_thi = tmid;
-      for (let i = 0; i < nrtfn; i++) {
+      for (let i = 0; i < nrtfn; i++)
         mem.cv_ghi[i] = mem.cv_grout[i];
-      }
+
       side = 1;
       // Stop at root thi if converged; otherwise loop.
-      if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol) {
+      if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol)
         break;
-      }
+
       continue;
     }
 
     if (zroot) {
       // No sign change in (tlo, tmid), but g = 0 at tmid; return root tmid.
       mem.cv_thi = tmid;
-      for (let i = 0; i < nrtfn; i++) {
+      for (let i = 0; i < nrtfn; i++)
         mem.cv_ghi[i] = mem.cv_grout[i];
-      }
+
       break;
     }
 
     // No sign change in (tlo, tmid), and no zero at tmid.
     // Sign change must be in (tmid, thi). Replace tlo with tmid.
     mem.cv_tlo = tmid;
-    for (let i = 0; i < nrtfn; i++) {
+    for (let i = 0; i < nrtfn; i++)
       mem.cv_glo[i] = mem.cv_grout[i];
-    }
+
     side = 2;
     // Stop at root thi if converged; otherwise loop back.
-    if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol) {
+    if (Math.abs(mem.cv_thi - mem.cv_tlo) <= mem.cv_ttol)
       break;
-    }
   } // End of root-search loop
 
   // Reset trout and grout, set iroots, and return RTFOUND.
@@ -497,13 +491,12 @@ function cvRootfind(mem: CvodeMem): number {
     mem.cv_iroots[i] = 0;
     if (mem.cv_gactive[i] === 0) continue;
     if ((Math.abs(mem.cv_ghi[i]) === ZERO) &&
-        (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)) {
+        (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO))
       mem.cv_iroots[i] = mem.cv_glo[i] > 0 ? -1 : 1;
-    }
+
     if ((mem.cv_glo[i] * mem.cv_ghi[i] < 0) &&
-        (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO)) {
+        (mem.cv_rootdir[i] * mem.cv_glo[i] <= ZERO))
       mem.cv_iroots[i] = mem.cv_glo[i] > 0 ? -1 : 1;
-    }
   }
 
   return RTFOUND;

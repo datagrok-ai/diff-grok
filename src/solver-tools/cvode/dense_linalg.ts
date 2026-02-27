@@ -76,9 +76,9 @@ export function dgefa(a: Float64Array[], n: number, ipvt: Int32Array): number {
     // These multipliers form the strict lower triangle of L.
     const pivot = a[k][k];
     const mult = 1.0 / pivot;
-    for (let i = k + 1; i < n; i++) {
+    for (let i = k + 1; i < n; i++)
       a[i][k] *= mult;
-    }
+
 
     // --- Eliminate: update the trailing (n-k-1)-by-(n-k-1) submatrix ---
     // a[i][j] -= a[i][k] * a[k][j],  for i = k+1..n-1, j = k+1..n-1
@@ -87,9 +87,8 @@ export function dgefa(a: Float64Array[], n: number, ipvt: Int32Array): number {
       if (m !== 0.0) {
         const rowI = a[i];
         const rowK = a[k];
-        for (let j = k + 1; j < n; j++) {
+        for (let j = k + 1; j < n; j++)
           rowI[j] -= m * rowK[j];
-        }
       }
     }
   }
@@ -131,17 +130,15 @@ export function dgesl(
   // y[i] = b[i] - sum_{k=0}^{i-1} a[i][k] * y[k],  but since we process
   // column-by-column (outer loop on k), we update all rows below k:
   for (let k = 0; k < n - 1; k++) {
-    for (let i = k + 1; i < n; i++) {
+    for (let i = k + 1; i < n; i++)
       b[i] -= a[i][k] * b[k];
-    }
   }
 
   // --- Back substitution: solve U * x = y ---
   // U is in the upper triangle (including diagonal) of a.
   for (let k = n - 1; k >= 0; k--) {
     b[k] /= a[k][k];
-    for (let i = 0; i < k; i++) {
+    for (let i = 0; i < k; i++)
       b[i] -= a[i][k] * b[k];
-    }
   }
 }

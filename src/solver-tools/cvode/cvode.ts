@@ -44,11 +44,11 @@ import {
   wrmsNorm, vLinearSum, vScale, cvodeGetDky,
 } from './common';
 
-import { cvSetBDF, cvIncreaseBDF, cvDecreaseBDF } from './cvode_bdf';
-import { cvSetAdams, cvAdjustAdams } from './cvode_adams';
-import { cvHin } from './cvode_hin';
-import { cvNls } from './cvode_nls';
-import { cvRcheck1, cvRcheck2, cvRcheck3 } from './cvode_root';
+import {cvSetBDF, cvIncreaseBDF, cvDecreaseBDF} from './cvode_bdf';
+import {cvSetAdams, cvAdjustAdams} from './cvode_adams';
+import {cvHin} from './cvode_hin';
+import {cvNls} from './cvode_nls';
+import {cvRcheck1, cvRcheck2, cvRcheck3} from './cvode_root';
 
 // ============================================================================
 // PUBLIC EXPORTED FUNCTIONS
@@ -56,9 +56,9 @@ import { cvRcheck1, cvRcheck2, cvRcheck3 } from './cvode_root';
 
 /** cvodeCreate - Create and initialize CvodeMem */
 export function cvodeCreate(lmm: number): CvodeMem {
-  if (lmm !== CV_ADAMS && lmm !== CV_BDF) {
+  if (lmm !== CV_ADAMS && lmm !== CV_BDF)
     throw new Error('cvodeCreate: bad lmm, must be CV_ADAMS or CV_BDF');
-  }
+
 
   const maxord = (lmm === CV_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
   const mem = new CvodeMem();
@@ -69,9 +69,9 @@ export function cvodeCreate(lmm: number): CvodeMem {
 
   // Initialize ssdat as 6x4 array of zeros (1-based indexing: i=1..5, k=1..3)
   mem.cv_ssdat = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i++)
     mem.cv_ssdat[i] = [0, 0, 0, 0];
-  }
+
 
   mem.cv_nlscoef = CORTES;
 
@@ -88,9 +88,9 @@ export function cvodeInit(mem: CvodeMem, f: CvodeRhsFn, t0: number, y0: Float64A
   // Allocate Nordsieck history array: zn[0..qmax_alloc+1]
   const allocQ = mem.cv_qmax_alloc;
   mem.cv_zn = [];
-  for (let i = 0; i <= allocQ + 1; i++) {
+  for (let i = 0; i <= allocQ + 1; i++)
     mem.cv_zn[i] = new Float64Array(N);
-  }
+
 
   // Allocate work vectors
   mem.cv_ewt = new Float64Array(N);
@@ -136,9 +136,9 @@ export function cvodeInit(mem: CvodeMem, f: CvodeRhsFn, t0: number, y0: Float64A
   // Initialize stability limit detection data
   mem.cv_nor = 0;
   mem.cv_ssdat = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i++)
     mem.cv_ssdat[i] = [0, 0, 0, 0];
-  }
+
 
   // Set indx_acor to qmax_alloc (the zn slot used to save acor)
   mem.cv_indx_acor = mem.cv_qmax_alloc;
@@ -159,11 +159,11 @@ export function cvode(
   let tret = mem.cv_tn;
 
   // Check itask
-  if (itask !== CV_NORMAL && itask !== CV_ONE_STEP) {
-    return { flag: -99, t: mem.cv_tn };
-  }
+  if (itask !== CV_NORMAL && itask !== CV_ONE_STEP)
+    return {flag: -99, t: mem.cv_tn};
 
-  if (itask === CV_NORMAL) { mem.cv_toutc = tout; }
+
+  if (itask === CV_NORMAL) mem.cv_toutc = tout;
   mem.cv_taskc = itask;
 
   // --- nst == 0: first step initialization ---
@@ -172,50 +172,48 @@ export function cvode(
 
     // Check inputs
     ier = cvInitialSetup(mem);
-    if (ier !== CV_SUCCESS) { return { flag: ier, t: tret }; }
+    if (ier !== CV_SUCCESS) return {flag: ier, t: tret};
 
     // Call f at (t0, y0), set zn[1] = y'(t0)
     retval = mem.cv_f!(mem.cv_tn, mem.cv_zn[0], mem.cv_zn[1], mem.cv_user_data);
     mem.cv_nfe++;
-    if (retval < 0) { return { flag: CV_RHSFUNC_FAIL, t: tret }; }
-    if (retval > 0) { return { flag: CV_FIRST_RHSFUNC_ERR, t: tret }; }
+    if (retval < 0) return {flag: CV_RHSFUNC_FAIL, t: tret};
+    if (retval > 0) return {flag: CV_FIRST_RHSFUNC_ERR, t: tret};
 
     // Test tstop legality
     if (mem.cv_tstopset) {
-      if ((mem.cv_tstop - mem.cv_tn) * (tout - mem.cv_tn) <= 0.0) {
-        return { flag: -99, t: tret }; // CV_ILL_INPUT
-      }
+      if ((mem.cv_tstop - mem.cv_tn) * (tout - mem.cv_tn) <= 0.0)
+        return {flag: -99, t: tret}; // CV_ILL_INPUT
     }
 
     // Set initial h
     mem.cv_h = mem.cv_hin;
-    if (mem.cv_h !== 0.0 && (tout - mem.cv_tn) * mem.cv_h < 0.0) {
-      return { flag: -99, t: tret };
-    }
+    if (mem.cv_h !== 0.0 && (tout - mem.cv_tn) * mem.cv_h < 0.0)
+      return {flag: -99, t: tret};
+
     if (mem.cv_h === 0.0) {
       let tout_hin = tout;
-      if (mem.cv_tstopset && (tout - mem.cv_tn) * (tout - mem.cv_tstop) > 0.0) {
+      if (mem.cv_tstopset && (tout - mem.cv_tn) * (tout - mem.cv_tstop) > 0.0)
         tout_hin = mem.cv_tstop;
-      }
+
       const hflag = cvHin(mem, tout_hin);
       if (hflag !== CV_SUCCESS) {
         istate = cvHandleFailure(mem, hflag);
-        return { flag: istate, t: tret };
+        return {flag: istate, t: tret};
       }
     }
 
     // Enforce hmax and hmin
-    let rh = Math.abs(mem.cv_h) * mem.cv_hmax_inv;
-    if (rh > 1.0) { mem.cv_h /= rh; }
-    if (Math.abs(mem.cv_h) < mem.cv_hmin) {
+    const rh = Math.abs(mem.cv_h) * mem.cv_hmax_inv;
+    if (rh > 1.0) mem.cv_h /= rh;
+    if (Math.abs(mem.cv_h) < mem.cv_hmin)
       mem.cv_h *= mem.cv_hmin / Math.abs(mem.cv_h);
-    }
+
 
     // Check for approach to tstop
     if (mem.cv_tstopset) {
-      if ((mem.cv_tn + mem.cv_h - mem.cv_tstop) * mem.cv_h > 0.0) {
+      if ((mem.cv_tn + mem.cv_h - mem.cv_tstop) * mem.cv_h > 0.0)
         mem.cv_h = (mem.cv_tstop - mem.cv_tn) * (1.0 - 4.0 * UROUND);
-      }
     }
 
     // Scale zn[1] by h
@@ -227,9 +225,8 @@ export function cvode(
     // Check for roots at/near t0
     if (mem.cv_nrtfn > 0) {
       retval = cvRcheck1(mem);
-      if (retval === CV_RTFUNC_FAIL) {
-        return { flag: CV_RTFUNC_FAIL, t: tret };
-      }
+      if (retval === CV_RTFUNC_FAIL)
+        return {flag: CV_RTFUNC_FAIL, t: tret};
     }
   }
 
@@ -244,13 +241,13 @@ export function cvode(
 
       retval = cvRcheck2(mem);
 
-      if (retval === CLOSERT) {
-        return { flag: -99, t: mem.cv_tlo };
-      } else if (retval === CV_RTFUNC_FAIL) {
-        return { flag: CV_RTFUNC_FAIL, t: mem.cv_tlo };
-      } else if (retval === RTFOUND) {
+      if (retval === CLOSERT)
+        return {flag: -99, t: mem.cv_tlo};
+      else if (retval === CV_RTFUNC_FAIL)
+        return {flag: CV_RTFUNC_FAIL, t: mem.cv_tlo};
+      else if (retval === RTFOUND) {
         mem.cv_tretlast = tret = mem.cv_tlo;
-        return { flag: CV_ROOT_RETURN, t: tret };
+        return {flag: CV_ROOT_RETURN, t: tret};
       }
 
       // If tn is distinct from tretlast, check remaining interval
@@ -262,15 +259,14 @@ export function cvode(
           if (irfndp === 1 && itask === CV_ONE_STEP) {
             mem.cv_tretlast = tret = mem.cv_tn;
             yout.set(mem.cv_zn[0]);
-            return { flag: CV_SUCCESS, t: tret };
+            return {flag: CV_SUCCESS, t: tret};
           }
         } else if (retval === RTFOUND) {
           mem.cv_irfnd = 1;
           mem.cv_tretlast = tret = mem.cv_tlo;
-          return { flag: CV_ROOT_RETURN, t: tret };
-        } else if (retval === CV_RTFUNC_FAIL) {
-          return { flag: CV_RTFUNC_FAIL, t: mem.cv_tlo };
-        }
+          return {flag: CV_ROOT_RETURN, t: tret};
+        } else if (retval === CV_RTFUNC_FAIL)
+          return {flag: CV_RTFUNC_FAIL, t: mem.cv_tlo};
       }
     }
 
@@ -279,14 +275,14 @@ export function cvode(
       if (Math.abs(mem.cv_tn - mem.cv_tstop) <= troundoff) {
         if ((tout - mem.cv_tstop) * mem.cv_h >= 0.0 ||
             Math.abs(tout - mem.cv_tstop) <= troundoff) {
-          if (mem.cv_tstopinterp) {
+          if (mem.cv_tstopinterp)
             cvodeGetDky(mem, mem.cv_tstop, 0, yout);
-          } else {
+          else
             yout.set(mem.cv_zn[0]);
-          }
+
           mem.cv_tretlast = tret = mem.cv_tstop;
           mem.cv_tstopset = false;
-          return { flag: CV_TSTOP_RETURN, t: tret };
+          return {flag: CV_TSTOP_RETURN, t: tret};
         }
       } else if ((mem.cv_tn + mem.cv_hprime - mem.cv_tstop) * mem.cv_h > 0.0) {
         mem.cv_hprime = (mem.cv_tstop - mem.cv_tn) * (1.0 - 4.0 * UROUND);
@@ -298,7 +294,7 @@ export function cvode(
     if (itask === CV_NORMAL && (mem.cv_tn - tout) * mem.cv_h >= 0.0) {
       mem.cv_tretlast = tret = tout;
       cvodeGetDky(mem, tout, 0, yout);
-      return { flag: CV_SUCCESS, t: tret };
+      return {flag: CV_SUCCESS, t: tret};
     }
 
     // In ONE_STEP mode, test if tn was returned
@@ -306,7 +302,7 @@ export function cvode(
         Math.abs(mem.cv_tn - mem.cv_tretlast) > troundoff) {
       mem.cv_tretlast = tret = mem.cv_tn;
       yout.set(mem.cv_zn[0]);
-      return { flag: CV_SUCCESS, t: tret };
+      return {flag: CV_SUCCESS, t: tret};
     }
   }
 
@@ -346,14 +342,14 @@ export function cvode(
       yout.set(mem.cv_zn[0]);
       mem.cv_tolsf *= 2.0;
       break;
-    } else {
+    } else
       mem.cv_tolsf = 1.0;
-    }
+
 
     // Check for h below roundoff
-    if (mem.cv_tn + mem.cv_h === mem.cv_tn) {
+    if (mem.cv_tn + mem.cv_h === mem.cv_tn)
       mem.cv_nhnil++;
-    }
+
 
     // Take a step
     const kflag = cvStep(mem);
@@ -372,9 +368,8 @@ export function cvode(
     if (mem.cv_tstopset) {
       troundoff = FUZZ_FACTOR * UROUND *
         (Math.abs(mem.cv_tn) + Math.abs(mem.cv_h));
-      if (Math.abs(mem.cv_tn - mem.cv_tstop) <= troundoff) {
+      if (Math.abs(mem.cv_tn - mem.cv_tstop) <= troundoff)
         mem.cv_tn = mem.cv_tstop;
-      }
     }
 
     // Check for root in last step
@@ -400,11 +395,11 @@ export function cvode(
       if (Math.abs(mem.cv_tn - mem.cv_tstop) <= troundoff) {
         if ((tout - mem.cv_tstop) * mem.cv_h >= 0.0 ||
             Math.abs(tout - mem.cv_tstop) <= troundoff) {
-          if (mem.cv_tstopinterp) {
+          if (mem.cv_tstopinterp)
             cvodeGetDky(mem, mem.cv_tstop, 0, yout);
-          } else {
+          else
             yout.set(mem.cv_zn[0]);
-          }
+
           mem.cv_tretlast = tret = mem.cv_tstop;
           mem.cv_tstopset = false;
           istate = CV_TSTOP_RETURN;
@@ -437,7 +432,7 @@ export function cvode(
     }
   }
 
-  return { flag: istate, t: tret };
+  return {flag: istate, t: tret};
 }
 
 // ============================================================================
@@ -474,9 +469,9 @@ function cvInitialSetup(mem: CvodeMem): number {
 /** cvEwtSet - Set error weights based on tolerance type */
 function cvEwtSet(mem: CvodeMem): number {
   switch (mem.cv_itol) {
-    case CV_SS: return cvEwtSetSS(mem);
-    case CV_SV: return cvEwtSetSV(mem);
-    default: return -1;
+  case CV_SS: return cvEwtSetSS(mem);
+  case CV_SV: return cvEwtSetSV(mem);
+  default: return -1;
   }
 }
 
@@ -490,7 +485,7 @@ function cvEwtSetSS(mem: CvodeMem): number {
 
   for (let i = 0; i < N; i++) {
     const tol = rtol * Math.abs(y[i]) + atol;
-    if (mem.cv_atolmin0 && tol <= 0.0) { return -1; }
+    if (mem.cv_atolmin0 && tol <= 0.0) return -1;
     ewt[i] = 1.0 / tol;
   }
   return 0;
@@ -506,7 +501,7 @@ function cvEwtSetSV(mem: CvodeMem): number {
 
   for (let i = 0; i < N; i++) {
     const tol = rtol * Math.abs(y[i]) + vatol[i];
-    if (mem.cv_atolmin0 && tol <= 0.0) { return -1; }
+    if (mem.cv_atolmin0 && tol <= 0.0) return -1;
     ewt[i] = 1.0 / tol;
   }
   return 0;
@@ -522,9 +517,9 @@ function cvStep(mem: CvodeMem): number {
   let eflag: number;
 
   // If step size changed, update history array
-  if (mem.cv_nst > 0 && mem.cv_hprime !== mem.cv_h) {
+  if (mem.cv_nst > 0 && mem.cv_hprime !== mem.cv_h)
     cvAdjustParams(mem);
-  }
+
 
   const saved_t = mem.cv_tn;
   nflag = FIRST_CALL;
@@ -536,32 +531,32 @@ function cvStep(mem: CvodeMem): number {
 
     nflag = cvNls(mem, nflag);
 
-    const nflagRef = { value: nflag };
-    const ncfRef = { value: ncf };
+    const nflagRef = {value: nflag};
+    const ncfRef = {value: ncf};
     kflag = cvHandleNFlag(mem, nflagRef, saved_t, ncfRef);
     nflag = nflagRef.value;
     ncf = ncfRef.value;
 
     // Go back if we need to predict again
-    if (kflag === PREDICT_AGAIN) { continue; }
+    if (kflag === PREDICT_AGAIN) continue;
 
     // Return if nonlinear solve failed and recovery is not possible
-    if (kflag !== DO_ERROR_TEST) { return kflag; }
+    if (kflag !== DO_ERROR_TEST) return kflag;
 
     // Perform error test
-    const nflagRef2 = { value: nflag };
-    const nefRef = { value: nef };
-    const dsmRef = { value: dsm };
+    const nflagRef2 = {value: nflag};
+    const nefRef = {value: nef};
+    const dsmRef = {value: dsm};
     eflag = cvDoErrorTest(mem, nflagRef2, saved_t, nefRef, dsmRef);
     nflag = nflagRef2.value;
     nef = nefRef.value;
     dsm = dsmRef.value;
 
     // Go back if we need to try again
-    if (eflag === TRY_AGAIN) { continue; }
+    if (eflag === TRY_AGAIN) continue;
 
     // Return if error test failed and recovery is not possible
-    if (eflag !== CV_SUCCESS) { return eflag; }
+    if (eflag !== CV_SUCCESS) return eflag;
 
     // Error test passed, break from loop
     break;
@@ -572,11 +567,11 @@ function cvStep(mem: CvodeMem): number {
   cvPrepareNextStep(mem, dsm);
 
   // BDF stability limit detection
-  if (mem.cv_sldeton) { cvBDFStab(mem); }
+  if (mem.cv_sldeton) cvBDFStab(mem);
 
-  mem.cv_etamax = (mem.cv_nst <= mem.cv_small_nst)
-    ? mem.cv_eta_max_es
-    : mem.cv_eta_max_gs;
+  mem.cv_etamax = (mem.cv_nst <= mem.cv_small_nst) ?
+    mem.cv_eta_max_es :
+    mem.cv_eta_max_gs;
 
   // Rescale acor to be the estimated local error vector
   vScale(mem.cv_tq[2], mem.cv_acor, mem.cv_acor, mem.cv_N);
@@ -587,9 +582,9 @@ function cvStep(mem: CvodeMem): number {
 /** cvAdjustParams - adjust order and rescale when step size changes */
 function cvAdjustParams(mem: CvodeMem): void {
   if (mem.cv_qprime !== mem.cv_q) {
-    if (!mem.first_step_after_resize) {
+    if (!mem.first_step_after_resize)
       cvAdjustOrder(mem, mem.cv_qprime - mem.cv_q);
-    }
+
     mem.cv_q = mem.cv_qprime;
     mem.cv_L = mem.cv_q + 1;
     mem.cv_qwait = mem.cv_L;
@@ -599,13 +594,13 @@ function cvAdjustParams(mem: CvodeMem): void {
 
 /** cvAdjustOrder - handle order change by deltaq */
 function cvAdjustOrder(mem: CvodeMem, deltaq: number): void {
-  if (mem.cv_q === 2 && deltaq !== 1) { return; }
+  if (mem.cv_q === 2 && deltaq !== 1) return;
 
-  if (mem.cv_lmm === CV_ADAMS) {
+  if (mem.cv_lmm === CV_ADAMS)
     cvAdjustAdams(mem, deltaq);
-  } else if (mem.cv_lmm === CV_BDF) {
-    if (deltaq === 1) { cvIncreaseBDF(mem); }
-    else if (deltaq === -1) { cvDecreaseBDF(mem); }
+  else if (mem.cv_lmm === CV_BDF) {
+    if (deltaq === 1) cvIncreaseBDF(mem);
+    else if (deltaq === -1) cvDecreaseBDF(mem);
   }
 }
 
@@ -615,9 +610,9 @@ function cvRescale(mem: CvodeMem): void {
   let factor = mem.cv_eta;
   for (let j = 1; j <= mem.cv_q; j++) {
     const znj = mem.cv_zn[j];
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       znj[i] *= factor;
-    }
+
     factor *= mem.cv_eta;
   }
   mem.cv_h = mem.cv_hscale * mem.cv_eta;
@@ -632,33 +627,31 @@ function cvPredict(mem: CvodeMem): void {
 
   mem.cv_tn += mem.cv_h;
   if (mem.cv_tstopset) {
-    if ((mem.cv_tn - mem.cv_tstop) * mem.cv_h > 0.0) {
+    if ((mem.cv_tn - mem.cv_tstop) * mem.cv_h > 0.0)
       mem.cv_tn = mem.cv_tstop;
-    }
   }
 
   for (let k = 1; k <= mem.cv_q; k++) {
     for (let j = mem.cv_q; j >= k; j--) {
       const znjm1 = mem.cv_zn[j - 1];
       const znj = mem.cv_zn[j];
-      for (let i = 0; i < N; i++) {
+      for (let i = 0; i < N; i++)
         znjm1[i] += znj[i];
-      }
     }
   }
 }
 
 /** cvSet - compute method coefficients l, tq, rl1, gamma, gamrat */
 function cvSet(mem: CvodeMem): void {
-  if (mem.cv_lmm === CV_ADAMS) { cvSetAdams(mem); }
-  else { cvSetBDF(mem); }
+  if (mem.cv_lmm === CV_ADAMS) cvSetAdams(mem);
+  else cvSetBDF(mem);
 
   mem.cv_rl1 = 1.0 / mem.cv_l[1];
   mem.cv_gamma = mem.cv_h * mem.cv_rl1;
-  if (mem.cv_nst === 0) { mem.cv_gammap = mem.cv_gamma; }
-  mem.cv_gamrat = (mem.cv_nst > 0)
-    ? mem.cv_gamma / mem.cv_gammap
-    : 1.0;
+  if (mem.cv_nst === 0) mem.cv_gammap = mem.cv_gamma;
+  mem.cv_gamrat = (mem.cv_nst > 0) ?
+    mem.cv_gamma / mem.cv_gammap :
+    1.0;
 }
 
 /** cvHandleNFlag - take action on nonlinear solver return */
@@ -667,7 +660,7 @@ function cvHandleNFlag(
 ): number {
   const nflag = nflagRef.value;
 
-  if (nflag === CV_SUCCESS) { return DO_ERROR_TEST; }
+  if (nflag === CV_SUCCESS) return DO_ERROR_TEST;
 
   // Nonlinear solve failed; increment ncfn and restore zn
   mem.cv_ncfn++;
@@ -675,10 +668,10 @@ function cvHandleNFlag(
 
   // Return if failed unrecoverably
   if (nflag < 0) {
-    if (nflag === CV_LSETUP_FAIL) { return CV_LSETUP_FAIL; }
-    else if (nflag === CV_LSOLVE_FAIL) { return CV_LSOLVE_FAIL; }
-    else if (nflag === CV_RHSFUNC_FAIL) { return CV_RHSFUNC_FAIL; }
-    else { return CV_NLS_FAIL; }
+    if (nflag === CV_LSETUP_FAIL) return CV_LSETUP_FAIL;
+    else if (nflag === CV_LSOLVE_FAIL) return CV_LSOLVE_FAIL;
+    else if (nflag === CV_RHSFUNC_FAIL) return CV_RHSFUNC_FAIL;
+    else return CV_NLS_FAIL;
   }
 
   // Recoverable error
@@ -688,8 +681,8 @@ function cvHandleNFlag(
   // If maxncf failures or |h| = hmin, return failure
   if (Math.abs(mem.cv_h) <= mem.cv_hmin * ONEPSM ||
       ncfRef.value === mem.cv_maxncf) {
-    if (nflag === SUN_NLS_CONV_RECVR) { return CV_CONV_FAILURE; }
-    if (nflag === RHSFUNC_RECVR) { return CV_REPTD_RHSFUNC_ERR; }
+    if (nflag === SUN_NLS_CONV_RECVR) return CV_CONV_FAILURE;
+    if (nflag === RHSFUNC_RECVR) return CV_REPTD_RHSFUNC_ERR;
   }
 
   // Reduce step size; return to reattempt
@@ -709,9 +702,8 @@ function cvRestore(mem: CvodeMem, saved_t: number): void {
     for (let j = mem.cv_q; j >= k; j--) {
       const znjm1 = mem.cv_zn[j - 1];
       const znj = mem.cv_zn[j];
-      for (let i = 0; i < N; i++) {
+      for (let i = 0; i < N; i++)
         znjm1[i] -= znj[i];
-      }
     }
   }
 }
@@ -725,7 +717,7 @@ function cvDoErrorTest(
   dsmRef.value = dsm;
 
   // If dsm <= 1, test passed
-  if (dsm <= 1.0) { return CV_SUCCESS; }
+  if (dsm <= 1.0) return CV_SUCCESS;
 
   // Test failed
   nefRef.value++;
@@ -735,9 +727,9 @@ function cvDoErrorTest(
 
   // At maxnef failures or |h| = hmin, return failure
   if (Math.abs(mem.cv_h) <= mem.cv_hmin * ONEPSM ||
-      nefRef.value === mem.cv_maxnef) {
+      nefRef.value === mem.cv_maxnef)
     return CV_ERR_FAILURE;
-  }
+
 
   // Set etamax = 1 to prevent step size increase
   mem.cv_etamax = 1.0;
@@ -747,9 +739,9 @@ function cvDoErrorTest(
     mem.cv_eta = 1.0 / (Math.pow(BIAS2 * dsm, 1.0 / mem.cv_L) + ADDON);
     mem.cv_eta = Math.max(mem.cv_eta_min_ef,
       Math.max(mem.cv_eta, mem.cv_hmin / Math.abs(mem.cv_h)));
-    if (nefRef.value >= mem.cv_small_nef) {
+    if (nefRef.value >= mem.cv_small_nef)
       mem.cv_eta = Math.min(mem.cv_eta, mem.cv_eta_max_ef);
-    }
+
     cvRescale(mem);
     return TRY_AGAIN;
   }
@@ -777,8 +769,8 @@ function cvDoErrorTest(
 
   const retval = mem.cv_f!(mem.cv_tn, mem.cv_zn[0], mem.cv_tempv, mem.cv_user_data);
   mem.cv_nfe++;
-  if (retval < 0) { return CV_RHSFUNC_FAIL; }
-  if (retval > 0) { return CV_UNREC_RHSFUNC_ERR; }
+  if (retval < 0) return CV_RHSFUNC_FAIL;
+  if (retval > 0) return CV_UNREC_RHSFUNC_ERR;
 
   vScale(mem.cv_h, mem.cv_tempv, mem.cv_zn[1], mem.cv_N);
 
@@ -797,12 +789,12 @@ function cvCompleteStep(mem: CvodeMem): void {
   mem.first_step_after_resize = false;
 
   // Shift tau array
-  for (let i = mem.cv_q; i >= 2; i--) {
+  for (let i = mem.cv_q; i >= 2; i--)
     mem.cv_tau[i] = mem.cv_tau[i - 1];
-  }
-  if (mem.cv_q === 1 && mem.cv_nst > 1) {
+
+  if (mem.cv_q === 1 && mem.cv_nst > 1)
     mem.cv_tau[2] = mem.cv_tau[1];
-  }
+
   mem.cv_tau[1] = mem.cv_h;
 
   // Apply corrections to zn: zn[j] += l[j] * acor
@@ -810,9 +802,8 @@ function cvCompleteStep(mem: CvodeMem): void {
     const lj = mem.cv_l[j];
     const znj = mem.cv_zn[j];
     const acor = mem.cv_acor;
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       znj[i] += lj * acor[i];
-    }
   }
 
   // Decrement qwait, save acor if qwait==1 and q < qmax
@@ -871,7 +862,7 @@ function cvSetEta(mem: CvodeMem): void {
         mem.cv_hmin / Math.abs(mem.cv_h));
     }
     mem.cv_hprime = mem.cv_h * mem.cv_eta;
-    if (mem.cv_qprime < mem.cv_q) { mem.cv_nscon = 0; }
+    if (mem.cv_qprime < mem.cv_q) mem.cv_nscon = 0;
   }
 }
 
@@ -889,7 +880,7 @@ function cvComputeEtaqm1(mem: CvodeMem): number {
 function cvComputeEtaqp1(mem: CvodeMem): number {
   mem.cv_etaqp1 = 0.0;
   if (mem.cv_q !== mem.cv_qmax) {
-    if (mem.cv_saved_tq5 === 0.0) { return mem.cv_etaqp1; }
+    if (mem.cv_saved_tq5 === 0.0) return mem.cv_etaqp1;
     const cquot = (mem.cv_tq[5] / mem.cv_saved_tq5) *
       Math.pow(mem.cv_h / mem.cv_tau[2], mem.cv_L);
 
@@ -898,9 +889,9 @@ function cvComputeEtaqp1(mem: CvodeMem): number {
     const tempv = mem.cv_tempv;
     const znqmax = mem.cv_zn[mem.cv_qmax];
     const acor = mem.cv_acor;
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       tempv[i] = acor[i] - cquot * znqmax[i];
-    }
+
 
     const dup = wrmsNorm(N, tempv, mem.cv_ewt) * mem.cv_tq[3];
     mem.cv_etaqp1 = 1.0 / (Math.pow(BIAS3 * dup, 1.0 / (mem.cv_L + 1)) + ADDON);
@@ -938,36 +929,36 @@ function cvChooseEta(mem: CvodeMem): void {
 /** cvHandleFailure - set error and return flag */
 function cvHandleFailure(mem: CvodeMem, flag: number): number {
   switch (flag) {
-    case CV_ERR_FAILURE:
-      mem.cv_error = `Error test failures at t=${mem.cv_tn}, h=${mem.cv_h}`;
-      break;
-    case CV_CONV_FAILURE:
-      mem.cv_error = `Convergence failures at t=${mem.cv_tn}, h=${mem.cv_h}`;
-      break;
-    case CV_LSETUP_FAIL:
-      mem.cv_error = `Linear solver setup failed at t=${mem.cv_tn}`;
-      break;
-    case CV_LSOLVE_FAIL:
-      mem.cv_error = `Linear solver solve failed at t=${mem.cv_tn}`;
-      break;
-    case CV_RHSFUNC_FAIL:
-      mem.cv_error = `RHS function failed at t=${mem.cv_tn}`;
-      break;
-    case CV_UNREC_RHSFUNC_ERR:
-      mem.cv_error = `Unrecoverable RHS function error at t=${mem.cv_tn}`;
-      break;
-    case CV_REPTD_RHSFUNC_ERR:
-      mem.cv_error = `Repeated RHS function errors at t=${mem.cv_tn}`;
-      break;
-    case CV_RTFUNC_FAIL:
-      mem.cv_error = `Root function failed at t=${mem.cv_tn}`;
-      break;
-    case CV_TOO_CLOSE:
-      mem.cv_error = 'tout too close to t0';
-      break;
-    default:
-      mem.cv_error = `Unrecognized failure flag: ${flag}`;
-      break;
+  case CV_ERR_FAILURE:
+    mem.cv_error = `Error test failures at t=${mem.cv_tn}, h=${mem.cv_h}`;
+    break;
+  case CV_CONV_FAILURE:
+    mem.cv_error = `Convergence failures at t=${mem.cv_tn}, h=${mem.cv_h}`;
+    break;
+  case CV_LSETUP_FAIL:
+    mem.cv_error = `Linear solver setup failed at t=${mem.cv_tn}`;
+    break;
+  case CV_LSOLVE_FAIL:
+    mem.cv_error = `Linear solver solve failed at t=${mem.cv_tn}`;
+    break;
+  case CV_RHSFUNC_FAIL:
+    mem.cv_error = `RHS function failed at t=${mem.cv_tn}`;
+    break;
+  case CV_UNREC_RHSFUNC_ERR:
+    mem.cv_error = `Unrecoverable RHS function error at t=${mem.cv_tn}`;
+    break;
+  case CV_REPTD_RHSFUNC_ERR:
+    mem.cv_error = `Repeated RHS function errors at t=${mem.cv_tn}`;
+    break;
+  case CV_RTFUNC_FAIL:
+    mem.cv_error = `Root function failed at t=${mem.cv_tn}`;
+    break;
+  case CV_TOO_CLOSE:
+    mem.cv_error = 'tout too close to t0';
+    break;
+  default:
+    mem.cv_error = `Unrecognized failure flag: ${flag}`;
+    break;
   }
   return flag;
 }
@@ -977,13 +968,12 @@ function cvBDFStab(mem: CvodeMem): void {
   // If order >= 3, save scaled derivative data
   if (mem.cv_q >= 3) {
     for (let k = 1; k <= 3; k++) {
-      for (let i = 5; i >= 2; i--) {
+      for (let i = 5; i >= 2; i--)
         mem.cv_ssdat[i][k] = mem.cv_ssdat[i - 1][k];
-      }
     }
 
     let factorial = 1;
-    for (let i = 1; i <= mem.cv_q - 1; i++) { factorial *= i; }
+    for (let i = 1; i <= mem.cv_q - 1; i++) factorial *= i;
 
     const sq = factorial * mem.cv_q * (mem.cv_q + 1) * mem.cv_acnrm /
       Math.max(mem.cv_tq[5], TINY);
@@ -1063,7 +1053,7 @@ function cvSLdet(mem: CvodeMem): number {
       smaxk = Math.max(smaxk, mem.cv_ssdat[i][k]);
     }
 
-    if (smink < TINY * smaxk) { return -1; }
+    if (smink < TINY * smaxk) return -1;
 
     smax[k] = smaxk;
     ssmax[k] = smaxk * smaxk;
@@ -1088,7 +1078,7 @@ function cvSLdet(mem: CvodeMem): number {
     qc[1][k] = mem.cv_ssdat[4][k] * mem.cv_ssdat[4][k] -
                mem.cv_ssdat[3][k] * mem.cv_ssdat[5][k];
 
-    for (let i = 1; i <= 5; i++) { qco[i][k] = qc[i][k]; }
+    for (let i = 1; i <= 5; i++) qco[i][k] = qc[i][k];
   }
 
   // Isolate normal or nearly-normal matrix case
@@ -1096,7 +1086,7 @@ function cvSLdet(mem: CvodeMem): number {
   const vmax = Math.max(vrat[1], Math.max(vrat[2], vrat[3]));
 
   if (vmin < vrrtol * vrrtol) {
-    if (vmax > vrrt2 * vrrt2) { return -2; }
+    if (vmax > vrrt2 * vrrt2) return -2;
     else {
       rr = (rav[1] + rav[2] + rav[3]) / 3.0;
       let drrmax = 0.0;
@@ -1104,51 +1094,51 @@ function cvSLdet(mem: CvodeMem): number {
         const adrr = Math.abs(rav[k] - rr);
         drrmax = Math.max(drrmax, adrr);
       }
-      if (drrmax > vrrt2) { return -3; }
+      if (drrmax > vrrt2) return -3;
       kflag = 1;
     }
   } else {
     // Use quartics to get rr
-    if (Math.abs(qco[1][1]) < TINY * ssmax[1]) { return -4; }
+    if (Math.abs(qco[1][1]) < TINY * ssmax[1]) return -4;
 
     let tem = qco[1][2] / qco[1][1];
-    for (let i = 2; i <= 5; i++) { qco[i][2] = qco[i][2] - tem * qco[i][1]; }
+    for (let i = 2; i <= 5; i++) qco[i][2] = qco[i][2] - tem * qco[i][1];
     qco[1][2] = 0.0;
 
     tem = qco[1][3] / qco[1][1];
-    for (let i = 2; i <= 5; i++) { qco[i][3] = qco[i][3] - tem * qco[i][1]; }
+    for (let i = 2; i <= 5; i++) qco[i][3] = qco[i][3] - tem * qco[i][1];
     qco[1][3] = 0.0;
 
-    if (Math.abs(qco[2][2]) < TINY * ssmax[2]) { return -4; }
+    if (Math.abs(qco[2][2]) < TINY * ssmax[2]) return -4;
 
     tem = qco[2][3] / qco[2][2];
-    for (let i = 3; i <= 5; i++) { qco[i][3] = qco[i][3] - tem * qco[i][2]; }
+    for (let i = 3; i <= 5; i++) qco[i][3] = qco[i][3] - tem * qco[i][2];
 
-    if (Math.abs(qco[4][3]) < TINY * ssmax[3]) { return -4; }
+    if (Math.abs(qco[4][3]) < TINY * ssmax[3]) return -4;
 
     rr = -qco[5][3] / qco[4][3];
 
-    if (rr < TINY || rr > 100.0) { return -5; }
+    if (rr < TINY || rr > 100.0) return -5;
 
-    for (let k = 1; k <= 3; k++) {
+    for (let k = 1; k <= 3; k++)
       qkr[k] = qc[5][k] + rr * (qc[4][k] + rr * rr * (qc[2][k] + rr * qc[1][k]));
-    }
+
 
     let sqmax = 0.0;
     for (let k = 1; k <= 3; k++) {
       const saqk = Math.abs(qkr[k]) / ssmax[k];
-      if (saqk > sqmax) { sqmax = saqk; }
+      if (saqk > sqmax) sqmax = saqk;
     }
 
-    if (sqmax < sqtol) {
+    if (sqmax < sqtol)
       kflag = 2;
-    } else {
+    else {
       // Newton corrections to improve rr
       for (let it = 1; it <= 3; it++) {
         for (let k = 1; k <= 3; k++) {
           const qp = qc[4][k] + rr * rr * (3.0 * qc[2][k] + rr * 4.0 * qc[1][k]);
           drr[k] = 0.0;
-          if (Math.abs(qp) > TINY * ssmax[k]) { drr[k] = -qkr[k] / qp; }
+          if (Math.abs(qp) > TINY * ssmax[k]) drr[k] = -qkr[k] / qp;
           rrc[k] = rr + drr[k];
         }
 
@@ -1158,7 +1148,7 @@ function cvSLdet(mem: CvodeMem): number {
           for (let j = 1; j <= 3; j++) {
             qjk[j][k] = qc[5][j] + s * (qc[4][j] + s * s * (qc[2][j] + s * qc[1][j]));
             const saqj = Math.abs(qjk[j][k]) / ssmax[j];
-            if (saqj > sqmaxk) { sqmaxk = saqj; }
+            if (saqj > sqmaxk) sqmaxk = saqj;
           }
           sqmx[k] = sqmaxk;
         }
@@ -1175,9 +1165,8 @@ function cvSLdet(mem: CvodeMem): number {
         if (sqmin < sqtol) {
           kflag = 3;
           break;
-        } else {
-          for (let j = 1; j <= 3; j++) { qkr[j] = qjk[j][kmin]; }
-        }
+        } else
+          for (let j = 1; j <= 3; j++) qkr[j] = qjk[j][kmin];
       }
 
       if (kflag !== 3) {
@@ -1200,16 +1189,16 @@ function cvSLdet(mem: CvodeMem): number {
     const rd2b = rd1b - rd1c;
     const rd3a = rd2a - rd2b;
 
-    if (Math.abs(rd1b) < TINY * smax[k]) { return -7; }
+    if (Math.abs(rd1b) < TINY * smax[k]) return -7;
 
     const cest1 = -rd3a / rd1b;
-    if (cest1 < TINY || cest1 > 4.0) { return -7; }
+    if (cest1 < TINY || cest1 > 4.0) return -7;
 
     const corr1 = (rd2b / cest1) / (rr * rr);
     sigsq[k] = mem.cv_ssdat[3][k] + corr1;
   }
 
-  if (sigsq[2] < TINY) { return -8; }
+  if (sigsq[2] < TINY) return -8;
 
   const ratp = sigsq[3] / sigsq[2];
   const ratm = sigsq[1] / sigsq[2];
@@ -1218,17 +1207,17 @@ function cvSLdet(mem: CvodeMem): number {
   const bb = ratp * ratm - 1.0 - qfac1 * ratp;
   const tem2 = 1.0 - qfac2 * bb;
 
-  if (Math.abs(tem2) < TINY) { return -8; }
+  if (Math.abs(tem2) < TINY) return -8;
 
   const rrb = 1.0 / tem2;
 
-  if (Math.abs(rrb - rr) > rrtol) { return -9; }
+  if (Math.abs(rrb - rr) > rrtol) return -9;
 
   // Check if rr is above cutoff
   if (rr > rrcut) {
-    if (kflag === 1) { kflag = 4; }
-    if (kflag === 2) { kflag = 5; }
-    if (kflag === 3) { kflag = 6; }
+    if (kflag === 1) kflag = 4;
+    if (kflag === 2) kflag = 5;
+    if (kflag === 3) kflag = 6;
   }
 
   return kflag;

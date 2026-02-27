@@ -12,7 +12,7 @@
  * for the full license text and provenance chain of the original code.
  */
 
-import { CvodeMem, L_MAX } from './common';
+import {CvodeMem, L_MAX} from './common';
 
 /**
  * cvAltSum - Alternating sum: sum_{i=0}^{iend} (-1)^i * a[i] / (i + k)
@@ -43,9 +43,9 @@ function cvAdamsStart(mem: CvodeMem, m: Float64Array): number {
       mem.cv_tq[1] = mem.cv_q * sum / m[mem.cv_q - 2];
     }
     const xi_inv = mem.cv_h / hsum;
-    for (let i = j; i >= 1; i--) {
+    for (let i = j; i >= 1; i--)
       m[i] += m[i - 1] * xi_inv;
-    }
+
     hsum += mem.cv_tau[j];
   }
   return hsum;
@@ -58,9 +58,9 @@ function cvAdamsFinish(mem: CvodeMem, m: Float64Array, M: Float64Array, hsum: nu
   const M0_inv = 1.0 / M[0];
 
   mem.cv_l[0] = 1.0;
-  for (let i = 1; i <= mem.cv_q; i++) {
+  for (let i = 1; i <= mem.cv_q; i++)
     mem.cv_l[i] = M0_inv * (m[i - 1] / i);
-  }
+
 
   const xi = hsum / mem.cv_h;
   const xi_inv = 1.0 / xi;
@@ -69,9 +69,9 @@ function cvAdamsFinish(mem: CvodeMem, m: Float64Array, M: Float64Array, hsum: nu
   mem.cv_tq[5] = xi / mem.cv_l[mem.cv_q];
 
   if (mem.cv_qwait === 1) {
-    for (let i = mem.cv_q; i >= 1; i--) {
+    for (let i = mem.cv_q; i >= 1; i--)
       m[i] += m[i - 1] * xi_inv;
-    }
+
     M[2] = cvAltSum(mem.cv_q, m, 2);
     mem.cv_tq[3] = M[2] * M0_inv / mem.cv_L;
   }
@@ -123,14 +123,13 @@ export function cvAdjustAdams(mem: CvodeMem, deltaq: number): void {
   for (let j = 1; j <= mem.cv_q - 2; j++) {
     hsum += mem.cv_tau[j];
     const xi = hsum / mem.cv_hscale;
-    for (let i = j + 1; i >= 1; i--) {
+    for (let i = j + 1; i >= 1; i--)
       mem.cv_l[i] = mem.cv_l[i] * xi + mem.cv_l[i - 1];
-    }
   }
 
-  for (let j = 1; j <= mem.cv_q - 2; j++) {
+  for (let j = 1; j <= mem.cv_q - 2; j++)
     mem.cv_l[j + 1] = mem.cv_q * (mem.cv_l[j] / (j + 1));
-  }
+
 
   if (mem.cv_q > 2) {
     const znq = mem.cv_zn[mem.cv_q];

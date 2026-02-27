@@ -90,9 +90,9 @@ export function cvodeSVtolerances(mem: CvodeMem, rtol: number, atol: Float64Arra
   mem.cv_itol = CV_SV;
 
   let minAtol = Infinity;
-  for (let i = 0; i < atol.length; i++) {
+  for (let i = 0; i < atol.length; i++)
     if (atol[i] < minAtol) minAtol = atol[i];
-  }
+
   mem.cv_atolmin0 = (minAtol === 0);
   mem.cv_VabstolMallocDone = true;
 
@@ -128,11 +128,11 @@ export function cvodeSetMaxOrd(mem: CvodeMem, maxord: number): number {
  * (cv_hmax_inv = 0). Otherwise cv_hmax_inv = 1 / hmax.
  */
 export function cvodeSetMaxStep(mem: CvodeMem, hmax: number): number {
-  if (hmax <= 0) {
+  if (hmax <= 0)
     mem.cv_hmax_inv = 0;
-  } else {
+  else
     mem.cv_hmax_inv = 1.0 / hmax;
-  }
+
   return CV_SUCCESS;
 }
 
