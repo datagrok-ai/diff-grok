@@ -92,7 +92,7 @@ export function lsoda(odes: ODEs, callback?: Callback): Float64Array[] {
   // Try 1e-k for k from 4 to 10, picking the largest step that succeeds.
   const base = Math.min(step, 1.0);
   let warmupOk = false;
-  for (let k = 4; k <= 10; k++) {
+  for (let k = 5; k <= 10; k++) {
     const warmupTout = t0 + base * Math.pow(10, -k);
     if (warmupTout <= t0 || warmupTout >= t1)
       continue;
