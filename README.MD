@@ -25,9 +25,7 @@ A lightweight TypeScript library for solving initial value problem ([IVP](https:
     * The Bogacki-Shampine 3(2) method ([RK3](https://en.wikipedia.org/wiki/Bogacki%E2%80%93Shampine_method))
     * The Runge-Kutta-Fehlberg method ([RK4](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method))
     * The Dormand-Prince 5(4) method ([RKDP](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method))
-  * Adams-Bashforth type:
-    * The predictor-corrector method of order 4 ([AB4](https://en.wikipedia.org/wiki/Linear_multistep_method))
-    * The predictor-corrector method of order 5 ([AB5](https://en.wikipedia.org/wiki/Linear_multistep_method))
+  * Adams multistep predictor–correctors: orders 4 ([AB4](https://en.wikipedia.org/wiki/Linear_multistep_method)) and 5 ([AB5](https://en.wikipedia.org/wiki/Linear_multistep_method))
 * Scripting:
   * declarative specification of models
   * auto-generated JavaScript code
