@@ -93,7 +93,7 @@ on the segment $[t_0, t_1]$ with the step $h$:
    * `rk4` - the Runge-Kutta-Fehlberg 4(5) method
    * `rkdp` - the Dormand-Prince 5(4) method
 
-   Explicit methods (for non-stiff ODEs) — Adams-Bashforth type:
+   Explicit methods (for non-stiff ODEs) — Adams type:
    * `ab4` - the predictor-corrector method of order 4
    * `ab5` - the predictor-corrector method of order 5
 
