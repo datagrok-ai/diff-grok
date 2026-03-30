@@ -5,7 +5,10 @@
       "Bash(npm run lint:*)",
       "Bash(npx jest:*)",
       "Bash(npm test:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find src:*)",
+      "Bash(rm -f index.js index.js.map index.d.ts index.d.ts.map)"
     ]
   }
 }
