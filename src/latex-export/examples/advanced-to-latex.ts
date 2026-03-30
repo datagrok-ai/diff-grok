@@ -1,0 +1,43 @@
+/** Example: advanced model → LaTeX, no metadata, no cdot (juxtaposition). */
+
+import {convertIvpToLatex} from '../index';
+
+const MODEL = `#name: Advanced
+#comment:
+  This is an advanced template. Modify it. Use multi-line formulas if needed.
+  Add new equations, expressions, constants & parameters. Edit these comment lines if required.
+#equations:
+  dx/dt = E1 * y + sin(t)
+
+  dy/dt = E2 * x - pow(t, 5)
+
+#expressions:
+  E1 = C1 * exp(-t) + P1
+  E2 = C2 * cos(2 * t) + P2
+
+#argument: t
+  start = 0
+  finish = 10 {min: 10; max: 100}
+  step = 0.01
+
+#inits:
+  x = 2
+  y = 0
+
+#constants:
+  C1 = 1
+  C2 = 3
+
+#parameters:
+  P1 = 1
+  P2 = -1
+
+#tolerance: 5e-5`;
+
+// Compact, no metadata, juxtaposition
+const latex = convertIvpToLatex(MODEL, {
+  compact: true,
+  includeMetadata: false,
+  useCdot: false,
+});
+console.log(latex);

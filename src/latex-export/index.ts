@@ -13,6 +13,7 @@ const DEFAULT_OPTIONS: ConvertOptions = {
   includeParameters: true,
   includeConstants: true,
   useCdot: true,
+  compact: false,
 };
 
 /** Convert an IVP model file content to LaTeX markup.

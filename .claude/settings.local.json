@@ -13,7 +13,10 @@
       "Bash(ls c:/Users/vmaka/Datagrok/diff-grok/src/latex-export/examples/*.ivp)",
       "Bash(node -e \"const {tokenize} = require\\(''./src/latex-export/parser/tokenizer''\\); const t = tokenize\\(''-0.04 * A + 1e4 * B * C''\\); t.forEach\\(\\(tok,i\\) => console.log\\(i, tok.type, tok.value\\)\\);\")",
       "Bash(npx ts-node:*)",
-      "Bash(xargs wc:*)"
+      "Bash(xargs wc:*)",
+      "Bash(ls -la /c/Users/vmaka/Datagrok/diff-grok/src/latex-export/examples/*.ts)",
+      "WebFetch(domain:datagrok.ai)",
+      "Bash(npx tsx:*)"
     ]
   }
 }

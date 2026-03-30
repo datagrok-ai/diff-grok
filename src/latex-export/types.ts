@@ -142,6 +142,9 @@ export interface ConvertOptions {
 
   /** Use \cdot for multiplication. Default: true. If false, use juxtaposition. */
   useCdot: boolean;
+
+  /** Compact mode: no section headings, inline initial conditions, text labels. Default: false */
+  compact: boolean;
 }
 
 export interface OperatorContext {

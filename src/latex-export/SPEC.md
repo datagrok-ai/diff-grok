@@ -86,6 +86,9 @@ interface ConvertOptions {
 
   /** Use \cdot for multiplication. Default: true. If false, use juxtaposition. */
   useCdot: boolean;
+
+  /** Compact mode: no section headings, inline initial conditions. Default: false */
+  compact: boolean;
 }
 
 function convertIvpToLatex(ivpText: string, options?: Partial<ConvertOptions>): string;

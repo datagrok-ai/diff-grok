@@ -1,4 +1,4 @@
-import { parseIvp } from '../../../latex-export/parser/ivp-parser';
+import {parseIvp} from '../../../latex-export/parser/ivp-parser';
 
 describe('parseIvp', () => {
   describe('basic structure', () => {

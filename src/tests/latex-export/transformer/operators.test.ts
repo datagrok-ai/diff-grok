@@ -1,4 +1,4 @@
-import { operatorToLatex } from '../../../latex-export/transformer/operators';
+import {operatorToLatex} from '../../../latex-export/transformer/operators';
 
 /**
  * These tests verify the LaTeX rendering of binary and unary operators.
@@ -19,15 +19,15 @@ describe('operatorToLatex', () => {
 
   describe('multiplication', () => {
     it('a * b → a \\cdot b (with cdot enabled)', () => {
-      expect(operatorToLatex('*', 'a', 'b', { useCdot: true })).toBe('a \\cdot b');
+      expect(operatorToLatex('*', 'a', 'b', {useCdot: true})).toBe('a \\cdot b');
     });
 
     it('2 * x → 2 \\cdot x (number × identifier)', () => {
-      expect(operatorToLatex('*', '2', 'x', { useCdot: true })).toBe('2 \\cdot x');
+      expect(operatorToLatex('*', '2', 'x', {useCdot: true})).toBe('2 \\cdot x');
     });
 
     it('a * b → a \\, b (with cdot disabled — juxtaposition)', () => {
-      expect(operatorToLatex('*', 'a', 'b', { useCdot: false })).toBe('a \\, b');
+      expect(operatorToLatex('*', 'a', 'b', {useCdot: false})).toBe('a \\, b');
     });
   });
 
@@ -48,12 +48,12 @@ describe('operatorToLatex', () => {
     });
 
     it('compound base needs parens: (x + y) ** 2', () => {
-      expect(operatorToLatex('**', 'x + y', '2', { baseIsCompound: true }))
+      expect(operatorToLatex('**', 'x + y', '2', {baseIsCompound: true}))
         .toBe('\\left(x + y\\right)^{2}');
     });
 
     it('simple base no parens: x ** n', () => {
-      expect(operatorToLatex('**', 'x', 'n', { baseIsCompound: false }))
+      expect(operatorToLatex('**', 'x', 'n', {baseIsCompound: false}))
         .toBe('x^{n}');
     });
   });

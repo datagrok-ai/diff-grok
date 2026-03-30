@@ -1,8 +1,8 @@
-import { functionToLatex } from '../../../latex-export/transformer/functions';
+import {functionToLatex} from '../../../latex-export/transformer/functions';
 
 /**
  * These tests verify the LaTeX rendering of function calls.
- * The `functionToLatex` function takes a function name and 
+ * The `functionToLatex` function takes a function name and
  * an array of already-rendered LaTeX argument strings.
  */
 

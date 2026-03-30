@@ -1,4 +1,4 @@
-import { stripComments, joinMultiLineFormulas, stripAnnotations } from '../../../latex-export/parser/line-joiner';
+import {stripComments, joinMultiLineFormulas, stripAnnotations} from '../../../latex-export/parser/line-joiner';
 
 describe('stripComments', () => {
   it('should remove trailing comment', () => {

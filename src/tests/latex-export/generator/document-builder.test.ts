@@ -1,5 +1,5 @@
-import { buildLatexDocument, buildMarkdownDocument } from '../../../latex-export/generator/document-builder';
-import { ParsedModel } from '../../../latex-export/types';
+import {buildLatexDocument, buildMarkdownDocument} from '../../../latex-export/generator/document-builder';
+import {ParsedModel} from '../../../latex-export/types';
 
 /** Minimal model fixture */
 function minimalModel(): ParsedModel {
@@ -8,18 +8,18 @@ function minimalModel(): ParsedModel {
     description: 'A test',
     comment: 'Some comment',
     equations: [
-      { lhs: 'dy/dt', rhs: '-y + sin(t) / t', isDerivative: true, isArrowFunction: false },
+      {lhs: 'dy/dt', rhs: '-y + sin(t) / t', isDerivative: true, isArrowFunction: false},
     ],
     expressions: [],
     inits: [
-      { name: 'y', value: '0', units: 'mol/L', tooltip: 'Initial y' },
+      {name: 'y', value: '0', units: 'mol/L', tooltip: 'Initial y'},
     ],
     parameters: [],
     constants: [],
-    argument: { name: 't', entries: [
-      { name: 'start', value: '0' },
-      { name: 'finish', value: '10' },
-      { name: 'step', value: '0.01' },
+    argument: {name: 't', entries: [
+      {name: 'start', value: '0'},
+      {name: 'finish', value: '10'},
+      {name: 'step', value: '0.01'},
     ]},
     loops: [],
     updates: [],
@@ -33,29 +33,29 @@ function richModel(): ParsedModel {
     name: 'Extended Model',
     description: '2D system',
     equations: [
-      { lhs: 'dx/dt', rhs: 'E1 * y + sin(t)', isDerivative: true, isArrowFunction: false },
-      { lhs: 'dy/dt', rhs: 'E2 * x - pow(t, 5)', isDerivative: true, isArrowFunction: false },
+      {lhs: 'dx/dt', rhs: 'E1 * y + sin(t)', isDerivative: true, isArrowFunction: false},
+      {lhs: 'dy/dt', rhs: 'E2 * x - pow(t, 5)', isDerivative: true, isArrowFunction: false},
     ],
     expressions: [
-      { lhs: 'E1', rhs: 'C1 * exp(-t) + P1', isDerivative: false, isArrowFunction: false },
-      { lhs: 'E2', rhs: 'C2 * cos(2 * t) + P2', isDerivative: false, isArrowFunction: false },
+      {lhs: 'E1', rhs: 'C1 * exp(-t) + P1', isDerivative: false, isArrowFunction: false},
+      {lhs: 'E2', rhs: 'C2 * cos(2 * t) + P2', isDerivative: false, isArrowFunction: false},
     ],
     inits: [
-      { name: 'x', value: '2', units: 'C', category: 'Initial values', tooltip: 'Initial x' },
-      { name: 'y', value: '0', units: 'C', category: 'Initial values', tooltip: 'Initial y' },
+      {name: 'x', value: '2', units: 'C', category: 'Initial values', tooltip: 'Initial x'},
+      {name: 'y', value: '0', units: 'C', category: 'Initial values', tooltip: 'Initial y'},
     ],
     parameters: [
-      { name: 'P1', value: '1', category: 'Parameters', tooltip: 'P1 parameter' },
-      { name: 'P2', value: '-1', category: 'Parameters', tooltip: 'P2 parameter' },
+      {name: 'P1', value: '1', category: 'Parameters', tooltip: 'P1 parameter'},
+      {name: 'P2', value: '-1', category: 'Parameters', tooltip: 'P2 parameter'},
     ],
     constants: [
-      { name: 'C1', value: '1' },
-      { name: 'C2', value: '3' },
+      {name: 'C1', value: '1'},
+      {name: 'C2', value: '3'},
     ],
-    argument: { name: 't', entries: [
-      { name: 'start', value: '0', caption: 'Initial' },
-      { name: 'finish', value: '10', caption: 'Final' },
-      { name: 'step', value: '0.01', caption: 'Step' },
+    argument: {name: 't', entries: [
+      {name: 'start', value: '0', caption: 'Initial'},
+      {name: 'finish', value: '10', caption: 'Final'},
+      {name: 'step', value: '0.01', caption: 'Step'},
     ]},
     loops: [],
     updates: [],
@@ -77,7 +77,7 @@ describe('buildLatexDocument', () => {
 
   it('should include equations subsection with align environment', () => {
     const result = buildLatexDocument(minimalModel());
-    expect(result).toContain('\\subsection{Equations}');
+    expect(result).toContain('\\subsection{Equation}');
     expect(result).toContain('\\begin{align}');
     expect(result).toContain('\\end{align}');
   });
@@ -89,7 +89,7 @@ describe('buildLatexDocument', () => {
 
   it('should include initial conditions table', () => {
     const result = buildLatexDocument(minimalModel());
-    expect(result).toContain('Initial Conditions');
+    expect(result).toContain('Initial Condition');
     expect(result).toContain('mol/L');
   });
 
@@ -129,7 +129,7 @@ describe('buildMarkdownDocument', () => {
 
   it('should use ### for subsections', () => {
     const result = buildMarkdownDocument(minimalModel());
-    expect(result).toContain('### Equations');
+    expect(result).toContain('### Equation');
   });
 
   it('should wrap equations in $$ delimiters', () => {

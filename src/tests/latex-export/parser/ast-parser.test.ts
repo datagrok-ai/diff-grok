@@ -1,11 +1,11 @@
-import { parseExpression, ASTNode } from '../../../latex-export/parser/ast-parser';
+import {parseExpression, ASTNode} from '../../../latex-export/parser/ast-parser';
 
 /** Helper to build expected nodes concisely */
-const num = (v: string): ASTNode => ({ type: 'number', value: v });
-const id = (n: string): ASTNode => ({ type: 'identifier', name: n });
-const bin = (op: string, left: ASTNode, right: ASTNode): ASTNode => ({ type: 'binary', op, left, right });
-const un = (op: string, operand: ASTNode): ASTNode => ({ type: 'unary', op, operand });
-const call = (name: string, args: ASTNode[]): ASTNode => ({ type: 'call', name, args });
+const num = (v: string): ASTNode => ({type: 'number', value: v});
+const id = (n: string): ASTNode => ({type: 'identifier', name: n});
+const bin = (op: string, left: ASTNode, right: ASTNode): ASTNode => ({type: 'binary', op, left, right});
+const un = (op: string, operand: ASTNode): ASTNode => ({type: 'unary', op, operand});
+const call = (name: string, args: ASTNode[]): ASTNode => ({type: 'call', name, args});
 
 describe('parseExpression', () => {
   describe('atoms', () => {
@@ -155,9 +155,8 @@ describe('parseExpression', () => {
     it('should parse nested ternary', () => {
       const ast = parseExpression('a < 1 ? x : b < 2 ? y : z');
       expect(ast.type).toBe('ternary');
-      if (ast.type === 'ternary') {
+      if (ast.type === 'ternary')
         expect(ast.alternate.type).toBe('ternary');
-      }
     });
   });
 

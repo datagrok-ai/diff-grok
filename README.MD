@@ -521,6 +521,19 @@ Learn more
  * [Parameters optimization](https://datagrok.ai/help/compute/function-analysis#parameter-optimization)
  * [Sensitivity analysis](https://datagrok.ai/help/compute/function-analysis#sensitivity-analysis)
 
+## LaTeX export
+
+The [latex-export](src/latex-export/) module converts IVP model files into publication-ready **LaTeX** and **Markdown** with LaTeX math:
+
+- ODE systems rendered as `\frac{dy}{dt}` with `align` environments
+- Automatic Greek letter recognition, subscripts, and chemical formula formatting
+- Scientific notation, `\frac`, `\cdot`, `\sqrt`, `\begin{cases}` for ternary operators
+- Configurable output: toggle metadata, initial conditions, parameters, constants tables
+- Compact mode for small models: inline initial conditions, text labels instead of section headings
+- Two formats: standalone `.tex` documents and Markdown with `$...$` / `$$...$$` math
+
+See the full documentation in [src/latex-export/README.md](src/latex-export/README.md).
+
 ## Environment Requirements
 
 ### Development & Build

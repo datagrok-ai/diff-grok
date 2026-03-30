@@ -1,8 +1,8 @@
-import { tokenize, Token } from '../../../latex-export/parser/tokenizer';
+import {tokenize, Token} from '../../../latex-export/parser/tokenizer';
 
 /** Helper: extract just the type-value pairs for easier assertion */
 function tv(tokens: Token[]): Array<[string, string]> {
-  return tokens.map(t => [t.type, t.value]);
+  return tokens.map((t) => [t.type, t.value]);
 }
 
 describe('tokenizer', () => {
@@ -113,36 +113,36 @@ describe('tokenizer', () => {
   describe('comparisons', () => {
     it('should tokenize >=', () => {
       const tokens = tokenize('x >= 0');
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'COMPARISON', value: '>=' }));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'COMPARISON', value: '>='}));
     });
 
     it('should tokenize <', () => {
       const tokens = tokenize('p < 8');
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'COMPARISON', value: '<' }));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'COMPARISON', value: '<'}));
     });
 
     it('should tokenize ==', () => {
       const tokens = tokenize('a == b');
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'COMPARISON', value: '==' }));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'COMPARISON', value: '=='}));
     });
 
     it('should tokenize !=', () => {
       const tokens = tokenize('a != b');
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'COMPARISON', value: '!=' }));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'COMPARISON', value: '!='}));
     });
   });
 
   describe('ternary and arrow', () => {
     it('should tokenize ternary operator', () => {
       const tokens = tokenize('(x < 0) ? a : b');
-      const types = tokens.map(t => t.type);
+      const types = tokens.map((t) => t.type);
       expect(types).toContain('QUESTION');
       expect(types).toContain('COLON');
     });
 
     it('should tokenize arrow function', () => {
       const tokens = tokenize('(p, t) => p + t');
-      const types = tokens.map(t => t.type);
+      const types = tokens.map((t) => t.type);
       expect(types).toContain('ARROW');
     });
   });
@@ -174,14 +174,14 @@ describe('tokenizer', () => {
   describe('complex expressions from real models', () => {
     it('should tokenize Robertson equation RHS', () => {
       const tokens = tokenize('-0.04 * A + 1e4 * B * C');
-      expect(tokens[0]).toEqual(expect.objectContaining({ type: 'OPERATOR', value: '-' }));
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'NUMBER', value: '0.04' }));
-      expect(tokens[5]).toEqual(expect.objectContaining({ type: 'NUMBER', value: '1e4' }));
+      expect(tokens[0]).toEqual(expect.objectContaining({type: 'OPERATOR', value: '-'}));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'NUMBER', value: '0.04'}));
+      expect(tokens[5]).toEqual(expect.objectContaining({type: 'NUMBER', value: '1e4'}));
     });
 
     it('should tokenize expression with pow and **', () => {
       const tokens = tokenize('k2Fa * (Ffree * E0)**2 * E1');
-      const ops = tokens.filter(t => t.type === 'OPERATOR').map(t => t.value);
+      const ops = tokens.filter((t) => t.type === 'OPERATOR').map((t) => t.value);
       expect(ops).toContain('**');
       expect(ops).toContain('*');
     });
@@ -189,16 +189,16 @@ describe('tokenizer', () => {
     it('should tokenize ternary with function calls', () => {
       const expr = '(E70 >= 0) ? sqrt(E70) : 0';
       const tokens = tokenize(expr);
-      expect(tokens.some(t => t.type === 'COMPARISON' && t.value === '>=')).toBe(true);
-      expect(tokens.some(t => t.type === 'QUESTION')).toBe(true);
-      expect(tokens.some(t => t.type === 'COLON')).toBe(true);
+      expect(tokens.some((t) => t.type === 'COMPARISON' && t.value === '>=')).toBe(true);
+      expect(tokens.some((t) => t.type === 'QUESTION')).toBe(true);
+      expect(tokens.some((t) => t.type === 'COLON')).toBe(true);
     });
 
     it('should tokenize Fin/Fper conditional', () => {
       const expr = 't < switchTime ? 0 : 0.025';
       const tokens = tokenize(expr);
-      expect(tokens[0]).toEqual(expect.objectContaining({ type: 'IDENTIFIER', value: 't' }));
-      expect(tokens[1]).toEqual(expect.objectContaining({ type: 'COMPARISON', value: '<' }));
+      expect(tokens[0]).toEqual(expect.objectContaining({type: 'IDENTIFIER', value: 't'}));
+      expect(tokens[1]).toEqual(expect.objectContaining({type: 'COMPARISON', value: '<'}));
     });
   });
 });

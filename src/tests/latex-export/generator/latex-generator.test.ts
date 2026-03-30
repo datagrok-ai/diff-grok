@@ -1,4 +1,4 @@
-import { expressionToLatex, derivativeToLatex } from '../../../latex-export/generator/latex-generator';
+import {expressionToLatex, derivativeToLatex} from '../../../latex-export/generator/latex-generator';
 
 describe('expressionToLatex', () => {
   describe('simple expressions', () => {

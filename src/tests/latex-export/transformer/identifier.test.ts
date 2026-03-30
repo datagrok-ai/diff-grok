@@ -1,4 +1,4 @@
-import { identifierToLatex } from '../../../latex-export/transformer/identifier';
+import {identifierToLatex} from '../../../latex-export/transformer/identifier';
 
 describe('identifierToLatex', () => {
   describe('Greek letters — exact match', () => {
