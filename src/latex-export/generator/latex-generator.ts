@@ -1,79 +1,138 @@
-// ============================================================
-// LaTeX Generator
-// ============================================================
-// Recursively walks the AST and produces LaTeX strings.
-//
-// Key responsibilities:
-//   - Render each AST node type to LaTeX
-//   - Apply identifier, function, and operator transformations
-//   - Manage brackets via bracket-manager
-//   - Handle derivative LHS patterns: d(X)/dt → \frac{d\,X}{dt}
-//   - Render ternary as \begin{cases} ... \end{cases}
-//   - Render scientific notation: 1e4 → 1 \times 10^{4}
+/* LaTeX generator: recursively walks the AST and produces LaTeX strings. */
 
-import { ASTNode } from '../types';
+import {ASTNode} from '../types';
+import {parseExpression} from '../parser/ast-parser';
+import {identifierToLatex} from '../transformer/identifier';
+import {functionToLatex} from '../transformer/functions';
+import {operatorToLatex} from '../transformer/operators';
+import {needsParentheses, wrapParens} from './bracket-manager';
 
-/**
- * Convert an expression string to LaTeX by parsing and rendering the AST.
- *
- * @param expr - Expression string (RHS of a formula)
- * @returns LaTeX string
+/** Convert an expression string to LaTeX by parsing and rendering the AST.
+ *  @param expr  expression string (RHS of a formula)
+ *  @returns     LaTeX string
  */
 export function expressionToLatex(expr: string): string {
-  // TODO: Implement
-  // 1. Parse expression to AST
-  // 2. Recursively render AST to LaTeX
-  throw new Error('Not implemented');
+  const ast = parseExpression(expr);
+  return nodeToLatex(ast);
 }
 
-/**
- * Render an AST node to LaTeX.
- *
- * @param node - AST node
- * @param parentOp - Parent operator for bracket decisions (optional)
- * @param position - 'left' or 'right' in parent (optional)
- * @returns LaTeX string
+/** Render an AST node to LaTeX.
+ *  @param node       AST node to render
+ *  @param _parentOp  parent operator (unused, reserved for context)
+ *  @param _position  child position (unused, reserved for context)
+ *  @returns          LaTeX string
  */
 export function nodeToLatex(
   node: ASTNode,
-  parentOp?: string,
-  position?: 'left' | 'right',
+  _parentOp?: string,
+  _position?: 'left' | 'right',
 ): string {
-  // TODO: Implement
-  throw new Error('Not implemented');
+  switch (node.type) {
+  case 'number':
+    return numberToLatex(node.value);
+
+  case 'identifier':
+    return identifierToLatex(node.name);
+
+  case 'unary': {
+    const operand = nodeToLatex(node.operand);
+    const needsWrap = node.operand.type === 'binary' || node.operand.type === 'ternary';
+    return `${node.op}${needsWrap ? `\\left(${operand}\\right)` : operand}`;
+  }
+
+  case 'binary':
+    return renderBinary(node);
+
+  case 'call': {
+    const args = node.args.map((a) => nodeToLatex(a));
+    return functionToLatex(node.name, args);
+  }
+
+  case 'ternary': {
+    const cond = nodeToLatex(node.condition);
+    const cons = nodeToLatex(node.consequent);
+    const alt = nodeToLatex(node.alternate);
+    return `\\begin{cases} ${cons}, & \\text{if } ${cond} \\\\ ${alt}, & \\text{otherwise} \\end{cases}`;
+  }
+  }
 }
 
-/**
- * Convert a derivative LHS to LaTeX.
- *
- * Patterns:
- *   dy/dt       → \frac{dy}{dt}
- *   dx1/dt      → \frac{dx_{1}}{dt}
- *   d(FFox)/dt  → \frac{d\,\mathrm{FFox}}{dt}
- *   d(depot)/dt → \frac{d\,\mathrm{depot}}{dt}
- *
- * @param lhs - The LHS string (e.g., "d(FFox)/dt")
- * @returns LaTeX string for the derivative
+function renderBinary(node: ASTNode & { type: 'binary' }): string {
+  const {op, left, right} = node;
+
+  // Division → \frac (no extra brackets needed)
+  if (op === '/') {
+    const l = nodeToLatex(left);
+    const r = nodeToLatex(right);
+    return operatorToLatex('/', l, r);
+  }
+
+  // Exponentiation → base^{exp}
+  if (op === '**') {
+    const isCompound = left.type === 'binary' || left.type === 'unary' || left.type === 'ternary';
+    const l = nodeToLatex(left);
+    const r = nodeToLatex(right);
+    return operatorToLatex('**', l, r, {baseIsCompound: isCompound});
+  }
+
+  // For *, +, -, comparisons: use precedence-based bracketing
+  const leftOp = getNodeOp(left);
+  const rightOp = getNodeOp(right);
+
+  const leftNeedsParen = needsParentheses(leftOp, op, 'left');
+  const rightNeedsParen = needsParentheses(rightOp, op, 'right');
+
+  const l = wrapParens(nodeToLatex(left), leftNeedsParen);
+  const r = wrapParens(nodeToLatex(right), rightNeedsParen);
+
+  if (op === '*')
+    return operatorToLatex('*', l, r, {useCdot: true});
+
+  return operatorToLatex(op, l, r);
+}
+
+function getNodeOp(node: ASTNode): string | undefined {
+  if (node.type === 'binary') return node.op;
+  if (node.type === 'unary') return 'unary';
+  if (node.type === 'ternary') return '?';
+  return undefined;
+}
+
+/** Convert a derivative LHS to LaTeX (e.g. "dy/dt" → "\frac{dy}{dt}").
+ *  @param lhs  derivative string, e.g. "d(X)/dt" or "dX/dt"
+ *  @returns    LaTeX string
  */
 export function derivativeToLatex(lhs: string): string {
-  // TODO: Implement
-  throw new Error('Not implemented');
+  // Pattern: d(varName)/darg or dvarName/darg
+  const parenMatch = lhs.match(/^d\(([^)]+)\)\/d(.+)$/);
+  if (parenMatch) {
+    const varLatex = identifierToLatex(parenMatch[1]);
+    const argLatex = parenMatch[2];
+    return `\\frac{d\\,${varLatex}}{d${argLatex}}`;
+  }
+
+  const simpleMatch = lhs.match(/^d([A-Za-z]\w*)\/d(.+)$/);
+  if (simpleMatch) {
+    const varLatex = identifierToLatex(simpleMatch[1]);
+    const argLatex = simpleMatch[2];
+    return `\\frac{d${varLatex}}{d${argLatex}}`;
+  }
+
+  return lhs;
 }
 
-/**
- * Render a number, potentially converting scientific notation.
- *
- * Rules:
- *   42      → 42
- *   0.04    → 0.04
- *   1e4     → 10^{4}   or  1 \times 10^{4}
- *   9.2E-2  → 9.2 \times 10^{-2}
- *   3e7     → 3 \times 10^{7}
- *
- * @param value - Number string from token
- * @returns LaTeX string
+/** Render a number, converting scientific notation (e.g. "1e4" → "10^{4}").
+ *  @param value  number string from the tokenizer
+ *  @returns      LaTeX string
  */
 export function numberToLatex(value: string): string {
-  // TODO: Implement
-  throw new Error('Not implemented');
+  const match = value.match(/^([^eE]+)[eE]([+-]?\d+)$/);
+  if (!match) return value;
+
+  const coeff = match[1];
+  let exp = match[2];
+  if (exp.startsWith('+')) exp = exp.slice(1);
+
+  if (coeff === '1') return `10^{${exp}}`;
+  return `${coeff} \\times 10^{${exp}}`;
 }

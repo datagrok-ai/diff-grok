@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { functionToLatex } from '../../../latex-export/transformer/functions';
 
 /**

@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { parseIvp } from '../../../latex-export/parser/ivp-parser';
 
 describe('parseIvp', () => {

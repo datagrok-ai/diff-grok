@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { stripComments, joinMultiLineFormulas, stripAnnotations } from '../../../latex-export/parser/line-joiner';
 
 describe('stripComments', () => {

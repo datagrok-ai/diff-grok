@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { parseExpression, ASTNode } from '../../../latex-export/parser/ast-parser';
 
 /** Helper to build expected nodes concisely */

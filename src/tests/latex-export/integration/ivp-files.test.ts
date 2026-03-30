@@ -1,11 +1,10 @@
-import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { convertIvpToLatex } from '../../../latex-export/index';
 
-/** Load an example IVP file from the project root examples/ directory */
+/** Load an example IVP file from the latex-export examples/ directory */
 function loadExample(name: string): string {
-  return readFileSync(join(__dirname, '../../../../examples', name), 'utf-8');
+  return readFileSync(join(__dirname, '../../../latex-export/examples', name), 'utf-8');
 }
 
 describe('integration: convertIvpToLatex', () => {

@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { identifierToLatex } from '../../../latex-export/transformer/identifier';
 
 describe('identifierToLatex', () => {

@@ -1,4 +1,4 @@
-# CLAUDE.md — diff-grok / latex-export
+# INSTRUCTIONS.md — diff-grok / latex-export
 
 ## Project context
 
@@ -8,21 +8,22 @@
 
 ```
 diff-grok/
-├── CLAUDE.md                          ← you are here
-├── SPEC.md                            ← full implementation spec (read first!)
+├── CLAUDE.md
 ├── package.json
 ├── tsconfig.json
-├── vitest.config.ts
-├── docs/
-│   └── latex-export/
-│       ├── GREEK.md                   ← Greek alphabet mapping
-│       └── SYNTAX.md                  ← IVP file format reference
-├── examples/
-│   └── *.ivp                          ← 12 real model files for testing
+├── jest.config.js
 └── src/
-    ├── latex-export/                  ← MODULE SOURCE CODE
+    ├── latex-export/                  ← MODULE ROOT
+    │   ├── INSTRUCTIONS.md            ← you are here
+    │   ├── SPEC.md                    ← full implementation spec (read first!)
     │   ├── index.ts                   ← public API
     │   ├── types.ts                   ← all interfaces
+    │   ├── docs/
+    │   │   └── latex-export/
+    │   │       ├── GREEK.md           ← Greek alphabet mapping
+    │   │       └── SYNTAX.md          ← IVP file format reference
+    │   ├── examples/
+    │   │   └── *.ivp                  ← 13 real model files for testing
     │   ├── parser/
     │   │   ├── line-joiner.ts
     │   │   ├── ivp-parser.ts
@@ -59,10 +60,10 @@ diff-grok/
 
 ## Key documents
 
-- **`SPEC.md`** — Complete implementation specification. **Read first.**
-- **`docs/latex-export/SYNTAX.md`** — IVP file format reference.
-- **`docs/latex-export/GREEK.md`** — Full Greek alphabet mapping with matching rules.
-- **`examples/*.ivp`** — 12 real model files to test against.
+- **`src/latex-export/SPEC.md`** — Complete implementation specification. **Read first.**
+- **`src/latex-export/docs/latex-export/SYNTAX.md`** — IVP file format reference.
+- **`src/latex-export/docs/latex-export/GREEK.md`** — Full Greek alphabet mapping with matching rules.
+- **`src/latex-export/examples/*.ivp`** — 13 real model files to test against.
 
 ## Implementation order
 
@@ -128,10 +129,10 @@ Continuation lines are indented and do NOT contain a top-level `=`. Join them wi
 
 ```bash
 npm install
-npx vitest run                                       # all tests
-npx vitest run src/tests/latex-export/parser/         # parser tests only
-npx vitest run src/tests/latex-export/integration/    # integration tests
-npx vitest run --reporter=verbose                     # detailed output
+npx jest                                              # all tests
+npx jest src/tests/latex-export/parser/               # parser tests only
+npx jest src/tests/latex-export/integration/          # integration tests
+npx jest --verbose                                    # detailed output
 ```
 
 ## Quality bar

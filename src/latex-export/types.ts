@@ -1,8 +1,4 @@
-// ============================================================
-// IVP-to-LaTeX Converter — Type Definitions
-// ============================================================
-
-// --- Tokenizer types ---
+/* IVP-to-LaTeX converter — type definitions. */
 
 export type TokenType =
   | 'NUMBER'
@@ -23,8 +19,6 @@ export interface Token {
   value: string;
   position: number;
 }
-
-// --- AST types ---
 
 export interface NumberNode {
   type: 'number';
@@ -69,8 +63,6 @@ export type ASTNode =
   | UnaryNode
   | CallNode
   | TernaryNode;
-
-// --- Parser types ---
 
 export interface FormulaLine {
   /** Left-hand side: e.g. "dx/dt", "E1", "func1" */
@@ -132,8 +124,6 @@ export interface ParsedModel {
   solverMeta?: string;
 }
 
-// --- Converter options ---
-
 export interface ConvertOptions {
   /** Output format: 'latex' or 'markdown'. Default: 'latex' */
   format: 'latex' | 'markdown';
@@ -154,10 +144,20 @@ export interface ConvertOptions {
   useCdot: boolean;
 }
 
-// --- Operator context (used by operator transformer) ---
-
 export interface OperatorContext {
   useCdot?: boolean;
   baseIsCompound?: boolean;
   insideExponent?: boolean;
 }
+
+// Centralized error messages (cf. solver-defs.ts ERROR_MSG)
+function tokenStr(tok?: {type: string; value: string}): string {
+  return tok ? `${tok.type} '${tok.value}'` : 'EOF';
+}
+
+export const ERROR_MSG = {
+  expectedToken: (type: string, value: string | undefined, tok?: {type: string; value: string}) =>
+    `Expected ${type}${value ? ` '${value}'` : ''}, got ${tokenStr(tok)}`,
+  unexpectedToken: (tok?: {type: string; value: string}) =>
+    `Unexpected token: ${tokenStr(tok)}`,
+};

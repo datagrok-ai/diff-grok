@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { buildLatexDocument, buildMarkdownDocument } from '../../../latex-export/generator/document-builder';
 import { ParsedModel } from '../../../latex-export/types';
 

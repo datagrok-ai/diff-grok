@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { tokenize, Token } from '../../../latex-export/parser/tokenizer';
 
 /** Helper: extract just the type-value pairs for easier assertion */
@@ -177,7 +176,7 @@ describe('tokenizer', () => {
       const tokens = tokenize('-0.04 * A + 1e4 * B * C');
       expect(tokens[0]).toEqual(expect.objectContaining({ type: 'OPERATOR', value: '-' }));
       expect(tokens[1]).toEqual(expect.objectContaining({ type: 'NUMBER', value: '0.04' }));
-      expect(tokens[4]).toEqual(expect.objectContaining({ type: 'NUMBER', value: '1e4' }));
+      expect(tokens[5]).toEqual(expect.objectContaining({ type: 'NUMBER', value: '1e4' }));
     });
 
     it('should tokenize expression with pow and **', () => {

@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { expressionToLatex, derivativeToLatex } from '../../../latex-export/generator/latex-generator';
 
 describe('expressionToLatex', () => {
@@ -26,7 +25,7 @@ describe('expressionToLatex', () => {
   describe('scientific notation rendering', () => {
     it('1e4 → 1 \\times 10^{4} or 10^{4}', () => {
       const result = expressionToLatex('1e4');
-      expect(result).toMatch(/10\^{4}/);
+      expect(result).toMatch(/10\^\{4\}/);
     });
 
     it('9.2E-2 → 9.2 \\times 10^{-2}', () => {

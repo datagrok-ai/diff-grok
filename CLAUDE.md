@@ -102,3 +102,7 @@ type Func = (t: number, y: Float64Array, output: Float64Array) => void;
 type ODEs = { name, arg: {name, start, finish, step}, initial, func: Func, tolerance, solutionColNames };
 type SolverMethod = (odes: ODEs, callback?: Callback) => Float64Array[];
 ```
+
+## latex-export
+See [src/latex-export/INSTRUCTIONS.md](src/latex-export/INSTRUCTIONS.md) for the IVP-to-LaTeX converter module.
+Full spec: [SPEC.md](src/latex-export/SPEC.md).

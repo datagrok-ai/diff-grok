@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { operatorToLatex } from '../../../latex-export/transformer/operators';
 
 /**

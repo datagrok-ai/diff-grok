@@ -1,15 +1,8 @@
-// ============================================================
-// TeX Output Formatter
-// ============================================================
-// Wraps the document content for standalone .tex file usage.
-// Uses amsmath, booktabs packages.
+/* TeX output formatter: wraps content in a document preamble for standalone .tex files. */
 
-/**
- * Wrap LaTeX content in a minimal document preamble.
- * Useful if the user wants a self-contained .tex file.
- *
- * @param content - LaTeX body content
- * @returns Complete .tex file content
+/** Wrap LaTeX content in a minimal document preamble for a self-contained .tex file.
+ *  @param content  LaTeX body content
+ *  @returns        complete .tex file content
  */
 export function wrapTexDocument(content: string): string {
   return [
