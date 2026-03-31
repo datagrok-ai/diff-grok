@@ -60,8 +60,12 @@ export function nodeToLatex(
 function renderBinary(node: ASTNode & { type: 'binary' }): string {
   const {op, left, right} = node;
 
-  // Division → \frac (no extra brackets needed)
+  // Division → \frac; flatten into product of fractions when chain has multiple divisions
   if (op === '/') {
+    const factors = flattenMulDivChain(node);
+    const divisorCount = factors.filter((f) => f.isDivisor).length;
+    if (divisorCount > 1)
+      return renderProductOfFractions(factors);
     const l = nodeToLatex(left);
     const r = nodeToLatex(right);
     return operatorToLatex('/', l, r);
@@ -96,6 +100,65 @@ function getNodeOp(node: ASTNode): string | undefined {
   if (node.type === 'unary') return 'unary';
   if (node.type === 'ternary') return '?';
   return undefined;
+}
+
+/** Flatten a left-associative * / chain into factors with divisor flags. */
+function flattenMulDivChain(node: ASTNode & {type: 'binary'}):
+  Array<{node: ASTNode; isDivisor: boolean}> {
+  const factors: Array<{node: ASTNode; isDivisor: boolean}> = [];
+  function collect(n: ASTNode): void {
+    if (n.type === 'binary' && (n.op === '*' || n.op === '/')) {
+      collect(n.left);
+      factors.push({node: n.right, isDivisor: n.op === '/'});
+    } else
+      factors.push({node: n, isDivisor: false});
+  }
+  collect(node);
+  return factors;
+}
+
+/** Render a list of factors joined with \cdot, adding parens where needed. */
+function renderProductTerm(nodes: ASTNode[]): string {
+  if (nodes.length === 0) return '1';
+  if (nodes.length === 1) return nodeToLatex(nodes[0]);
+  return nodes.map((n) => {
+    const latex = nodeToLatex(n);
+    if (n.type === 'binary' && (n.op === '+' || n.op === '-'))
+      return `\\left(${latex}\\right)`;
+    if (n.type === 'ternary')
+      return `\\left(${latex}\\right)`;
+    return latex;
+  }).join(' \\cdot ');
+}
+
+/** Render factors as a product of fractions. */
+function renderProductOfFractions(
+  factors: Array<{node: ASTNode; isDivisor: boolean}>,
+): string {
+  const groups: Array<{nums: ASTNode[]; dens: ASTNode[]}> = [];
+  let cur: {nums: ASTNode[]; dens: ASTNode[]} = {nums: [], dens: []};
+
+  for (const f of factors) {
+    if (f.isDivisor) {
+      cur.dens.push(f.node);
+    } else {
+      if (cur.dens.length > 0) {
+        groups.push(cur);
+        cur = {nums: [], dens: []};
+      }
+      cur.nums.push(f.node);
+    }
+  }
+  groups.push(cur);
+
+  const parts = groups.map((g) => {
+    const num = renderProductTerm(g.nums);
+    if (g.dens.length === 0) return num;
+    const den = renderProductTerm(g.dens);
+    return `\\frac{${num}}{${den}}`;
+  });
+
+  return parts.join(' \\cdot ');
 }
 
 /** Convert a derivative LHS to LaTeX (e.g. "dy/dt" → "\frac{dy}{dt}").

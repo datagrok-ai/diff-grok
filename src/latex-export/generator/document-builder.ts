@@ -50,6 +50,13 @@ export function buildLatexDocument(
     parts.push(buildLatexAlign(model.expressions));
   }
 
+  const loopInfo = extractLoopInfo(model);
+  if (loopInfo && loopInfo.updates.length > 0) {
+    parts.push('\\subsection{Cyclic Update}');
+    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u)}`);
+    parts.push(`Before each cycle:\n\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`);
+  }
+
   if (opts.includeInits && model.inits.length > 0) {
     parts.push(`\\subsection{${initsTitle(model)}}`);
     parts.push(buildLatexTable(model.inits));
@@ -104,6 +111,13 @@ export function buildMarkdownDocument(
     parts.push(buildMarkdownAlign(model.expressions));
   }
 
+  const loopInfo = extractLoopInfo(model);
+  if (loopInfo && loopInfo.updates.length > 0) {
+    parts.push('### Cyclic Update');
+    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u)}`);
+    parts.push(`Before each cycle:\n\n$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`);
+  }
+
   if (opts.includeInits && model.inits.length > 0) {
     parts.push(`### ${initsTitle(model)}`);
     parts.push(buildMarkdownTable(model.inits));
@@ -133,7 +147,26 @@ function buildArgRangeLatex(model: ParsedModel): string {
   const start = model.argument.entries[0].value;
   const finish = model.argument.entries[1].value;
   const step = model.argument.entries[2].value;
-  return `${arg} \\in \\left[${start},\\, ${finish}\\right], \\quad \\Delta ${arg} = ${step}`;
+
+  const loopInfo = extractLoopInfo(model);
+  let effectiveFinish = finish;
+  if (loopInfo) {
+    const s = parseFloat(start);
+    const f = parseFloat(finish);
+    const n = parseFloat(loopInfo.count);
+    if (!isNaN(s) && !isNaN(f) && !isNaN(n))
+      effectiveFinish = String(s + n * (f - s));
+    else
+      effectiveFinish = `${start} + ${loopInfo.count} \\cdot (${finish} - ${start})`;
+  }
+
+  let result = `${arg} \\in \\left[${start},\\, ${effectiveFinish}\\right], \\quad \\Delta ${arg} = ${step}`;
+  if (loopInfo) {
+    const duration = (!isNaN(parseFloat(start)) && !isNaN(parseFloat(finish))) ?
+      String(parseFloat(finish) - parseFloat(start)) : `${finish} - ${start}`;
+    result += `, \\quad ${arg}_{\\text{cycle}} = ${duration}`;
+  }
+  return result;
 }
 
 function buildLatexArgRange(model: ParsedModel): string {
@@ -208,6 +241,32 @@ function compactExprItems(model: ParsedModel): string[] {
   });
 }
 
+interface LoopUpdate { variable: string; value: string }
+
+interface LoopInfo { count: string; updates: LoopUpdate[] }
+
+function extractLoopInfo(model: ParsedModel): LoopInfo | undefined {
+  if (model.loops.length === 0) return undefined;
+  const loop = model.loops[0];
+  let count = '';
+  const updates: LoopUpdate[] = [];
+  for (const entry of loop.entries) {
+    if (entry.name === 'count')
+      count = entry.value;
+    else {
+      const variable = entry.name.replace(/\s*\+$/, '');
+      updates.push({variable, value: entry.value});
+    }
+  }
+  return count ? {count, updates} : undefined;
+}
+
+function renderLoopUpdateLine(u: LoopUpdate): string {
+  const varLatex = identifierToLatex(u.variable);
+  const valLatex = expressionToLatex(u.value);
+  return `${varLatex} \\leftarrow ${varLatex} + ${valLatex}`;
+}
+
 function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
   const parts: string[] = [];
 
@@ -231,11 +290,17 @@ function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
     parts.push(`where\n${lines.join('\n')}`);
   }
 
+  const loopInfo = extractLoopInfo(model);
+  if (loopInfo && loopInfo.updates.length > 0) {
+    const lines = loopInfo.updates.map((u) => `\\[ ${renderLoopUpdateLine(u)} \\]`);
+    parts.push(`before each cycle:\n${lines.join('\n')}`);
+  }
+
   if (opts.includeParameters && model.parameters.length > 0)
-    parts.push(`${plural('Parameter', model.parameters.length)}:\n\n${buildLatexTable(model.parameters)}`);
+    parts.push(`${plural('Parameter', model.parameters.length)}:\n${buildLatexList(model.parameters)}`);
 
   if (opts.includeConstants && model.constants.length > 0)
-    parts.push(`${plural('Constant', model.constants.length)}:\n\n${buildLatexTable(model.constants)}`);
+    parts.push(`${plural('Constant', model.constants.length)}:\n${buildLatexList(model.constants)}`);
 
   return parts.join('\n\n');
 }
@@ -263,13 +328,38 @@ function buildMarkdownCompact(model: ParsedModel, opts: ConvertOptions): string 
     parts.push(`where\n${lines.join('\n')}`);
   }
 
+  const loopInfo = extractLoopInfo(model);
+  if (loopInfo && loopInfo.updates.length > 0) {
+    const lines = loopInfo.updates.map((u) => `$$${renderLoopUpdateLine(u)}$$`);
+    parts.push(`before each cycle:\n${lines.join('\n')}`);
+  }
+
   if (opts.includeParameters && model.parameters.length > 0)
-    parts.push(`${plural('Parameter', model.parameters.length)}:\n\n${buildMarkdownTable(model.parameters)}`);
+    parts.push(`${plural('Parameter', model.parameters.length)}:\n${buildMarkdownList(model.parameters)}`);
 
   if (opts.includeConstants && model.constants.length > 0)
-    parts.push(`${plural('Constant', model.constants.length)}:\n\n${buildMarkdownTable(model.constants)}`);
+    parts.push(`${plural('Constant', model.constants.length)}:\n${buildMarkdownList(model.constants)}`);
 
   return parts.join('\n\n');
+}
+
+function buildLatexList(entries: AnnotatedLine[]): string {
+  const items = entries.map((e) => {
+    const name = `$${identifierToLatex(e.name)}$`;
+    const value = `$${e.value}$`;
+    const units = e.units ? ` (${e.units})` : '';
+    return `  \\item ${name} = ${value}${units}`;
+  }).join('\n');
+  return `\\begin{itemize}\n${items}\n\\end{itemize}`;
+}
+
+function buildMarkdownList(entries: AnnotatedLine[]): string {
+  return entries.map((e) => {
+    const name = `$${identifierToLatex(e.name)}$`;
+    const value = `$${e.value}$`;
+    const units = e.units ? ` (${e.units})` : '';
+    return `- ${name} = ${value}${units}`;
+  }).join('\n');
 }
 
 function buildLatexTable(entries: AnnotatedLine[]): string {
