@@ -576,8 +576,9 @@ See the full documentation in [src/latex-export/README.md](src/latex-export/READ
 
 #### Browser Support
 
-The library runs in all modern browsers with ES2015+ support. Key requirements:
+The library runs in all modern browsers with ES2022+ support (matching `tsconfig.json`: `target: "es2022"`, `module: "es2022"`, `lib: ["ES2022", "dom"]`). Key requirements:
 
+* **ES2022 JavaScript support**
 * **ES Modules** (native `import`/`export`)
 * **Typed Arrays** (`Float64Array`, `Uint8Array`)
 * **WebWorkers** (for pipeline computations)
@@ -593,7 +594,7 @@ The library runs in all modern browsers with ES2015+ support. Key requirements:
 | **Legacy Browsers**    | -               | ❌ No       | IE 11, pre-Chromium Edge, old Android browsers  |
 
 **Browser Feature Requirements:**
-* ES2015 (ES6) JavaScript support
+* ES2022 JavaScript support
 * Native ES modules (`<script type="module">`)
 * `Float64Array` and other typed arrays
 * `WebWorker` API (for parallel computations)
@@ -602,7 +603,7 @@ The library runs in all modern browsers with ES2015+ support. Key requirements:
 
 **Notes:**
 * For older browsers, consider using a transpiler (Babel) and bundler (Webpack/Rollup)
-* TypeScript compilation target should be ES2015 or higher
+* TypeScript compilation target should be ES2022 or higher (or transpile down for older browsers)
 * WebWorker support is required for pipeline computations; without it, computations run on the main thread
 
 ### Bundler Configuration
