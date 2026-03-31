@@ -525,12 +525,31 @@ Learn more
 
 The [latex-export](src/latex-export/) module converts IVP model files into publication-ready **LaTeX** and **Markdown** with LaTeX math:
 
-- ODE systems rendered as `\frac{dy}{dt}` with `align` environments
-- Automatic Greek letter recognition, subscripts, and chemical formula formatting
-- Scientific notation, `\frac`, `\cdot`, `\sqrt`, `\begin{cases}` for ternary operators
-- Configurable output: toggle metadata, initial conditions, parameters, constants tables
-- Compact mode for small models: inline initial conditions, text labels instead of section headings
-- Two formats: standalone `.tex` documents and Markdown with `$...$` / `$$...$$` math
+```typescript
+import {convertIvpToLatex} from 'diff-grok';
+
+const ivp = `#name: Robertson
+#equations:
+  dA/dt = -0.04 * A + 1e4 * B * C
+  dB/dt = 0.04 * A - 1e4 * B * C - 3e7 * B**2
+  dC/dt = 3e7 * B**2
+
+#inits:
+  A = 1 {units: mol/L}
+  B = 0 {units: mol/L}
+  C = 0 {units: mol/L}
+
+#argument: t
+  start = 0
+  finish = 40
+  step = 0.01`;
+
+// LaTeX output (default)
+const latex = convertIvpToLatex(ivp);
+
+// Markdown output
+const markdown = convertIvpToLatex(ivp, {format: 'markdown'});
+```
 
 See the full documentation in [src/latex-export/README.md](src/latex-export/README.md).
 

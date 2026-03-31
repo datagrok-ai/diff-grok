@@ -61,6 +61,30 @@ npx jest src/tests/correctness.test.ts
 - **`src/worker-tools/`** — WebWorker integration for browser parallel computation
   - `getIvp2WebWorker()` serializes IVP for worker transfer; `solveIvp()` runs in worker
 
+- **`src/latex-export/`** — IVP-to-LaTeX/Markdown converter
+  - `index.ts` — Public API: `convertIvpToLatex(ivpText, options?)` → LaTeX or Markdown string
+  - `types.ts` — All interfaces: `ParsedModel`, `ConvertOptions`, `ASTNode`, `Token`, `FormulaLine`, `AnnotatedLine`, etc.
+  - **`parser/`** — IVP file parsing pipeline
+    - `line-joiner.ts` — Strip comments, join multi-line formulas (continuation lines)
+    - `ivp-parser.ts` — Parse `.ivp` text → `ParsedModel` (extracts all `#blocks`)
+    - `tokenizer.ts` — Expression string → token stream
+    - `ast-parser.ts` — Tokens → Abstract Syntax Tree (recursive descent)
+  - **`transformer/`** — AST node → LaTeX transformations
+    - `identifier.ts` — Greek letters, subscripts, chemical formulas, `\mathrm{}` wrapping
+    - `functions.ts` — `sin`→`\sin`, `exp(x)`→`e^{x}`, `sqrt`→`\sqrt`, `ceil`/`floor`→brackets, `pow`→`^{}`
+    - `operators.ts` — `/`→`\frac{}{}`, `*`→`\cdot`, `**`→`^{}`, comparisons→`\geq`/`\leq`/`\neq`
+  - **`generator/`** — LaTeX string assembly
+    - `latex-generator.ts` — AST → LaTeX string (dispatches to transformer modules)
+    - `bracket-manager.ts` — Precedence-based parenthesis insertion
+    - `document-builder.ts` — Assemble complete document with sections, `align`/`aligned` environments, tables
+  - **`output/`** — Final formatting wrappers
+    - `tex-formatter.ts` — Wraps in `\documentclass` preamble with `amsmath`, `amssymb`, `booktabs`
+    - `md-formatter.ts` — Wraps math in `$...$` / `$$...$$`, uses Markdown pipe tables
+  - **`examples/`** — 13 `.ivp` model files + 13 `.ts` demo scripts showing various option combinations
+  - **`docs/latex-export/`** — `SYNTAX.md` (IVP format reference), `GREEK.md` (Greek alphabet mapping)
+  - Key features: derivatives→fractions, Greek letter detection, chemical formula subscripts, scientific notation, ternary→`cases` environment, arrow functions, configurable `\cdot`/juxtaposition, compact mode
+  - Data flow: `.ivp` text → `parseIvp()` → `ParsedModel` → `buildLatexDocument()`/`buildMarkdownDocument()` → string
+
 ### Data Flow
 
 1. Define problem as `ODEs` object (programmatic) or parse model string via `getIVP()`
@@ -95,6 +119,18 @@ Tests are in `src/tests/` using Jest with ts-jest:
 - `pipeline.test.ts` — Pipeline integration tests (3 model types)
 - Method definitions in `test-defs.ts`: `methods` map (all 11 solvers), `implicitMethods` map (stiff-capable only)
 
+### latex-export tests (`src/tests/latex-export/`)
+- `parser/line-joiner.test.ts` — Comment stripping, multi-line formula joining
+- `parser/ivp-parser.test.ts` — `.ivp` block extraction into `ParsedModel`
+- `parser/tokenizer.test.ts` — Expression tokenization
+- `parser/ast-parser.test.ts` — Token stream → AST
+- `transformer/identifier.test.ts` — Greek letters, subscripts, chemical formulas
+- `transformer/functions.test.ts` — Function call → LaTeX conversion
+- `transformer/operators.test.ts` — Operator → LaTeX conversion
+- `generator/latex-generator.test.ts` — Full AST → LaTeX string
+- `generator/document-builder.test.ts` — Document assembly with sections and tables
+- `integration/ivp-files.test.ts` — End-to-end: all 13 `.ivp` example files convert without errors
+
 ## Key Types
 
 ```typescript
@@ -103,6 +139,7 @@ type ODEs = { name, arg: {name, start, finish, step}, initial, func: Func, toler
 type SolverMethod = (odes: ODEs, callback?: Callback) => Float64Array[];
 ```
 
-## latex-export
-See [src/latex-export/INSTRUCTIONS.md](src/latex-export/INSTRUCTIONS.md) for the IVP-to-LaTeX converter module.
-Full spec: [SPEC.md](src/latex-export/SPEC.md).
+## latex-export references
+- [INSTRUCTIONS.md](src/latex-export/INSTRUCTIONS.md) — Implementation guide and module layout
+- [SPEC.md](src/latex-export/SPEC.md) — Full implementation specification
+- [README.md](src/latex-export/README.md) — API docs, examples catalog, conversion rules reference
