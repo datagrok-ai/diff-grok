@@ -5,7 +5,19 @@
       "Bash(npm run lint:*)",
       "Bash(npx jest:*)",
       "Bash(npm test:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find src:*)",
+      "Bash(rm -f index.js index.js.map index.d.ts index.d.ts.map)",
+      "Bash(find . -type f -name SPEC.md -o -name *.ivp)",
+      "Bash(ls c:/Users/vmaka/Datagrok/diff-grok/src/latex-export/examples/*.ivp)",
+      "Bash(node -e \"const {tokenize} = require\\(''./src/latex-export/parser/tokenizer''\\); const t = tokenize\\(''-0.04 * A + 1e4 * B * C''\\); t.forEach\\(\\(tok,i\\) => console.log\\(i, tok.type, tok.value\\)\\);\")",
+      "Bash(npx ts-node:*)",
+      "Bash(xargs wc:*)",
+      "Bash(ls -la /c/Users/vmaka/Datagrok/diff-grok/src/latex-export/examples/*.ts)",
+      "WebFetch(domain:datagrok.ai)",
+      "Bash(npx tsx:*)",
+      "Bash(node -e \":*)"
     ]
   }
 }
