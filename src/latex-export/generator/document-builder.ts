@@ -57,6 +57,19 @@ export function buildLatexDocument(
     parts.push(`Before each cycle:\n\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`);
   }
 
+  const stages = extractStageInfos(model);
+  if (stages.length > 0) {
+    parts.push('\\subsection{Stage Transitions}');
+    for (const stage of stages) {
+      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration)}$)` : '';
+      parts.push(`\\textbf{${stage.stageName}}${dur}`);
+      if (stage.transitions.length > 0) {
+        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t)}`);
+        parts.push(`Before this stage:\n\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`);
+      }
+    }
+  }
+
   if (opts.includeInits && model.inits.length > 0) {
     parts.push(`\\subsection{${initsTitle(model)}}`);
     parts.push(buildLatexTable(model.inits));
@@ -118,6 +131,19 @@ export function buildMarkdownDocument(
     parts.push(`Before each cycle:\n\n$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`);
   }
 
+  const stages = extractStageInfos(model);
+  if (stages.length > 0) {
+    parts.push('### Stage Transitions');
+    for (const stage of stages) {
+      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration)}$)` : '';
+      parts.push(`**${stage.stageName}**${dur}`);
+      if (stage.transitions.length > 0) {
+        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t)}`);
+        parts.push(`Before this stage:\n\n$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`);
+      }
+    }
+  }
+
   if (opts.includeInits && model.inits.length > 0) {
     parts.push(`### ${initsTitle(model)}`);
     parts.push(buildMarkdownTable(model.inits));
@@ -149,8 +175,12 @@ function buildArgRangeLatex(model: ParsedModel): string {
   const step = model.argument.entries[2].value;
 
   const loopInfo = extractLoopInfo(model);
+  const stages = extractStageInfos(model);
   let effectiveFinish = finish;
+  let suffix = '';
+
   if (loopInfo) {
+    // Cyclic model: total = start + count * (finish - start)
     const s = parseFloat(start);
     const f = parseFloat(finish);
     const n = parseFloat(loopInfo.count);
@@ -158,15 +188,21 @@ function buildArgRangeLatex(model: ParsedModel): string {
       effectiveFinish = String(s + n * (f - s));
     else
       effectiveFinish = `${start} + ${loopInfo.count} \\cdot (${finish} - ${start})`;
-  }
-
-  let result = `${arg} \\in \\left[${start},\\, ${effectiveFinish}\\right], \\quad \\Delta ${arg} = ${step}`;
-  if (loopInfo) {
     const duration = (!isNaN(parseFloat(start)) && !isNaN(parseFloat(finish))) ?
       String(parseFloat(finish) - parseFloat(start)) : `${finish} - ${start}`;
-    result += `, \\quad ${arg}_{\\text{cycle}} = ${duration}`;
+    suffix = `, \\quad ${arg}_{\\text{cycle}} = ${duration}`;
+  } else if (stages.length > 0) {
+    // Multistage model: total = start + stage1_duration + stage2_duration + ...
+    const durations = [finish, ...stages.map((s) => s.duration).filter(Boolean) as string[]];
+    const totalExpr = `${start} + ${durations.join(' + ')}`;
+    const total = tryEvalNumeric(totalExpr, model);
+    if (total !== undefined)
+      effectiveFinish = String(total);
+    else
+      effectiveFinish = totalExpr;
   }
-  return result;
+
+  return `${arg} \\in \\left[${start},\\, ${effectiveFinish}\\right], \\quad \\Delta ${arg} = ${step}${suffix}`;
 }
 
 function buildLatexArgRange(model: ParsedModel): string {
@@ -267,6 +303,65 @@ function renderLoopUpdateLine(u: LoopUpdate): string {
   return `${varLatex} \\leftarrow ${varLatex} + ${valLatex}`;
 }
 
+interface StageTransition {
+  variable: string;
+  value: string;
+  isIncrement: boolean;
+}
+
+interface StageInfo {
+  stageName: string;
+  duration?: string;
+  transitions: StageTransition[];
+}
+
+/** Replace internal argument refs (_t0, _t1, _h) with actual values from #argument. */
+function resolveArgRefs(expr: string, model: ParsedModel): string {
+  const entries = model.argument.entries;
+  let result = expr;
+  if (entries.length > 0) result = result.replace(/\b_t0\b/g, entries[0].value);
+  if (entries.length > 1) result = result.replace(/\b_t1\b/g, entries[1].value);
+  if (entries.length > 2) result = result.replace(/\b_h\b/g, entries[2].value);
+  return result;
+}
+
+/** Try to evaluate a simple arithmetic expression numerically, resolving parameter/constant names. */
+function tryEvalNumeric(expr: string, model: ParsedModel): number | undefined {
+  let resolved = expr;
+  for (const p of [...model.parameters, ...model.constants])
+    resolved = resolved.replace(new RegExp(`\\b${p.name}\\b`, 'g'), p.value);
+  const val = parseFloat(resolved);
+  if (!isNaN(val) && /^[\d.eE+\-\s*/()]+$/.test(resolved.trim())) {
+    try { return Function(`"use strict"; return (${resolved})`)() as number; } catch { /* skip */ }
+  }
+  return undefined;
+}
+
+function extractStageInfos(model: ParsedModel): StageInfo[] {
+  return model.updates.map((block) => {
+    let duration: string | undefined;
+    const transitions: StageTransition[] = [];
+    for (const entry of block.entries) {
+      if (entry.name === 'duration') {
+        duration = resolveArgRefs(entry.value, model);
+      } else {
+        const isIncrement = entry.name.endsWith('+');
+        const variable = isIncrement ? entry.name.replace(/\s*\+$/, '') : entry.name;
+        transitions.push({variable, value: entry.value, isIncrement});
+      }
+    }
+    return {stageName: block.stageName, duration, transitions};
+  });
+}
+
+function renderTransitionLine(t: StageTransition): string {
+  const varLatex = identifierToLatex(t.variable);
+  const valLatex = expressionToLatex(t.value);
+  if (t.isIncrement)
+    return `${varLatex} \\leftarrow ${varLatex} + ${valLatex}`;
+  return `${varLatex} \\leftarrow ${valLatex}`;
+}
+
 function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
   const parts: string[] = [];
 
@@ -294,6 +389,15 @@ function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
   if (loopInfo && loopInfo.updates.length > 0) {
     const lines = loopInfo.updates.map((u) => `\\[ ${renderLoopUpdateLine(u)} \\]`);
     parts.push(`before each cycle:\n${lines.join('\n')}`);
+  }
+
+  const stages = extractStageInfos(model);
+  for (const stage of stages) {
+    if (stage.transitions.length > 0) {
+      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration)}$)` : '';
+      const lines = stage.transitions.map((t) => `\\[ ${renderTransitionLine(t)} \\]`);
+      parts.push(`before ${stage.stageName}${dur}:\n${lines.join('\n')}`);
+    }
   }
 
   if (opts.includeParameters && model.parameters.length > 0)
@@ -332,6 +436,15 @@ function buildMarkdownCompact(model: ParsedModel, opts: ConvertOptions): string 
   if (loopInfo && loopInfo.updates.length > 0) {
     const lines = loopInfo.updates.map((u) => `$$${renderLoopUpdateLine(u)}$$`);
     parts.push(`before each cycle:\n${lines.join('\n')}`);
+  }
+
+  const stages = extractStageInfos(model);
+  for (const stage of stages) {
+    if (stage.transitions.length > 0) {
+      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration)}$)` : '';
+      const lines = stage.transitions.map((t) => `$$${renderTransitionLine(t)}$$`);
+      parts.push(`before ${stage.stageName}${dur}:\n${lines.join('\n')}`);
+    }
   }
 
   if (opts.includeParameters && model.parameters.length > 0)
