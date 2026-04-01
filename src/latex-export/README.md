@@ -30,6 +30,8 @@ const latex = convertIvpToLatex(ivp);
 const markdown = convertIvpToLatex(ivp, {format: 'markdown'});
 ```
 
+![LaTeX](../../images/tex.png)
+
 ## API
 
 ### `convertIvpToLatex(ivpText, options?)`
