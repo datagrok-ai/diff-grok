@@ -139,6 +139,55 @@ describe('expressionToLatex', () => {
       expect(result).toContain('\\frac');
     });
   });
+
+  describe('useCdot option', () => {
+    it('default (useCdot: true) uses \\cdot for a * b', () => {
+      const result = expressionToLatex('a * b');
+      expect(result).toContain('a \\cdot b');
+      expect(result).not.toContain('a \\, b');
+    });
+
+    it('useCdot: false uses \\, for a * b', () => {
+      const result = expressionToLatex('a * b', {useCdot: false});
+      expect(result).toContain('a \\, b');
+      expect(result).not.toContain('a \\cdot b');
+    });
+
+    it('useCdot: false for chained product 2 * a * b', () => {
+      const result = expressionToLatex('2 * a * b', {useCdot: false});
+      expect(result).toContain('2 \\, a \\, b');
+      expect(result).not.toContain('\\cdot');
+    });
+
+    it('useCdot: true for chained product 2 * a * b (default)', () => {
+      const result = expressionToLatex('2 * a * b');
+      expect(result).toContain('2 \\cdot a \\cdot b');
+    });
+
+    it('useCdot: false in product-of-fractions path (a*b/c*d/e)', () => {
+      const result = expressionToLatex('a * b / c * d / e', {useCdot: false});
+      expect(result).not.toContain('\\cdot');
+      expect(result).toContain('\\frac');
+    });
+
+    it('useCdot: true in product-of-fractions path (a*b/c*d/e)', () => {
+      const result = expressionToLatex('a * b / c * d / e');
+      expect(result).toContain('\\cdot');
+    });
+
+    it('useCdot: false threads through ternary branches', () => {
+      const result = expressionToLatex('flag > 0 ? a * b : c * d', {useCdot: false});
+      expect(result).toContain('a \\, b');
+      expect(result).toContain('c \\, d');
+      expect(result).not.toContain('\\cdot');
+    });
+
+    it('useCdot: false threads through function arguments', () => {
+      const result = expressionToLatex('sin(a * b)', {useCdot: false});
+      expect(result).toContain('a \\, b');
+      expect(result).not.toContain('\\cdot');
+    });
+  });
 });
 
 describe('derivativeToLatex', () => {

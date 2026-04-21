@@ -17,7 +17,8 @@
       "Bash(ls -la /c/Users/vmaka/Datagrok/diff-grok/src/latex-export/examples/*.ts)",
       "WebFetch(domain:datagrok.ai)",
       "Bash(npx tsx:*)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Read(//c/Users/vmaka/Datagrok/src/latex-export/examples/**)"
     ]
   }
 }

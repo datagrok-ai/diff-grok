@@ -7,26 +7,32 @@ import {functionToLatex} from '../transformer/functions';
 import {operatorToLatex} from '../transformer/operators';
 import {needsParentheses, wrapParens} from './bracket-manager';
 
+export interface RenderOptions {
+  useCdot: boolean;
+}
+
+const DEFAULT_RENDER_OPTS: RenderOptions = {useCdot: true};
+
+function mulSeparator(opts: RenderOptions): string {
+  return opts.useCdot ? ' \\cdot ' : ' \\, ';
+}
+
 /** Convert an expression string to LaTeX by parsing and rendering the AST.
  *  @param expr  expression string (RHS of a formula)
+ *  @param opts  render options (useCdot flag)
  *  @returns     LaTeX string
  */
-export function expressionToLatex(expr: string): string {
+export function expressionToLatex(expr: string, opts: RenderOptions = DEFAULT_RENDER_OPTS): string {
   const ast = parseExpression(expr);
-  return nodeToLatex(ast);
+  return nodeToLatex(ast, opts);
 }
 
 /** Render an AST node to LaTeX.
- *  @param node       AST node to render
- *  @param _parentOp  parent operator (unused, reserved for context)
- *  @param _position  child position (unused, reserved for context)
- *  @returns          LaTeX string
+ *  @param node  AST node to render
+ *  @param opts  render options (useCdot flag)
+ *  @returns     LaTeX string
  */
-export function nodeToLatex(
-  node: ASTNode,
-  _parentOp?: string,
-  _position?: 'left' | 'right',
-): string {
+export function nodeToLatex(node: ASTNode, opts: RenderOptions = DEFAULT_RENDER_OPTS): string {
   switch (node.type) {
   case 'number':
     return numberToLatex(node.value);
@@ -35,29 +41,29 @@ export function nodeToLatex(
     return identifierToLatex(node.name);
 
   case 'unary': {
-    const operand = nodeToLatex(node.operand);
+    const operand = nodeToLatex(node.operand, opts);
     const needsWrap = node.operand.type === 'binary' || node.operand.type === 'ternary';
     return `${node.op}${needsWrap ? `\\left(${operand}\\right)` : operand}`;
   }
 
   case 'binary':
-    return renderBinary(node);
+    return renderBinary(node, opts);
 
   case 'call': {
-    const args = node.args.map((a) => nodeToLatex(a));
+    const args = node.args.map((a) => nodeToLatex(a, opts));
     return functionToLatex(node.name, args);
   }
 
   case 'ternary': {
-    const cond = nodeToLatex(node.condition);
-    const cons = nodeToLatex(node.consequent);
-    const alt = nodeToLatex(node.alternate);
+    const cond = nodeToLatex(node.condition, opts);
+    const cons = nodeToLatex(node.consequent, opts);
+    const alt = nodeToLatex(node.alternate, opts);
     return `\\begin{cases} ${cons}, & \\text{if } ${cond} \\\\ ${alt}, & \\text{otherwise} \\end{cases}`;
   }
   }
 }
 
-function renderBinary(node: ASTNode & { type: 'binary' }): string {
+function renderBinary(node: ASTNode & { type: 'binary' }, opts: RenderOptions): string {
   const {op, left, right} = node;
 
   // Division → \frac; flatten into product of fractions when chain has multiple divisions
@@ -65,17 +71,17 @@ function renderBinary(node: ASTNode & { type: 'binary' }): string {
     const factors = flattenMulDivChain(node);
     const divisorCount = factors.filter((f) => f.isDivisor).length;
     if (divisorCount > 1)
-      return renderProductOfFractions(factors);
-    const l = nodeToLatex(left);
-    const r = nodeToLatex(right);
+      return renderProductOfFractions(factors, opts);
+    const l = nodeToLatex(left, opts);
+    const r = nodeToLatex(right, opts);
     return operatorToLatex('/', l, r);
   }
 
   // Exponentiation → base^{exp}
   if (op === '**') {
     const isCompound = left.type === 'binary' || left.type === 'unary' || left.type === 'ternary';
-    const l = nodeToLatex(left);
-    const r = nodeToLatex(right);
+    const l = nodeToLatex(left, opts);
+    const r = nodeToLatex(right, opts);
     return operatorToLatex('**', l, r, {baseIsCompound: isCompound});
   }
 
@@ -86,11 +92,11 @@ function renderBinary(node: ASTNode & { type: 'binary' }): string {
   const leftNeedsParen = needsParentheses(leftOp, op, 'left');
   const rightNeedsParen = needsParentheses(rightOp, op, 'right');
 
-  const l = wrapParens(nodeToLatex(left), leftNeedsParen);
-  const r = wrapParens(nodeToLatex(right), rightNeedsParen);
+  const l = wrapParens(nodeToLatex(left, opts), leftNeedsParen);
+  const r = wrapParens(nodeToLatex(right, opts), rightNeedsParen);
 
   if (op === '*')
-    return operatorToLatex('*', l, r, {useCdot: true});
+    return operatorToLatex('*', l, r, {useCdot: opts.useCdot});
 
   return operatorToLatex(op, l, r);
 }
@@ -117,23 +123,24 @@ function flattenMulDivChain(node: ASTNode & {type: 'binary'}):
   return factors;
 }
 
-/** Render a list of factors joined with \cdot, adding parens where needed. */
-function renderProductTerm(nodes: ASTNode[]): string {
+/** Render a list of factors joined with the configured multiplication separator. */
+function renderProductTerm(nodes: ASTNode[], opts: RenderOptions): string {
   if (nodes.length === 0) return '1';
-  if (nodes.length === 1) return nodeToLatex(nodes[0]);
+  if (nodes.length === 1) return nodeToLatex(nodes[0], opts);
   return nodes.map((n) => {
-    const latex = nodeToLatex(n);
+    const latex = nodeToLatex(n, opts);
     if (n.type === 'binary' && (n.op === '+' || n.op === '-'))
       return `\\left(${latex}\\right)`;
     if (n.type === 'ternary')
       return `\\left(${latex}\\right)`;
     return latex;
-  }).join(' \\cdot ');
+  }).join(mulSeparator(opts));
 }
 
 /** Render factors as a product of fractions. */
 function renderProductOfFractions(
   factors: Array<{node: ASTNode; isDivisor: boolean}>,
+  opts: RenderOptions,
 ): string {
   const groups: Array<{nums: ASTNode[]; dens: ASTNode[]}> = [];
   let cur: {nums: ASTNode[]; dens: ASTNode[]} = {nums: [], dens: []};
@@ -152,13 +159,13 @@ function renderProductOfFractions(
   groups.push(cur);
 
   const parts = groups.map((g) => {
-    const num = renderProductTerm(g.nums);
+    const num = renderProductTerm(g.nums, opts);
     if (g.dens.length === 0) return num;
-    const den = renderProductTerm(g.dens);
+    const den = renderProductTerm(g.dens, opts);
     return `\\frac{${num}}{${den}}`;
   });
 
-  return parts.join(' \\cdot ');
+  return parts.join(mulSeparator(opts));
 }
 
 /** Convert a derivative LHS to LaTeX (e.g. "dy/dt" → "\frac{dy}{dt}").

@@ -1,7 +1,7 @@
 /* Document builder: assembles converted blocks into a complete LaTeX or Markdown document. */
 
 import {ParsedModel, ConvertOptions, FormulaLine, AnnotatedLine} from '../types';
-import {expressionToLatex, derivativeToLatex} from './latex-generator';
+import {expressionToLatex, derivativeToLatex, RenderOptions} from './latex-generator';
 import {identifierToLatex} from '../transformer/identifier';
 
 const DEFAULT_OPTS: ConvertOptions = {
@@ -40,20 +40,20 @@ export function buildLatexDocument(
 
   if (model.equations.length > 0) {
     parts.push(`\\subsection{${plural('Equation', model.equations.length)}}`);
-    parts.push(buildLatexAlign(model.equations));
+    parts.push(buildLatexAlign(model.equations, opts));
     if (model.argument.entries.length >= 3)
       parts.push(buildLatexArgRange(model));
   }
 
   if (model.expressions.length > 0) {
     parts.push(`\\subsection{${plural('Expression', model.expressions.length)}}`);
-    parts.push(buildLatexAlign(model.expressions));
+    parts.push(buildLatexAlign(model.expressions, opts));
   }
 
   const loopInfo = extractLoopInfo(model);
   if (loopInfo && loopInfo.updates.length > 0) {
     parts.push('\\subsection{Cyclic Update}');
-    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u)}`);
+    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u, opts)}`);
     parts.push(`Before each cycle:\n\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`);
   }
 
@@ -61,10 +61,10 @@ export function buildLatexDocument(
   if (stages.length > 0) {
     parts.push('\\subsection{Stage Transitions}');
     for (const stage of stages) {
-      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration)}$)` : '';
+      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration, opts)}$)` : '';
       parts.push(`\\textbf{${stage.stageName}}${dur}`);
       if (stage.transitions.length > 0) {
-        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t)}`);
+        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t, opts)}`);
         parts.push(`Before this stage:\n\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`);
       }
     }
@@ -114,20 +114,20 @@ export function buildMarkdownDocument(
 
   if (model.equations.length > 0) {
     parts.push(`### ${plural('Equation', model.equations.length)}`);
-    parts.push(buildMarkdownAlign(model.equations));
+    parts.push(buildMarkdownAlign(model.equations, opts));
     if (model.argument.entries.length >= 3)
       parts.push(buildMarkdownArgRange(model));
   }
 
   if (model.expressions.length > 0) {
     parts.push(`### ${plural('Expression', model.expressions.length)}`);
-    parts.push(buildMarkdownAlign(model.expressions));
+    parts.push(buildMarkdownAlign(model.expressions, opts));
   }
 
   const loopInfo = extractLoopInfo(model);
   if (loopInfo && loopInfo.updates.length > 0) {
     parts.push('### Cyclic Update');
-    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u)}`);
+    const lines = loopInfo.updates.map((u) => `  ${renderLoopUpdateLine(u, opts)}`);
     parts.push(`Before each cycle:\n\n$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`);
   }
 
@@ -135,10 +135,10 @@ export function buildMarkdownDocument(
   if (stages.length > 0) {
     parts.push('### Stage Transitions');
     for (const stage of stages) {
-      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration)}$)` : '';
+      const dur = stage.duration ? ` (duration: $${expressionToLatex(stage.duration, opts)}$)` : '';
       parts.push(`**${stage.stageName}**${dur}`);
       if (stage.transitions.length > 0) {
-        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t)}`);
+        const lines = stage.transitions.map((t) => `  ${renderTransitionLine(t, opts)}`);
         parts.push(`Before this stage:\n\n$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`);
       }
     }
@@ -231,19 +231,19 @@ function renderFormulaLhs(f: FormulaLine): string {
   return lhs;
 }
 
-function buildLatexAlign(formulas: FormulaLine[]): string {
+function buildLatexAlign(formulas: FormulaLine[], opts: RenderOptions): string {
   const lines = formulas.map((f) => {
     const lhs = renderFormulaLhs(f);
-    const rhs = expressionToLatex(f.rhs);
+    const rhs = expressionToLatex(f.rhs, opts);
     return `  ${lhs} &= ${rhs}`;
   });
   return `\\begin{align}\n${lines.join(' \\\\\n')}\n\\end{align}`;
 }
 
-function buildMarkdownAlign(formulas: FormulaLine[]): string {
+function buildMarkdownAlign(formulas: FormulaLine[], opts: RenderOptions): string {
   const lines = formulas.map((f) => {
     const lhs = renderFormulaLhs(f);
-    const rhs = expressionToLatex(f.rhs);
+    const rhs = expressionToLatex(f.rhs, opts);
     return `  ${lhs} &= ${rhs}`;
   });
   return `$$\n\\begin{aligned}\n${lines.join(' \\\\\n')}\n\\end{aligned}\n$$`;
@@ -269,10 +269,10 @@ function compactInlineItems(model: ParsedModel): string[] {
   });
 }
 
-function compactExprItems(model: ParsedModel): string[] {
+function compactExprItems(model: ParsedModel, opts: RenderOptions): string[] {
   return model.expressions.map((f) => {
     const lhs = renderFormulaLhs(f);
-    const rhs = expressionToLatex(f.rhs);
+    const rhs = expressionToLatex(f.rhs, opts);
     return `${lhs} = ${rhs}`;
   });
 }
@@ -297,9 +297,9 @@ function extractLoopInfo(model: ParsedModel): LoopInfo | undefined {
   return count ? {count, updates} : undefined;
 }
 
-function renderLoopUpdateLine(u: LoopUpdate): string {
+function renderLoopUpdateLine(u: LoopUpdate, opts: RenderOptions): string {
   const varLatex = identifierToLatex(u.variable);
-  const valLatex = expressionToLatex(u.value);
+  const valLatex = expressionToLatex(u.value, opts);
   return `${varLatex} \\leftarrow ${varLatex} + ${valLatex}`;
 }
 
@@ -354,9 +354,9 @@ function extractStageInfos(model: ParsedModel): StageInfo[] {
   });
 }
 
-function renderTransitionLine(t: StageTransition): string {
+function renderTransitionLine(t: StageTransition, opts: RenderOptions): string {
   const varLatex = identifierToLatex(t.variable);
-  const valLatex = expressionToLatex(t.value);
+  const valLatex = expressionToLatex(t.value, opts);
   if (t.isIncrement)
     return `${varLatex} \\leftarrow ${varLatex} + ${valLatex}`;
   return `${varLatex} \\leftarrow ${valLatex}`;
@@ -370,7 +370,7 @@ function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
 
   if (model.equations.length > 0) {
     parts.push(`${plural('Equation', model.equations.length)}:`);
-    parts.push(buildLatexAlign(model.equations));
+    parts.push(buildLatexAlign(model.equations, opts));
     if (model.argument.entries.length >= 3)
       parts.push(buildLatexArgRange(model));
   }
@@ -381,21 +381,21 @@ function buildLatexCompact(model: ParsedModel, opts: ConvertOptions): string {
   }
 
   if (model.expressions.length > 0) {
-    const lines = compactExprItems(model).map((item) => `\\[ ${item} \\]`);
+    const lines = compactExprItems(model, opts).map((item) => `\\[ ${item} \\]`);
     parts.push(`where\n${lines.join('\n')}`);
   }
 
   const loopInfo = extractLoopInfo(model);
   if (loopInfo && loopInfo.updates.length > 0) {
-    const lines = loopInfo.updates.map((u) => `\\[ ${renderLoopUpdateLine(u)} \\]`);
+    const lines = loopInfo.updates.map((u) => `\\[ ${renderLoopUpdateLine(u, opts)} \\]`);
     parts.push(`before each cycle:\n${lines.join('\n')}`);
   }
 
   const stages = extractStageInfos(model);
   for (const stage of stages) {
     if (stage.transitions.length > 0) {
-      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration)}$)` : '';
-      const lines = stage.transitions.map((t) => `\\[ ${renderTransitionLine(t)} \\]`);
+      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration, opts)}$)` : '';
+      const lines = stage.transitions.map((t) => `\\[ ${renderTransitionLine(t, opts)} \\]`);
       parts.push(`before ${stage.stageName}${dur}:\n${lines.join('\n')}`);
     }
   }
@@ -417,7 +417,7 @@ function buildMarkdownCompact(model: ParsedModel, opts: ConvertOptions): string 
 
   if (model.equations.length > 0) {
     parts.push(`${plural('Equation', model.equations.length)}:`);
-    parts.push(buildMarkdownAlign(model.equations));
+    parts.push(buildMarkdownAlign(model.equations, opts));
     if (model.argument.entries.length >= 3)
       parts.push(buildMarkdownArgRange(model));
   }
@@ -428,21 +428,21 @@ function buildMarkdownCompact(model: ParsedModel, opts: ConvertOptions): string 
   }
 
   if (model.expressions.length > 0) {
-    const lines = compactExprItems(model).map((item) => `$$${item}$$`);
+    const lines = compactExprItems(model, opts).map((item) => `$$${item}$$`);
     parts.push(`where\n${lines.join('\n')}`);
   }
 
   const loopInfo = extractLoopInfo(model);
   if (loopInfo && loopInfo.updates.length > 0) {
-    const lines = loopInfo.updates.map((u) => `$$${renderLoopUpdateLine(u)}$$`);
+    const lines = loopInfo.updates.map((u) => `$$${renderLoopUpdateLine(u, opts)}$$`);
     parts.push(`before each cycle:\n${lines.join('\n')}`);
   }
 
   const stages = extractStageInfos(model);
   for (const stage of stages) {
     if (stage.transitions.length > 0) {
-      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration)}$)` : '';
-      const lines = stage.transitions.map((t) => `$$${renderTransitionLine(t)}$$`);
+      const dur = stage.duration ? ` ($${expressionToLatex(stage.duration, opts)}$)` : '';
+      const lines = stage.transitions.map((t) => `$$${renderTransitionLine(t, opts)}$$`);
       parts.push(`before ${stage.stageName}${dur}:\n${lines.join('\n')}`);
     }
   }

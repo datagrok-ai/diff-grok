@@ -339,5 +339,49 @@ describe('integration: convertIvpToLatex', () => {
       const without = convertIvpToLatex(input, {format: 'latex', includeConstants: false});
       expect(full.length).toBeGreaterThan(without.length);
     });
+
+    describe('useCdot option', () => {
+      const MODEL = [
+        '#name: tiny',
+        '#equations:',
+        '  dx/dt = 2 * a * b',
+        '#argument: t',
+        '  initial = 0',
+        '  final = 1',
+        '  step = 0.1',
+        '#inits:',
+        '  x = 0',
+        '#parameters:',
+        '  a = 1.0',
+        '  b = 2.0',
+      ].join('\n');
+
+      it('default renders \\cdot', () => {
+        const result = convertIvpToLatex(MODEL);
+        expect(result).toContain('2 \\cdot a \\cdot b');
+        expect(result).not.toContain('2 \\, a \\, b');
+      });
+
+      it('useCdot: false renders \\,', () => {
+        const result = convertIvpToLatex(MODEL, {useCdot: false});
+        expect(result).toContain('2 \\, a \\, b');
+        expect(result).not.toContain('\\cdot');
+      });
+
+      it('useCdot: false on a real example (chem-react.ivp) contains no \\cdot', () => {
+        const input = loadExample('chem-react.ivp');
+        const withCdot = convertIvpToLatex(input, {format: 'latex'});
+        const withoutCdot = convertIvpToLatex(input, {format: 'latex', useCdot: false});
+        expect(withCdot).toContain('\\cdot');
+        expect(withoutCdot).not.toContain('\\cdot');
+      });
+
+      it('useCdot: false on pollution.ivp exercises product-of-fractions path', () => {
+        const input = loadExample('pollution.ivp');
+        const result = convertIvpToLatex(input, {format: 'latex', useCdot: false});
+        expect(result).not.toContain('\\cdot');
+        expect(result).toContain('\\frac');
+      });
+    });
   });
 });
