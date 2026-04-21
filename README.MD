@@ -1,5 +1,6 @@
 # Diff Grok
 
+[![JOSS](https://joss.theoj.org/papers/10.21105/joss.09090/status.svg)](https://doi.org/10.21105/joss.09090)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19219694.svg)](https://doi.org/10.5281/zenodo.19219694)
 [![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://datagrok-ai.github.io/diff-grok/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://github.com/datagrok-ai/diff-grok/blob/main/LICENSE)
@@ -672,6 +673,22 @@ node src/examples/basic-use.js
 ```
 
 </details>
+
+## Citation
+
+If you use this library for research purposes, please cite the following:
+
+```
+@article{diffstudio2026joss,
+  title = {Diff Studio: Ecosystem for Interactive Modeling by Ordinary Differential Equations},
+  author = {Viktor Makarichev, Larisa Bankurova, Gennadii Zakharov, Leonid Stolbov, Steven Mehrman, Dan Skatov, Jeffrey Cohen, Paul Sass, Davit Rizhinashvili, Andrew Skalkin},
+  journal = {Journal of Open Source Software},
+  year = {2026},
+  volume = {11},
+  number = {120},
+  doi = {10.21105/joss.09090}
+}
+```
 
 ## References
 
