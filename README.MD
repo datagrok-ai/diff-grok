@@ -1,5 +1,6 @@
 # Diff Grok
 
+[![LNNS](https://img.shields.io/badge/LNNS-paper-red.svg)](https://datagrok-ai.github.io/diff-grok/)
 [![JOSS](https://joss.theoj.org/papers/10.21105/joss.09090/status.svg)](https://doi.org/10.21105/joss.09090)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19219694.svg)](https://doi.org/10.5281/zenodo.19219694)
 [![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://datagrok-ai.github.io/diff-grok/)
@@ -7,7 +8,7 @@
 [![Build Status](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/libraries.yaml)
 [![Run tests](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml/badge.svg)](https://github.com/datagrok-ai/diff-grok/actions/workflows/test.yaml)
 
-A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. The primary solvers are [LSODA](https://doi.org/10.1137/0904010) — a variable-order method that automatically detects stiffness and switches between Adams (non-stiff) and BDF (stiff) formulations — and [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) — a variable-order, variable-step solver from the SUNDIALS suite supporting both Adams and BDF methods.
+A lightweight TypeScript library for solving initial value problem ([IVP](https://en.wikipedia.org/wiki/Initial_value_problem)) for ordinary differential equations ([ODEs](https://en.wikipedia.org/wiki/Ordinary_differential_equation)) using numerical methods. The primary solvers are [LSODA](https://doi.org/10.1137/0904010) - a variable-order method that automatically detects stiffness and switches between Adams (non-stiff) and BDF (stiff) formulations - and [CVODE](https://sundials.readthedocs.io/en/latest/cvode/index.html) - a variable-order, variable-step solver from the SUNDIALS suite supporting both Adams and BDF methods.
 
 ## Features
 
@@ -424,7 +425,7 @@ Find this example in [scripting.ts](./src/examples/scripting.ts).
 
 ### Pipelines
 
-Diff Grok **pipeline** is a powerful feature for complex process simulation and model analysis in webworkers. It wraps the main solver with a set of actions that perform pre- and post-processing of a model inputs & outputs. In addition, they provide an output customization.
+Diff Grok **pipeline** is a powerful feature for complex process simulation and model analysis in webworkers (see our [paper](https://link.springer.com/chapter/10.1007/978-3-032-22236-7_31) in Lecture Notes in Networks and Systems). It wraps the main solver with a set of actions that perform pre- and post-processing of a model inputs & outputs. In addition, they provide an output customization.
 
 1. Start with imports:
 
@@ -687,6 +688,20 @@ If you use this library for research purposes, please cite the following:
   volume = {11},
   number = {120},
   doi = {10.21105/joss.09090}
+}
+```
+
+```
+@InProceedings{diffstudio2026lnns,
+title = {Diff Studio: Web-Based Environment for Interactive Modeling with Ordinary Differential Equations},
+author = {Viktor Makarichev, Larisa Bankurova, Gennadii Zakharov, Leonid Stolbov, Steven Mehrman, Dan Skatov, Jeffrey Cohen, Paul Sass, Davit Rizhinashvili, Andrew Skalkin},
+editor = {Radek Silhavy, Petr Silhavy},
+booktitle = {Focus on Artificial Intelligence in Intelligent Systems Design},
+year = {2026},
+publisher = {Springer Nature Switzerland},
+address = {Cham},
+pages = {390--401},
+doi = {10.1007/978-3-032-22236-7_31}
 }
 ```
 
