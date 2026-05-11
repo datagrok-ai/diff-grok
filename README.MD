@@ -1,6 +1,6 @@
 # Diff Grok
 
-[![LNNS](https://img.shields.io/badge/LNNS-paper-red.svg)](https://datagrok-ai.github.io/diff-grok/)
+[![LNNS](https://img.shields.io/badge/LNNS-paper-red.svg)](https://link.springer.com/chapter/10.1007/978-3-032-22236-7_31)
 [![JOSS](https://joss.theoj.org/papers/10.21105/joss.09090/status.svg)](https://doi.org/10.21105/joss.09090)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19219694.svg)](https://doi.org/10.5281/zenodo.19219694)
 [![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://datagrok-ai.github.io/diff-grok/)
