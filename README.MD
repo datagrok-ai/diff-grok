@@ -677,7 +677,9 @@ node src/examples/basic-use.js
 
 ## Citation
 
-If you use this library for research purposes, please cite the following:
+If you use this library for research purposes, please cite the following papers:
+
+* [Diff Studio: Ecosystem for Interactive Modeling by Ordinary Differential Equations](https://joss.theoj.org/papers/10.21105/joss.09090) in Journal of Open Source Software (2026).
 
 ```
 @article{diffstudio2026joss,
@@ -690,6 +692,8 @@ If you use this library for research purposes, please cite the following:
   doi = {10.21105/joss.09090}
 }
 ```
+
+* [Diff Studio: Web-Based Environment for Interactive Modeling with Ordinary Differential Equations](https://link.springer.com/chapter/10.1007/978-3-032-22236-7_31) in Springer, CoMeSySo 2025 Proceedings (Lecture Notes in Networks and Systems, vol. 1901) - foundational paper.
 
 ```
 @InProceedings{diffstudio2026lnns,
