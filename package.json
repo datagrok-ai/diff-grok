@@ -45,7 +45,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:datagrok-ai/DiffGrok.git",
+    "url": "git+https://github.com/datagrok-ai/diff-grok.git",
     "directory": ""
   }
 }

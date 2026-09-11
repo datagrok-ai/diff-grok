@@ -3,3 +3,4 @@ node_modules/
 dist/
 .idea
 test-console-output.log
+.history
