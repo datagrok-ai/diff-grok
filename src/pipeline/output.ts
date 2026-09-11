@@ -33,20 +33,31 @@ function getOutputNoExprs(ivp: IVP): string {
   return lines.join('\n');
 } // getOutputNoExprs
 
-/** Return output for the model WITH expressions */
-function getOutputWithExprs(ivp: IVP): string {
+/** Output-expression names, in #expressions order — the columns a stage appends. */
+function outputExprNames(ivp: IVP): string[] {
   const outputs = ivp.outputs;
-  if (outputs === null)
-    throw new Error('Grok Lib issue: no outputs in the initial value problem');
-
   const exprs = ivp.exprs;
+  if (outputs === null || exprs === null)
+    return [];
 
-  if (!exprsInOutputs(ivp) || (exprs === null))
-    throw new Error('Grok Lib issue: expressions must be given');
+  const names: string[] = [];
+  exprs.forEach((_, name) => {
+    if (outputs.has(name))
+      names.push(name);
+  });
 
+  return names;
+} // outputExprNames
 
+/** Lines that recompute the expressions row-by-row from the argument & solution columns of
+    arguments[0], reading parameters from the input vector arguments[1], and fill a Float64Array
+    <name>Raw for each output expression. Shared by the basic recompute and the per-stage code. */
+function getExprComputeLines(ivp: IVP): string[] {
+  const outputs = ivp.outputs!;
+  const exprs = ivp.exprs!;
   const argName = ivp.arg.name;
-  const lines: string[] = ['const solution = [];'];
+  const funcNames = ivp.deqs.solutionNames;
+  const lines: string[] = [];
 
   // Used math funcs
   ivp.usedMathFuncs.forEach((idx) => {
@@ -63,9 +74,9 @@ function getOutputWithExprs(ivp: IVP): string {
   if (ivp.consts !== null)
     ivp.consts.forEach((input, name) => lines.push(`const ${name} = ${input.value};`));
 
-  // Model parameters
+  // Model parameters (per-stage input vector)
   if (ivp.params !== null) {
-    let idx = ARG_INP_COUNT + ivp.deqs.solutionNames.length;
+    let idx = ARG_INP_COUNT + funcNames.length;
     ivp.params.forEach((_, name) => {
       lines.push(`const ${name} = arguments[1][${idx}];`);
       ++idx;
@@ -73,9 +84,9 @@ function getOutputWithExprs(ivp: IVP): string {
   }
 
   lines.push('');
-
-  lines.push('const length = arguments[0][0].length;');
-  const funcNames = ivp.deqs.solutionNames;
+  // __len / __i are underscore-prefixed so they cannot collide with a model constant or parameter
+  // (e.g. a model with a constant named `k` would otherwise be shadowed by the loop counter).
+  lines.push('const __len = arguments[0][0].length;');
 
   lines.push(`let ${argName} = 0;`);
   funcNames.forEach((name) => lines.push(`let ${name} = 0;`));
@@ -86,24 +97,41 @@ function getOutputWithExprs(ivp: IVP): string {
     lines.push(`let ${name} = 0;`);
 
     if (outputs.has(name))
-      lines.push(`let ${name}Raw = new Float64Array(length);`);
+      lines.push(`let ${name}Raw = new Float64Array(__len);`);
   });
 
   lines.push('');
 
-  lines.push('for (let k = 0; k < length; ++k) {');
-  lines.push(`  ${argName} = arguments[0][0][k];`);
-  funcNames.forEach((name, idx) => lines.push(`  ${name} = arguments[0][${SHIFT + idx}][k];`));
+  lines.push('for (let __i = 0; __i < __len; ++__i) {');
+  lines.push(`  ${argName} = arguments[0][0][__i];`);
+  funcNames.forEach((name, idx) => lines.push(`  ${name} = arguments[0][${SHIFT + idx}][__i];`));
   lines.push('');
   exprs.forEach((expr, name) => {
     lines.push(`  ${name} = ${expr};`);
 
     if (outputs.has(name))
-      lines.push(`  ${name}Raw[k] = ${name};`);
+      lines.push(`  ${name}Raw[__i] = ${name};`);
   });
   lines.push('}');
 
   lines.push('');
+
+  return lines;
+} // getExprComputeLines
+
+/** Return output for a basic (non-cyclic, non-multistage) model WITH expressions.
+    Recomputes the output expressions once, at top level, over the full solution. */
+function getOutputWithExprs(ivp: IVP): string {
+  const outputs = ivp.outputs;
+  const exprs = ivp.exprs;
+
+  if (outputs === null || exprs === null || !exprsInOutputs(ivp))
+    throw new Error('Grok Lib issue: expressions must be given');
+
+  const argName = ivp.arg.name;
+  const lines: string[] = getExprComputeLines(ivp);
+
+  lines.push('const solution = [];');
 
   outputs.forEach((_, name) => {
     if (name === argName)
@@ -123,6 +151,54 @@ function getOutputWithExprs(ivp: IVP): string {
   return lines.join('\n');
 } // getOutputWithExprs
 
+/** Return per-stage output code for cyclic/multistage models: recompute the output expressions
+    for this stage (using this stage's parameters), then APPEND them as columns to the stage
+    solution. Returns null when the model has no expressions in its outputs. */
+export function getStageOutputCode(ivp: IVP): string | null {
+  if (!exprsInOutputs(ivp))
+    return null;
+
+  const lines: string[] = getExprComputeLines(ivp);
+
+  // Keep [arg, f0..fN] intact and append the output-expression columns after them.
+  lines.push('const solution = arguments[0];');
+  outputExprNames(ivp).forEach((name) => lines.push(`solution.push(${name}Raw);`));
+  lines.push('return solution;');
+
+  return lines.join('\n');
+} // getStageOutputCode
+
+/** Return top-level output code for cyclic/multistage models with output expressions: the stages
+    already appended the expression columns, so this only selects columns into #output order. */
+function getOutputSelectWithExprCols(ivp: IVP): string {
+  const outputs = ivp.outputs!;
+  const argName = ivp.arg.name;
+  const funcNames = ivp.deqs.solutionNames;
+  const exprNames = outputExprNames(ivp);
+  const lines: string[] = ['const solution = [];'];
+
+  outputs.forEach((_, name) => {
+    if (name === argName) {
+      lines.push('solution.push(arguments[0][0]);');
+      return;
+    }
+
+    const funcIdx = funcNames.indexOf(name);
+    if (funcIdx > -1) {
+      lines.push(`solution.push(arguments[0][${funcIdx + 1}]);`);
+      return;
+    }
+
+    const exprIdx = exprNames.indexOf(name);
+    if (exprIdx > -1)
+      lines.push(`solution.push(arguments[0][${1 + funcNames.length + exprIdx}]);`);
+  });
+
+  lines.push('return solution;');
+
+  return lines.join('\n');
+} // getOutputSelectWithExprCols
+
 /** Return a code for output extraction
  * @internal
  */
@@ -131,12 +207,15 @@ export function getOutputCode(ivp: IVP): string | null {
   if (outputs === null)
     return null;
 
-  checkApplicability(ivp);
-
-  if (exprsInOutputs(ivp))
-    return getOutputWithExprs(ivp);
-  else
+  if (!exprsInOutputs(ivp))
     return getOutputNoExprs(ivp);
+
+  // Cyclic (#loop) & multistage (#update) models compute expression columns per stage; the
+  // top level only selects them. Basic models recompute the expressions here.
+  if (ivp.loop !== null || ivp.updates !== null)
+    return getOutputSelectWithExprCols(ivp);
+
+  return getOutputWithExprs(ivp);
 } // getOutputCode
 
 /** Check whether outputs have items from expressions */
@@ -155,30 +234,6 @@ function exprsInOutputs(ivp: IVP): boolean {
 
   return flag;
 }
-
-/** Check applicability of model outputs */
-function checkApplicability(ivp: IVP): void {
-  const outputs = ivp.outputs;
-
-  if (outputs === null)
-    throw new Error('Model has no outputs');
-
-  const exprs = ivp.exprs;
-  if (exprs === null)
-    return;
-
-  if (ivp.loop !== null) {
-    if (exprsInOutputs(ivp))
-      throw new Error('Non-supported model: expressions in output & loops');
-
-    return;
-  }
-
-  if (ivp.updates !== null) {
-    if (exprsInOutputs(ivp))
-      throw new Error('Non-supported model: expressions in output and updates');
-  }
-} // checkApplicability
 
 /** Return names of the model outputs
  * @param ivp - initial value problem

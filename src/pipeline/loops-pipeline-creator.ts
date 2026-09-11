@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import {IVP} from '../scripting-tools';
 import {MATH_CONSTS, MATH_FUNCS, POW_IDX} from '../scripting-tools/scripting-tools';
-import {getOutputCode} from './output';
+import {getOutputCode, getStageOutputCode} from './output';
 import {Pipeline, Wrapper} from './pipeline';
 import {PipelineCreator} from './pipeline-creator';
 
@@ -220,11 +220,12 @@ export class CyclicModelPipelineCreator extends PipelineCreator {
     const postCode = postProcLines.join('\n');
 
     const wrappers = new Array<Wrapper>(repetitions);
+    const stageOut = getStageOutputCode(this.ivp);
 
     for (let i = 0; i < repetitions; ++i) {
       wrappers[i] = {
         preproc: preCode,
-        out: null,
+        out: stageOut,
         postproc: postCode,
       };
     }

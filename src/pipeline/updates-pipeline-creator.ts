@@ -2,7 +2,7 @@
 
 import {IVP} from '../scripting-tools';
 import {MATH_CONSTS, MATH_FUNCS, POW_IDX} from '../scripting-tools/scripting-tools';
-import {getOutputCode} from './output';
+import {getOutputCode, getStageOutputCode} from './output';
 import {Pipeline, Wrapper} from './pipeline';
 import {PipelineCreator} from './pipeline-creator';
 
@@ -149,9 +149,11 @@ export class UpdatesModelPipelineCreator extends PipelineCreator {
     if (this.ivp.updates === null)
       throw new Error('Incorrect use of UpdatesModelPipelineCreator: model has no updates');
 
+    const stageOut = getStageOutputCode(this.ivp);
+
     const wrappers: Wrapper[] = [{
       preproc: null,
-      out: null,
+      out: stageOut,
       postproc: null,
     }];
 
@@ -226,7 +228,7 @@ export class UpdatesModelPipelineCreator extends PipelineCreator {
 
       wrappers.push({
         preproc: lines.join('\n'),
-        out: null,
+        out: stageOut,
         postproc: null,
       });
     });

@@ -219,6 +219,88 @@ const MULTISTAGE_MODEL_INPUTS = {
 
 const MULTISTAGE_MODEL_OUTPUTS = 5;
 
+// Cyclic model whose #output includes an expression (energy) that uses a math function, PI and
+// constants — only expressible once expressions in output are supported for loops.
+export const LOOP_OUTPUT_EXPR_MODEL = `#name: Loop output expressions
+#equations:
+  dx/dt = -k * x + weight
+  dy/dt = k * x
+
+#expressions:
+  weight = amp * sin(PI * t)
+  energy = k * exp(-t) * (x * x + y * y)
+
+#loop:
+  _count = 3 {min: 1; max: 10} [Number of doses]
+  x += dose
+
+#argument: t
+  _t0 = 0
+  _t1 = 2
+  _h = 0.1
+
+#inits:
+  x = 1
+  y = 0
+
+#constants:
+  k = 0.5
+  amp = 2
+
+#parameters:
+  dose = 0.5
+
+#output:
+  t
+  x
+  y
+  energy {caption: Energy}`;
+
+export const LOOP_OUTPUT_EXPR_INPUTS = {_count: 3, _t0: 0, _t1: 2, _h: 0.1, x: 1, y: 0, dose: 0.5};
+
+// Multistage analogue of LOOP_OUTPUT_EXPR_MODEL: #update reseeds x, and #output carries the
+// expression-derived energy column.
+export const UPDATE_OUTPUT_EXPR_MODEL = `#name: Update output expressions
+#equations:
+  dx/dt = -k * x + weight
+  dy/dt = k * x
+
+#expressions:
+  weight = amp * sin(PI * t)
+  energy = k * exp(-t) * (x * x + y * y)
+
+#argument: t, 1-st stage
+  _t0 = 0
+  _t1 = 2
+  _h = 0.1
+
+#update: 2-nd stage
+  duration = extra
+  x += boost
+
+#inits:
+  x = 1
+  y = 0
+
+#constants:
+  k = 0.5
+  amp = 2
+
+#parameters:
+  extra = 2
+  boost = 1
+
+#output:
+  t
+  x
+  y
+  energy {caption: Energy}`;
+
+export const UPDATE_OUTPUT_EXPR_INPUTS = {_t0: 0, _t1: 2, _h: 0.1, x: 1, y: 0, extra: 2, boost: 1};
+
+// energy = k * exp(-t) * (x^2 + y^2), with k taken from the models above.
+export const OUTPUT_EXPR_K = 0.5;
+
 type TestProblem = {
   model: string,
   inputs: Record<string, number>,
@@ -229,4 +311,6 @@ export const problems = new Map<string, TestProblem>([
   ['basic', {model: BASIC_MODEL, inputs: BASIC_MODEL_INPUTS, outputsCount: BASIC_MODEL_OUTPUTS}],
   ['cyclic', {model: CYCLIC_MODEL, inputs: CYCLIC_MODEL_INPUTS, outputsCount: CYCLIC_MODEL_OUTPUTS}],
   ['multistage', {model: MULTISTAGE_MODEL, inputs: MULTISTAGE_MODEL_INPUTS, outputsCount: MULTISTAGE_MODEL_OUTPUTS}],
+  ['loop-output-expr', {model: LOOP_OUTPUT_EXPR_MODEL, inputs: LOOP_OUTPUT_EXPR_INPUTS, outputsCount: 4}],
+  ['update-output-expr', {model: UPDATE_OUTPUT_EXPR_MODEL, inputs: UPDATE_OUTPUT_EXPR_INPUTS, outputsCount: 4}],
 ]);
